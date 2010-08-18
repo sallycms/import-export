@@ -157,4 +157,31 @@ class sly_A1_Helper
 
 		return $folders;
 	}
+
+	public static function getDataDir()
+	{
+		$dir = SLY_DATAFOLDER.DIRECTORY_SEPARATOR.'import_export';
+		$ok = sly_Util_Directory::create($dir);
+		if (!$ok) throw new Exception('Konnte Backup-Verzeichnis '.$dir.' nicht anlegen.');
+		return $dir;
+	}
+
+	public static function compareFiles($file_a, $file_b)
+	{
+		$dir    = self::getDataDir();
+		$time_a = filemtime($dir.'/'.$file_a);
+		$time_b = filemtime($dir.'/'.$file_b);
+
+		if ($time_a == $time_b) {
+			return 0;
+		}
+		return ($time_a > $time_b) ? -1 : 1;
+	}
+
+	public static function readImportFolder($fileprefix)
+	{
+		$folder = readFilteredFolder(self::getDataDir(), $fileprefix);
+		usort($folder, 'compareFiles');
+		return $folder;
+	}
 }

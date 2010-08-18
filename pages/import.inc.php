@@ -15,7 +15,7 @@ $info     = '';
 $warning  = '';
 $function = rex_request('function', 'string');
 $filename = rex_request('file', 'string');
-$baseDir  = getImportDir().'/';
+$baseDir  = sly_A1_Helper::getDataDir().'/';
 
 if (!empty($filename)) {
 	$filename = str_replace('/', '', $filename);
@@ -53,9 +53,7 @@ elseif ($function == 'fileimport') {
 
 if ($importer) {
 	$retval = $importer->import($baseDir.$filename);
-	// FIXME: diese zeile löschen wenn Konfigurationsumbau fertig
-	@unlink(sly_Core::config()->getProjectCacheFile());
-
+	
 	if ($retval['state']) $info = $retval['message'];
 	else $warning = $retval['message'];
 }

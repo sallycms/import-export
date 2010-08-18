@@ -15,15 +15,13 @@
 @ini_set('memory_limit', '64M');
 
 include_once $REX['INCLUDE_PATH'].'/addons/import_export/functions/function_import_export.inc.php';
-include_once $REX['INCLUDE_PATH'].'/addons/import_export/functions/function_import_folder.inc.php';
 
 $info     = '';
 $warning  = '';
 $function = sly_request('function', 'string');
 $filename = sly_post('filename', 'string', 'sly_'.date('Ymd'));
-$type     = sly_post('type', 'string', 'sql');
+$types    = sly_postArray('types', 'string', array());
 $download = sly_post('download', 'boolean', false);
-
 if ($function == 'export') {
 	// Dateiname entschärfen
 
@@ -38,20 +36,17 @@ if ($function == 'export') {
 	else {
 		$content    = '';
 		$hasContent = false;
-		$header     = '';
-		$ext        = $type == 'sql' ? '.sql' : '.tar.gz';
-		$exportPath = getImportDir().'/';
+		$ext        = '.tar.gz';
+		$exportPath = sly_A1_Helper::getDataDir().'/';
 		$filename   = sly_A1_Helper::getIteratedFilename($exportPath, $filename, $ext);
 
 		// Export durchführen
 
-		if ($type == 'sql') {
-			$header     = 'plain/text; charset="UTF-8"';
+		if (in_array('sql', $type)) {
 			$exporter   = new sly_A1_Export_Database();
 			$hasContent = $exporter->export($exportPath.$filename.$ext);
 		}
-		elseif ($type == 'files') {
-			$header      = 'tar/gzip';
+		elseif (in_array('configuration', $types)) {
 			$directories = sly_postArray('directories', 'string');
 
 			if (empty($directories)) {
@@ -67,7 +62,7 @@ if ($function == 'export') {
 			if ($download) {
 				while (ob_get_level()) ob_end_clean();
 				$filename = $filename.$ext;
-				header("Content-Type: $header");
+				header("Content-Type: tar/gzip");
 				header("Content-Disposition: attachment; filename=$filename");
 				readfile($exportPath.$filename);
 				unlink($exportPath.$filename);
