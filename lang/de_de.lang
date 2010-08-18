@@ -24,9 +24,9 @@ im_export_filename: Dateiname
 im_export_filesize: Dateigröße
 im_export_delete: Löschen
 im_export_files: Dateienimport
-im_export_intro_export: Hier können Sie Ihre jetzigen Eingaben und Dateien von REDAXO sichern. Um eine vollständige Sicherung zu erhalten müssen Sie <b>die Datenbank UND die Dateien exportieren</b>. Wenn Sie die Sicherung wiederverwenden wollen, dann kann es Sinn machen diese direkt auf dem Server abzulegen und bei Bedarf direkt wieder zu importieren.
+im_export_intro_export: Hier können Sie Ihre jetzigen Eingaben und Dateien von <b>Sally</b> sichern. Um eine vollständige Sicherung zu erhalten müssen Sie <b>die Datenbank, die Konfiguration UND die Dateien exportieren</b>. Wenn Sie die Sicherung wiederverwenden wollen, dann kann es Sinn machen diese direkt auf dem Server abzulegen und bei Bedarf direkt wieder zu importieren.
 im_export_database_export: Datenbankexport
-im_export_file_export: Dateiexport
+im_export_configuration_export: Konfigurationsexport
 im_export_save_on_server: Auf dem Server speichern
 im_export_download_as_file: Als Datei herunterladen
 im_export_createdate: Erstellt am
@@ -48,3 +48,11 @@ im_export_export_db_summary: Tabelle der verfügbaren Datenbankexporte
 im_export_export_file_summary: Tabelle der verfügbaren Dateiexporte
 
 im_export_function: Funktion
+
+im_export_explain_assets: assets (Designelemente wie CSS- oder JS-Code für das Frontend)
+im_export_explain_develop: develop (Ordner mit Templates, Modules, Actions usw.)
+im_export_explain_mediapool: data/mediapool (Ordner mit Daten des Medienpools)
+
+im_export_additional_folders: zusätzliche Verzeichnisse
+
+im_export_hint_filename: Geben Sie den Dateinamen ohne Endung (.tar.gz) an.

@@ -25,8 +25,8 @@ im_export_filesize: Filesizee
 im_export_delete: Delete
 im_export_files: Fileimport
 im_export_intro_export: To backup the whole website please backup database AND files.
-im_export_database_export: Databaseexport
-im_export_file_export: Fileexport
+im_export_database_export: export database
+im_export_configuration_export: export configuration
 im_export_save_on_server: Save on server
 im_export_download_as_file: Download as file
 im_export_createdate: Create date

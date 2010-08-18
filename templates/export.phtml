@@ -32,39 +32,23 @@
 
 	$options = array(
 		'sql'   => $I18N->msg('im_export_database_export'),
-		'files' => $I18N->msg('im_export_file_export')
+		'configuration' => $I18N->msg('im_export_configuration_export')
 	);
 
-	$contents = new sly_Form_Select_Radio('type', 'Export-Typ', array($type => 1), $options);
+	$contents = new sly_Form_Select_Checkbox('types', 'Export-Typ', array('sql', 'configuration'), $options);
 	$filename = new sly_Form_Input_Text('filename', $I18N->msg('im_export_filename'), $filename);
-	$filename->setHelpText('Geben Sie den Dateinamen ohne Endung (.sql) an.');
+	$filename->setHelpText(t('im_export_hint_filename'));
 
 	// Verzeichnis-Auswahl erzeugen
 
-	$root         = $REX['INCLUDE_PATH'].'/../../';
-	$directories  = sly_A1_Helper::readSubFolders($root);
-	$ignore       = array('.hg', 'dyn', '.externalToolBuilders');
-	$dirs         = array();
-	$explanations = array(
-		'assets' => 'Designelemente wie CSS- oder JS-Code für das Frontend',
-		'redaxo' => 'Basis-Code der Website mit allen AddOns und PlugIns'
+	$root         = SLY_INCLUDE_PATH.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR;
+	$dirs = array(
+		realpath($root.'assets')  => t('im_export_explain_assets'),
+		realpath($root.'develop') => t('im_export_explain_develop'),
+		SLY_MEDIAFOLDER           => t('im_export_explain_mediapool')
 	);
 
-	foreach ($directories as $dir) {
-		if (in_array($dir, $ignore)) {
-			continue;
-		}
-
-		$origDir = $dir;
-
-		if (isset($explanations[$dir])) {
-			$dir .= ' ('.$explanations[$dir].')';
-		}
-
-		$dirs[$origDir] = $dir;
-	}
-
-	$root   = new sly_Form_Select_Checkbox('directories', 'Verzeichnisse', array(), $dirs);
+	$root   = new sly_Form_Select_Checkbox('directories', t('im_export_additional_folders'), array(), $dirs);
 	$format = new sly_Form_Select_Radio('download', 'Download', array(), array(
 		0 => $I18N->msg('im_export_save_on_server'),
 		1 => $I18N->msg('im_export_download_as_file')
@@ -81,23 +65,3 @@
 
 	?>
 </div>
-
-<script type="text/javascript">
-jQuery(function($) {
-	var form           = $('form#export');
-	var directoriesDiv = $('label[for=directories]', form).parents('div.rex-form-row');
-
-	if ($('input[name=type]:checked', form).val() == 'sql') {
-		directoriesDiv.hide();
-	}
-
-	$('input[name=type]', form).change(function() {
-		if ($(this).val() == 'files') {
-			directoriesDiv.show();
-		}
-		else {
-			directoriesDiv.hide();
-		}
-	});
-});
-</script>
