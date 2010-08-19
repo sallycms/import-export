@@ -48,3 +48,12 @@ im_export_export_db_summary: Table of all database exports
 im_export_export_file_summary: Table of all file exports
 
 im_export_function: Function
+
+im_export_explain_assets: assets (designelements like CSS- oder JS-Code for the frontend)
+im_export_explain_develop: develop (folder with templates, modules, actions ect.)
+im_export_explain_mediapool: data/mediapool (folder with files of mediapools)
+im_export_additional_folders: additional folders
+im_export_hint_filename: please provide a filename without extension (.tar.gz).
+im_export_sql_dump_could_not_be_generated: the SQL dump could not be created.
+im_export_selected_file_not_exists: The selected file does not exists.
+im_export_file_could_not_be_deleted: The selected file could not be deleted.

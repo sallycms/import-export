@@ -40,7 +40,7 @@ class sly_A1_Export_Files
 
 		chdir('../');
 		$success = $tar->create($this->directories);
-		chdir('redaxo');
+		chdir('sally');
 
 		// Archiv ggf. nachträglich noch verändern
 

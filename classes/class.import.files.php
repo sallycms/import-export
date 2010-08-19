@@ -21,7 +21,7 @@ class sly_A1_Import_Files
 	{
 		global $REX, $I18N;
 
-		$baseDir = '../';
+		$baseDir = SLY_BASE;
 		$return['state'] = false;
 
 		if (!file_exists($filename)) {
@@ -39,13 +39,8 @@ class sly_A1_Import_Files
 		// im Backup enthalten ist.
 
 		$tar      = new sly_A1_Archive_Tar($filename);
-		$baseDirs = $this->getBaseDirectories($tar);
 
 		chdir($baseDir);
-
-		foreach ($baseDirs as $base) {
-			rex_deleteDir($base, true);
-		}
 
 		// Extensions auslösen
 
@@ -63,25 +58,10 @@ class sly_A1_Import_Files
 		// Extensions auslösen
 
 		$tar = rex_register_extension_point('SLY_A1_AFTER_FILE_IMPORT', $tar);
-		chdir('redaxo');
+		chdir('sally');
 
 		$return['state']   = true;
 		$return['message'] = $msg;
 		return $return;
-	}
-
-	protected function getBaseDirectories(sly_A1_Archive_Tar $tar)
-	{
-		$dirs = array();
-
-		foreach ($tar->listContent() as $element) {
-			$filename = reset(explode('/', $element['filename']));
-
-			if (!in_array($filename, $dirs)) {
-				$dirs[] = $filename;
-			}
-		}
-
-		return $dirs;
 	}
 }
