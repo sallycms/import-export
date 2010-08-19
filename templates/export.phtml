@@ -35,7 +35,7 @@
 		'configuration' => $I18N->msg('im_export_configuration_export')
 	);
 
-	$contents = new sly_Form_Select_Checkbox('types', 'Export-Typ', array('sql', 'configuration'), $options);
+	$contents = new sly_Form_Select_Checkbox('types', 'Export-Typ', $types, $options);
 	$filename = new sly_Form_Input_Text('filename', $I18N->msg('im_export_filename'), $filename);
 	$filename->setHelpText(t('im_export_hint_filename'));
 

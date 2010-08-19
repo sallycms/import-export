@@ -30,50 +30,67 @@ if ($function == 'export') {
 	$filename = preg_replace('#[^\.a-z0-9_-]#', '', $filename);
 
 	if ($filename != $orig) {
-		$info = $I18N->msg('im_export_filename_updated');
+		$info = t('im_export_filename_updated');
 		$_POST['filename'] = addslashes($filename);
 	}
 	else {
-		$content    = '';
-		$hasContent = false;
-		$ext        = '.tar.gz';
-		$exportPath = sly_A1_Helper::getDataDir().'/';
-		$filename   = sly_A1_Helper::getIteratedFilename($exportPath, $filename, $ext);
+		$content      = '';
+		$hasContent   = false;
+		$exportPath   = sly_A1_Helper::getDataDir().DIRECTORY_SEPARATOR;
+		$filename     = sly_A1_Helper::getIteratedFilename($exportPath, $filename, '.tar.gz');
+		$export  = sly_postArray('directories', 'string');
 
-		// Export durchführen
-
-		if (in_array('sql', $type)) {
+		if (in_array('sql', $types)) {
+			$addonservice = sly_Service_Factory::getService('AddOn');
+			$sqltempdir   = $addonservice->internalFolder('import_export');
+			$sqlfilename   = $sqltempdir.DIRECTORY_SEPARATOR.$filename.'.sql';
 			$exporter   = new sly_A1_Export_Database();
-			$hasContent = $exporter->export($exportPath.$filename.$ext);
-		}
-		elseif (in_array('configuration', $types)) {
-			$directories = sly_postArray('directories', 'string');
-
-			if (empty($directories)) {
-				$warning = $I18N->msg('im_export_please_choose_folder');
-			}
-			else {
-				$exporter   = new sly_A1_Export_Files($directories);
-				$hasContent = $exporter->export($exportPath.$filename.$ext);
+			$hasContent = $exporter->export($sqlfilename);
+			if($hasContent) {
+				$export[] = $sqlfilename;
+			}else {
+				$warning .= t('im_export_sql_dump_could_not_be_generated');
 			}
 		}
+		
+		if (in_array('configuration', $types)) {
+			$configfilename = sly_Core::config()->getProjectCacheFile();
+			$export[] = $configfilename;
+		}
 
-		if ($hasContent) {
-			if ($download) {
-				while (ob_get_level()) ob_end_clean();
-				$filename = $filename.$ext;
-				header("Content-Type: tar/gzip");
-				header("Content-Disposition: attachment; filename=$filename");
-				readfile($exportPath.$filename);
-				unlink($exportPath.$filename);
-				exit;
-			}
-			else {
-				$info = $I18N->msg('im_export_file_generated_in').' '.strtr($filename.$ext, '\\', '/');
-			}
+		$dispatcher   = sly_Core::dispatcher();
+
+		if($dispatcher->hasListeners('A1_EXPORT_FILENAMES')) {
+			$export = $dispatcher->filter('A1_EXPORT_FILENAMES', $export, array('filename' => $filename));
+		}
+
+		foreach($export as $key => $file) {
+			$export[$key] = str_replace(SLY_BASE, '.'.DIRECTORY_SEPARATOR, $file);
+		}
+
+		if (empty($export)) {
+			$warning .= t('im_export_please_choose_files');
 		}
 		else {
-			$warning = $I18N->msg('im_export_file_could_not_be_generated').' '.$I18N->msg('im_export_check_rights_in_directory').' '.$exportPath;
+			$exporter   = new sly_A1_Export_Files($export);
+			$hasContent = $exporter->export($exportPath.$filename.'.tar.gz');
+			if (in_array('sql', $types)) {
+				unlink($sqlfilename);
+			}
+			if($hasContent) {
+				if ($download) {
+					while (ob_get_level()) ob_end_clean();
+					$filename = $filename.'.tar.gz';
+					header("Content-Type: tar/gzip");
+					header("Content-Disposition: attachment; filename=$filename");
+					readfile($exportPath.$filename);
+					unlink($exportPath.$filename);
+					exit;
+				}
+				$info = t('im_export_file_generated_in').' '.strtr($filename.'.tar.gz', '\\', '/');
+			}else {
+				$warning .= t('im_export_file_could_not_be_generated').' '.t('im_export_check_rights_in_directory').' '.$exportPath;
+			}
 		}
 	}
 }

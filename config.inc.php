@@ -11,20 +11,21 @@
  * @package redaxo4
  */
 
-if ($REX['REDAXO']) {
-	$I18N->appendFile($REX['INCLUDE_PATH'].'/addons/import_export/lang/');
+if (!defined('IS_SALLY_BACKEND')) return;
 
-	if (is_object($REX['USER'])) {
-		$REX['PERM'][] = 'import_export[export]';
-		$REX['PERM'][] = 'import_export[import]';
+$I18N->appendFile($REX['INCLUDE_PATH'].'/addons/import_export/lang/');
 
-		$REX['ADDON']['import_export']['SUBPAGES'] = array(array('', $I18N->msg('im_export_export')));
+if (is_object($REX['USER'])) {
+	$REX['PERM'][] = 'import_export[export]';
+	$REX['PERM'][] = 'import_export[import]';
 
-		if ($REX['USER']->hasPerm('import_export[import]') || $REX['USER']->isAdmin()) {
-			$REX['ADDON']['import_export']['SUBPAGES'][] = array('import', $I18N->msg('im_export_import'));
-		}
+	$REX['ADDON']['import_export']['SUBPAGES'] = array(array('', $I18N->msg('im_export_export')));
+
+	if ($REX['USER']->hasPerm('import_export[import]') || $REX['USER']->isAdmin()) {
+		$REX['ADDON']['import_export']['SUBPAGES'][] = array('import', $I18N->msg('im_export_import'));
 	}
 }
+
 
 // Autoloading initialisieren
 
