@@ -28,7 +28,6 @@ class sly_A1_Export_Files
 		$tar     = new sly_A1_Archive_Tar($tmpFile);
 		$tar     = rex_register_extension_point('SLY_A1_BEFORE_FILE_EXPORT', $tar);
 		$ignores = array(
-			'redaxo/include/addons/import_export/backup',
 			'data/import_export'
 		);
 
@@ -38,7 +37,7 @@ class sly_A1_Export_Files
 
 		// Gewählte Verzeichnisse sichern
 
-		chdir('../');
+		chdir(SLY_BASE);
 		$success = $tar->create($this->directories);
 		chdir('sally');
 
