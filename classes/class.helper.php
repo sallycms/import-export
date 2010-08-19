@@ -180,7 +180,7 @@ class sly_A1_Helper
 
 	public static function readImportFolder($fileprefix)
 	{
-		$folder = readFilteredFolder(self::getDataDir(), $fileprefix);
+		$folder = self::readFilteredFolder(self::getDataDir(), $fileprefix);
 		usort($folder, 'compareFiles');
 		return $folder;
 	}

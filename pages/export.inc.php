@@ -60,8 +60,8 @@ if ($function == 'export') {
 
 		$dispatcher   = sly_Core::dispatcher();
 
-		if($dispatcher->hasListeners('A1_EXPORT_FILENAMES')) {
-			$export = $dispatcher->filter('A1_EXPORT_FILENAMES', $export, array('filename' => $filename));
+		if($dispatcher->hasListeners('SLY_A1_EXPORT_FILENAMES')) {
+			$export = $dispatcher->filter('SLY_A1_EXPORT_FILENAMES', $export, array('filename' => $filename));
 		}
 
 		foreach($export as $key => $file) {
