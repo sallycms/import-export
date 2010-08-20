@@ -1,5 +1,5 @@
 rxid: 1
-page: import_export
+page: a1importexport
 name: translate:im_export_importexport
 perm: import_export[export]
 author: Christoph Mewes, Jan Kristinus

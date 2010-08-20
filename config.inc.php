@@ -1,31 +1,17 @@
 <?php
 /*
- * Copyright (C) 2009 REDAXO
+ * Copyright (c) 2010, webvariants GbR, http://www.webvariants.de
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License Version 2 as published by the
- * Free Software Foundation.
- */
-
-/**
- * @package redaxo4
- */
+ * Diese Datei steht unter der MIT-Lizenz. Der Lizenztext befindet sich in der
+ * beiliegenden LICENSE Datei und unter:
+ *
+ * http://www.opensource.org/licenses/mit-license.php
+ * http://de.wikipedia.org/wiki/MIT-Lizenz
+*/
 
 if (!defined('IS_SALLY_BACKEND')) return;
 
-$I18N->appendFile($REX['INCLUDE_PATH'].'/addons/import_export/lang/');
-
-if (is_object($REX['USER'])) {
-	$REX['PERM'][] = 'import_export[export]';
-	$REX['PERM'][] = 'import_export[import]';
-
-	$REX['ADDON']['import_export']['SUBPAGES'] = array(array('', $I18N->msg('im_export_export')));
-
-	if ($REX['USER']->hasPerm('import_export[import]') || $REX['USER']->isAdmin()) {
-		$REX['ADDON']['import_export']['SUBPAGES'][] = array('import', $I18N->msg('im_export_import'));
-	}
-}
-
+$I18N->appendFile(SLY_INCLUDE_PATH.'/addons/import_export/lang/');
 
 // Autoloading initialisieren
 
@@ -48,4 +34,5 @@ function _sly_a1_autoload($className)
 	}
 }
 
+sly_Loader::addLoadPath(dirname(__FILE__).DIRECTORY_SEPARATOR.'lib');
 rex_register_extension('__AUTOLOAD', '_sly_a1_autoload');
