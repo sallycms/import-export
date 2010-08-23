@@ -142,6 +142,11 @@ class sly_A1_Export_Database
 		foreach ($fields as $idx => $type) {
 			$column = $sql->getValue($idx);
 
+			if ($column === null) {
+				$record[] = 'NULL';
+				continue;
+			}
+
 			switch ($type) {
 				case 'int':
 					$record[] = intval($column);
