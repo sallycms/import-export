@@ -10,11 +10,11 @@
 */
 
 /**
- * Controller for Import and Export Pages
+ * Basic Controller for Import and Export Pages
  *
  * @author zozi
  */
-class sly_Controller_A1importexport extends sly_Controller_Sally {
+class sly_Controller_A1imex extends sly_Controller_Sally {
 
 	const VIEW_PATH = 'addons/import_export/views/';
 
@@ -22,16 +22,12 @@ class sly_Controller_A1importexport extends sly_Controller_Sally {
 		$this->head();
 	}
 
-	protected function export() {
-
-	}
-
-	private function head() {
+	protected function head() {
 		global $REX;
 
 		$subpages = array();
 		if($REX['USER']->hasPerm('import_export[export]') || $REX['USER']->isAdmin()){
-			$subpages[] = array('import', t('im_export_export'));
+			$subpages[] = array('export', t('im_export_export'));
 		}
 		if($REX['USER']->hasPerm('import_export[import]') || $REX['USER']->isAdmin()){
 			$subpages[] = array('import', t('im_export_import'));
@@ -41,10 +37,7 @@ class sly_Controller_A1importexport extends sly_Controller_Sally {
 
 	protected function checkPermission() {
 		global $REX;
-		$special = '';
-		if($this->action != 'index') $special = $this->action;
-		return $REX['USER']->hasPerm('import_export['.$special.']') || $REX['USER']->isAdmin();
+		return $REX['USER']->hasPerm('import_export[]') || $REX['USER']->isAdmin();
 	}
-
 }
 ?>

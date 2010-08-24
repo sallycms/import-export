@@ -38,7 +38,7 @@ if ($function == 'export') {
 		$hasContent   = false;
 		$exportPath   = sly_A1_Helper::getDataDir().DIRECTORY_SEPARATOR;
 		$filename     = sly_A1_Helper::getIteratedFilename($exportPath, $filename, '.tar.gz');
-		$export  = sly_postArray('directories', 'string');
+		$export       = sly_postArray('directories', 'string');
 
 		if (in_array('sql', $types)) {
 			$addonservice = sly_Service_Factory::getService('AddOn');
