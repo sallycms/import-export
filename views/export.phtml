@@ -27,15 +27,16 @@
 
 	$form = new sly_Form('index.php', 'POST', $I18N->msg('im_export_export'), '', 'export');
 	$form->setEncType('multipart/form-data');
-	$form->addHiddenValue('page', 'import_export');
-	$form->addHiddenValue('function', 'export');
+	$form->addHiddenValue('page', 'a1imex');
+	$form->addHiddenValue('subpage', 'export');
+	$form->addHiddenValue('func', 'export');
 
 	$options = array(
 		'sql'   => $I18N->msg('im_export_database_export'),
 		'configuration' => $I18N->msg('im_export_configuration_export')
 	);
 
-	$contents = new sly_Form_Select_Checkbox('types', 'Export-Typ', $types, $options);
+	$contents = new sly_Form_Select_Checkbox('systemexports', 'Export-Typ', $systemexports, $options);
 	$filename = new sly_Form_Input_Text('filename', $I18N->msg('im_export_filename'), $filename);
 	$filename->setHelpText(t('im_export_hint_filename'));
 
@@ -48,7 +49,7 @@
 		SLY_MEDIAFOLDER           => t('im_export_explain_mediapool')
 	);
 
-	$root   = new sly_Form_Select_Checkbox('directories', t('im_export_additional_folders'), array(), $dirs);
+	$root   = new sly_Form_Select_Checkbox('directories', t('im_export_additional_folders'), $extra, $dirs);
 	$format = new sly_Form_Select_Radio('download', 'Download', array(), array(
 		0 => $I18N->msg('im_export_save_on_server'),
 		1 => $I18N->msg('im_export_download_as_file')
