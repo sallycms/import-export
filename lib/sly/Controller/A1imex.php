@@ -43,21 +43,21 @@ class sly_Controller_A1imex extends sly_Controller_Sally {
 	}
 
 	protected function init() {
-		global $REX;
+		$user = sly_Service_Factory::getService('User')->getCurrentUser();
 
 		$subpages = array();
-		if($REX['USER']->hasPerm('import_export[export]') || $REX['USER']->isAdmin()){
+		if($user->hasRight('import_export[export]') || $user->isAdmin()){
 			$subpages[] = array('export', t('im_export_export'));
 		}
-		if($REX['USER']->hasPerm('import_export[import]') || $REX['USER']->isAdmin()){
+		if($user->hasRight('import_export[import]') || $user->isAdmin()){
 			$subpages[] = array('import', t('im_export_import'));
 		}
 		$this->render(self::VIEW_PATH.'head.phtml', array('subpages' => $subpages));
 	}
 
 	protected function checkPermission() {
-		global $REX;
-		return $REX['USER']->hasPerm('import_export[export]') || $REX['USER']->isAdmin();
+		$user = sly_Service_Factory::getService('User')->getCurrentUser();
+		return $user->hasRight('import_export[export]') || $user->isAdmin();
 	}
 }
 ?>
