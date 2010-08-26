@@ -10,7 +10,7 @@
 */
 
 /**
- * Basic Controller for Import and Export Pages
+ * Controller for Exporting 
  *
  * @author zozi
  */
@@ -72,8 +72,8 @@ class sly_Controller_A1imex_Export extends sly_Controller_A1imex{
 				$exportfiles[$key] = str_replace(SLY_BASE, '.'.DIRECTORY_SEPARATOR, $file);
 			}
 
-			$exporter   = new sly_A1_Export_Files($exportfiles);
-			$success    = $exporter->export($exportPath.$filename.'.tar.gz');
+			$exporter   = new sly_A1_Export_Files();
+			$success    = $exporter->export($exportPath.$filename.'.tar.gz', $exportfiles);
 			if (in_array('sql', $systemexports)) {
 				unlink($sqlfilename);
 			}
