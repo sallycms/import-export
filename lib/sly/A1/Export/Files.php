@@ -13,7 +13,6 @@
 class sly_A1_Export_Files
 {
 	protected $directories;
-	protected $tar;
 
 	public function __construct($directories)
 	{
@@ -24,7 +23,7 @@ class sly_A1_Export_Files
 	{
 		// Archiv an einem temporären Ort erzeugen (Rekursion vermeiden)
 
-		$tmpFile = tempnam(sys_get_temp_dir(), 'sly').'.gz';
+		$tmpFile = tempnam(sys_get_temp_dir(), 'sly').'.tar.gz';
 		$tar     = new sly_A1_Archive_Tar($tmpFile);
 		$tar     = rex_register_extension_point('SLY_A1_BEFORE_FILE_EXPORT', $tar);
 		$ignores = array(

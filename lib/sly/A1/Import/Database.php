@@ -121,18 +121,18 @@ class sly_A1_Import_Database
 
 	protected function checkVersion()
 	{
-		global $REX, $I18N;
+		$config = sly_Core::config();
+		// ## Sally Database Dump Version x.x
+		$versionstring = $config->get('VERSION').'.'.$config->get('SUBVERSION');
 
-		// ## Redaxo Database Dump Version x.x
-
-		$version = strpos($this->content, '## Redaxo Database Dump Version '.$REX['VERSION']);
+		$version = strpos($this->content, '## Sally Database Dump Version '.$versionstring);
 
 		if ($version === false) {
-			$this->returnValues['message'] = $I18N->msg('im_export_no_valid_import_file').'. [## Redaxo Database Dump Version '.$REX['VERSION'].'] is missing.<br />';
+			$this->returnValues['message'] = t('im_export_no_valid_import_file').'. [## Sally Database Dump Version '.$versionstring.'] is missing.<br />';
 			throw new Exception('bad version');
 		}
 
-		$this->content = trim(str_replace('## Redaxo Database Dump Version '.$REX['VERSION'], '', $this->content));
+		$this->content = trim(str_replace('## Sally Database Dump Version '.$versionstring, '', $this->content));
 	}
 
 	protected function checkPrefix()
@@ -146,21 +146,19 @@ class sly_A1_Import_Database
 			$this->content = trim(str_replace('## Prefix '.$this->prefix, '', $this->content));
 		}
 		else {
-			$this->returnValues['message'] = $I18N->msg('im_export_no_valid_import_file').'. [## Prefix '. $REX['TABLE_PREFIX'] .'] is missing.<br />';
+			$this->returnValues['message'] = t('im_export_no_valid_import_file').'. [## Prefix '. sly_Core::config()->get('DATABASE/TABLE_PREFIX') .'] is missing.<br />';
 			throw new Exception('bad prefix');
 		}
 	}
 
 	protected function checkCharset()
 	{
-		global $REX, $I18N;
-
 		if (preg_match('/^## charset ([a-zA-Z0-9\_\-]*)/', $this->content, $matches) && isset($matches[1])) {
 			$this->charset = $matches[1];
 			$this->content = trim(str_replace('## charset '. $this->charset, '', $this->content));
 
-			if ($I18N->msg('htmlcharset') != $this->charset) {
-				$this->returnValues['message'] = $I18N->msg('im_export_no_valid_charset').'. '.$I18N->msg('htmlcharset').' != '.$this->charset.'<br />';
+			if (t('htmlcharset') != $this->charset) {
+				$this->returnValues['message'] = t('im_export_no_valid_charset').'. '.t('htmlcharset').' != '.$this->charset.'<br />';
 				throw new Exception('bad charset');
 			}
 		}
