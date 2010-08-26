@@ -41,9 +41,6 @@ im_export_file_generated_in: File has been generated in
 im_export_proceed_db_import: Current data (articles, templates, modules,...) will be deleted. Are you sure ?
 im_export_proceed_file_import: Current files will be deleted. Are you sure ?
 
-im_export_export_db_caption: Databaseexports
-im_export_export_file_caption: Fileexports
-
 im_export_export_db_summary: Table of all database exports
 im_export_export_file_summary: Table of all file exports
 

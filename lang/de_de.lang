@@ -41,9 +41,6 @@ im_export_file_generated_in: Daten wurden gesichert in
 im_export_proceed_db_import: Bestehende Daten (Artikel, Templates, Module,...) gehen verloren. Fortfahren ?
 im_export_proceed_file_import: Bestehende Dateien werden gelöscht. Fortfahren ?
 
-im_export_export_db_caption: Datenbankexporte
-im_export_export_file_caption: Dateiexporte
-
 im_export_export_db_summary: Tabelle der verfügbaren Datenbankexporte
 im_export_export_file_summary: Tabelle der verfügbaren Dateiexporte
 
