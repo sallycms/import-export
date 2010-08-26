@@ -1,15 +1,13 @@
 <?
 /*
- * Copyright (C) 2009 REDAXO
+ * Copyright (c) 2010, webvariants GbR, http://www.webvariants.de
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License Version 2 as published by the
- * Free Software Foundation.
- */
-
-/**
- * @package redaxo4
- */
+ * Diese Datei steht unter der MIT-Lizenz. Der Lizenztext befindet sich in der
+ * beiliegenden LICENSE Datei und unter:
+ *
+ * http://www.opensource.org/licenses/mit-license.php
+ * http://de.wikipedia.org/wiki/MIT-Lizenz
+*/
 ?>
 <div class="sly-content rex-addon-output-v2">
 	<?
@@ -21,11 +19,11 @@
 
 	// Intro-Text
 
-	print '<p>'.$I18N->msg('im_export_intro_import').'</p>';
+	print '<p>'.t('im_export_intro_import').'</p>';
 
 	// Formular erzeugen
 
-	$baseDir = $REX['DATAFOLDER'].'/import_export';
+	$baseDir = SLY_DATAFOLDER.DIRECTORY_SEPARATOR.'import_export';
 	$dumps   = sly_A1_Helper::getDatabaseDumps($baseDir);
 	$tars    = sly_A1_Helper::getFileArchives($baseDir);
 
@@ -36,7 +34,7 @@
 	$table->addColumn(new sly_Table_Column('Datum', '150px'));
 	$table->addColumn(new sly_Table_Column('Größe', '80px'));
 	$table->setIsEmpty(empty($tars));
-	$table->setEmptyNotice('Es sind keine Backups vorhanden.');
+	$table->setEmptyNotice(t('im_export_no_backups_available'));
 	$table->renderHeader();
 
 	foreach ($tars as $tar) {

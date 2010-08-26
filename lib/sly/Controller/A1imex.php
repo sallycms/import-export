@@ -19,10 +19,30 @@ class sly_Controller_A1imex extends sly_Controller_Sally {
 	const VIEW_PATH = 'addons/import_export/views/';
 
 	protected function index() {
-		$this->head();
+		$params['filename']      = 'sly_'.date('Ymd');
+		$params['systemexports'] = array();
+		$params['selectedDirs']  = array();
+		$params['download']      = array(0 => true);
+		$this->exportView($params);
 	}
 
-	protected function head() {
+	protected function exportView($params) {
+
+		$dirs = array(
+			realpath(SLY_BASE.DIRECTORY_SEPARATOR.'assets')  => t('im_export_explain_assets'),
+			realpath(SLY_BASE.DIRECTORY_SEPARATOR.'develop') => t('im_export_explain_develop'),
+			SLY_MEDIAFOLDER              => t('im_export_explain_mediapool')
+		);
+		$dispatcher   = sly_Core::dispatcher();
+		if($dispatcher->hasListeners('SLY_A1_EXPORT_FILENAMES')) {
+			$dirs = $dispatcher->filter('SLY_A1_EXPORT_FILENAMES', $dirs);
+		}
+		$params['dirs'] = $dirs;
+
+		$this->render(self::VIEW_PATH.'export.phtml', $params);
+	}
+
+	protected function init() {
 		global $REX;
 
 		$subpages = array();
@@ -37,7 +57,7 @@ class sly_Controller_A1imex extends sly_Controller_Sally {
 
 	protected function checkPermission() {
 		global $REX;
-		return $REX['USER']->hasPerm('import_export[]') || $REX['USER']->isAdmin();
+		return $REX['USER']->hasPerm('import_export[export]') || $REX['USER']->isAdmin();
 	}
 }
 ?>
