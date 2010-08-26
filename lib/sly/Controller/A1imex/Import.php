@@ -40,30 +40,30 @@ class sly_Controller_A1imex_Import extends sly_Controller_A1imex{
 		$filename = rex_request('file', 'string');
 		$fileInfo = sly_A1_Helper::getFileInfo($this->baseDir.$filename);
 
-		if (!$fileInfo['exists']) {
-			$params['warning'] = t('im_export_selected_file_not_exists');
-		}else {
+		try {
 			$importer = new sly_A1_Import_Files();
-			$retval = $importer->import($this->baseDir.$filename);
+			$importer->import($this->baseDir.$filename);
+			$params['info'] .= t('im_export_file_imported').'<br />';
+			$state = true;
+		}catch(Exception $e) {
+			$params['warning'] .= $e->getMessage();
+			$state = false;
+		}
 
-			if ($retval['state']) {
-				$info = $retval['message'];
-				$addonservice = sly_Service_Factory::getService('AddOn');
-				$sqltempdir   = $addonservice->internalFolder('import_export');
-				$sqlfilename   = $sqltempdir.DIRECTORY_SEPARATOR.$fileInfo['filename'].(!empty($fileInfo['description']) ? '_'.$fileInfo['description']: '').'.sql';
-				if(file_exists($sqlfilename)) {
-					$importer = new sly_A1_Import_Database();
-					$sqlretval = $importer->import($sqlfilename);
-					if ($sqlretval['state']) {
-						$params['info'] .= $sqlretval['message'];
-					}else {
-						$params['warning'] .= $sqlretval['message'];
-					}
-					unlink($sqlfilename);
+		if ($state) {
+			$addonservice = sly_Service_Factory::getService('AddOn');
+			$sqltempdir   = $addonservice->internalFolder('import_export');
+			$sqlfilename   = $sqltempdir.DIRECTORY_SEPARATOR.$fileInfo['filename'].(!empty($fileInfo['description']) ? '_'.$fileInfo['description']: '').'.sql';
+			if(file_exists($sqlfilename)) {
+				$importer = new sly_A1_Import_Database();
+				$sqlretval = $importer->import($sqlfilename);
+				if ($sqlretval['state']) {
+					$params['info'] .= $sqlretval['message'];
+				}else {
+					$params['warning'] .= $sqlretval['message'];
 				}
-				$params['info'] .= $retval['message'];
+				unlink($sqlfilename);
 			}
-			else $params['warning'] .= $retval['message'];
 		}
 		
 		$this->importView($params);
