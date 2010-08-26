@@ -34,14 +34,13 @@ class sly_Controller_A1imex_Export extends sly_Controller_A1imex{
 			$params['systemexports'] = $systemexports;
 			$params['download']      = array(intval($download) => true);
 			$this->exportView($params);
+			return;
 		}
-
-
 	}
 
 	protected function checkPermission() {
-		global $REX;
-		return $REX['USER']->hasPerm('import_export[export]') || $REX['USER']->isAdmin();
+		$user = sly_Service_Factory::getService('User')->getCurrentUser();
+		return $user->hasRight('import_export[export]') || $user->isAdmin();
 	}
 }
 ?>
