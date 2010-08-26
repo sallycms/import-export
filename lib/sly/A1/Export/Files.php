@@ -1,25 +1,24 @@
 <?php
 /*
- * Copyright (C) 2009 REDAXO
+ * Copyright (c) 2010, webvariants GbR, http://www.webvariants.de
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License Version 2 as published by the
- * Free Software Foundation.
- */
+ * Diese Datei steht unter der MIT-Lizenz. Der Lizenztext befindet sich in der
+ * beiliegenden LICENSE Datei und unter:
+ *
+ * http://www.opensource.org/licenses/mit-license.php
+ * http://de.wikipedia.org/wiki/MIT-Lizenz
+*/
 
-/**
- * @package redaxo4
- */
 class sly_A1_Export_Files
 {
 	protected $directories;
 
-	public function __construct($directories)
+	public function __construct()
 	{
-		$this->directories = $directories;
+
 	}
 
-	public function export($filename)
+	public function export($filename, $directories)
 	{
 		// Archiv an einem temporären Ort erzeugen (Rekursion vermeiden)
 
@@ -37,7 +36,7 @@ class sly_A1_Export_Files
 		// Gewählte Verzeichnisse sichern
 
 		chdir(SLY_BASE);
-		$success = $tar->create($this->directories);
+		$success = $tar->create($directories);
 		chdir('sally');
 
 		// Archiv ggf. nachträglich noch verändern
