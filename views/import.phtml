@@ -48,8 +48,8 @@
 				<span>(<?= sly_html($info['description']) ?>)</span>
 				<? endif ?>
 			</td>
-			<td class="rex-col-c"><a href="<?= $baseURL ?>import">einspielen</a></td>
-			<td class="rex-col-d"><a href="<?= $baseURL ?>delete">löschen</a></td>
+			<td class="rex-col-c"><a href="<?= $baseURL ?>import"><img src="images/import_export/database_import.png" alt="" />&nbsp;einspielen</a></td>
+			<td class="rex-col-d"><a href="<?= $baseURL ?>delete"><img src="images/import_export/database_delete.png" alt="" />&nbsp;löschen</a></td>
 			<td class="rex-col-e"><?= strftime('%d.%m.%Y um %H:%M Uhr', $info['date']) ?></td>
 			<td class="rex-col-f"><?= sly_Util_String::formatFilesize($info['size']) ?></td>
 		</tr>
