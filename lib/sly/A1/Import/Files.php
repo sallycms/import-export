@@ -39,6 +39,7 @@ class sly_A1_Import_Files
 
 		// Tar auspacken
 		if (!$tar->extract()) {
+			chdir('sally');
 			throw new Exception(t('im_export_problem_when_extracting'));
 		}
 
