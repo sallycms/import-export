@@ -33,6 +33,43 @@ class sly_Controller_A1imex_Import extends sly_Controller_A1imex{
 		$this->render(self::VIEW_PATH.'import.phtml', $params);
 	}
 
+	protected function import() {
+		$params = array();
+		$params['info'] = '';
+		$params['warning'] = '';
+
+		$filename = rex_request('file', 'string');
+		$fileInfo = sly_A1_Helper::getFileInfo($this->baseDir.$filename);
+
+		if (!$fileInfo['exists']) {
+			$params['warning'] = t('im_export_selected_file_not_exists');
+		}else {
+			$importer = new sly_A1_Import_Files();
+			$retval = $importer->import($this->baseDir.$filename);
+
+			if ($retval['state']) {
+				$info = $retval['message'];
+				$addonservice = sly_Service_Factory::getService('AddOn');
+				$sqltempdir   = $addonservice->internalFolder('import_export');
+				$sqlfilename   = $sqltempdir.DIRECTORY_SEPARATOR.$fileInfo['filename'].(!empty($fileInfo['description']) ? '_'.$fileInfo['description']: '').'.sql';
+				if(file_exists($sqlfilename)) {
+					$importer = new sly_A1_Import_Database();
+					$sqlretval = $importer->import($sqlfilename);
+					if ($sqlretval['state']) {
+						$params['info'] .= $sqlretval['message'];
+					}else {
+						$params['warning'] .= $sqlretval['message'];
+					}
+					unlink($sqlfilename);
+				}
+				$params['info'] .= $retval['message'];
+			}
+			else $params['warning'] .= $retval['message'];
+		}
+		
+		$this->importView($params);
+	}
+
 	protected function delete() {
 		$filename = rex_request('file', 'string');
 		$params = array();

@@ -48,7 +48,7 @@
 				<span>(<?= sly_html($info['description']) ?>)</span>
 				<? endif ?>
 			</td>
-			<td class="rex-col-c"><a href="<?= $baseURL ?>fileimport">einspielen</a></td>
+			<td class="rex-col-c"><a href="<?= $baseURL ?>import">einspielen</a></td>
 			<td class="rex-col-d"><a href="<?= $baseURL ?>delete">löschen</a></td>
 			<td class="rex-col-e"><?= strftime('%d.%m.%Y um %H:%M Uhr', $info['date']) ?></td>
 			<td class="rex-col-f"><?= sly_Util_String::formatFilesize($info['size']) ?></td>
