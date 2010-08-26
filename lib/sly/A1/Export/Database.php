@@ -23,13 +23,16 @@ class sly_A1_Export_Database
 	{
 		global $REX, $I18N;
 
+		$config = sly_Core::config();
+		$prefix = $config->get('DATABASE/TABLE_PREFIX');
+
 		$this->filename = $filename;
 
 		$fp = @fopen($this->filename, 'wb');
 		if (!$fp) return false;
 
 		$sql        = new rex_sql();
-		$tables     = $sql->getArray('SHOW TABLES LIKE "'.$REX['TABLE_PREFIX'].'%"');
+		$tables     = $sql->getArray('SHOW TABLES LIKE "'.$prefix.'%"');
 		$tables     = array_map('reset', $tables);
 		$nl         = "\n";
 		$insertSize = 5000;
@@ -38,9 +41,9 @@ class sly_A1_Export_Database
 
 		// Versionsstempel hinzufügen
 
-		fwrite($fp, '## Redaxo Database Dump Version '.$REX['VERSION'].$nl);
-		fwrite($fp, '## Prefix '.$REX['TABLE_PREFIX'].$nl);
-		fwrite($fp, '## charset '.$I18N->msg('htmlcharset').$nl.$nl);
+		fwrite($fp, '## Sally Database Dump Version '.$config->get('VERSION').'.'.$config->get('SUBVERSION').$nl);
+		fwrite($fp, '## Prefix '.$prefix.$nl);
+		fwrite($fp, '## charset '.t('htmlcharset').$nl.$nl);
 
 		foreach ($tables as $table) {
 			if (!$this->includeTable($table)) {

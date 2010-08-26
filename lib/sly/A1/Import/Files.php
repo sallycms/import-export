@@ -19,9 +19,6 @@ class sly_A1_Import_Files
 
 	public function import($filename)
 	{
-		global $REX, $I18N;
-
-		$baseDir = SLY_BASE;
 		$return['state'] = false;
 
 		if (!file_exists($filename)) {
@@ -30,17 +27,13 @@ class sly_A1_Import_Files
 		}
 
 		if (empty($filename) || substr($filename, -7, 7) != '.tar.gz') {
-			$return['message'] = $I18N->msg('im_export_no_import_file_chosen').'<br />';
+			$return['message'] = t('im_export_no_import_file_chosen').'<br />';
 			return $return;
 		}
 
-		// Da keine dynamischen Dateien innerhalb von redaxo/ erzeugt werden
-		// *sollten*, können wir das Verzeichnis auch ruhig leeren, wenn es mit
-		// im Backup enthalten ist.
+		$tar = new sly_A1_Archive_Tar($filename);
 
-		$tar      = new sly_A1_Archive_Tar($filename);
-
-		chdir($baseDir);
+		chdir(SLY_BASE);
 
 		// Extensions auslösen
 
@@ -49,10 +42,10 @@ class sly_A1_Import_Files
 		// Tar auspacken
 
 		if (!$tar->extract()) {
-			$msg = $I18N->msg('im_export_problem_when_extracting').'<br />';
+			$msg = t('im_export_problem_when_extracting').'<br />';
 		}
 		else {
-			$msg = $I18N->msg('im_export_file_imported').'<br />';
+			$msg = t('im_export_file_imported').'<br />';
 		}
 
 		// Extensions auslösen
