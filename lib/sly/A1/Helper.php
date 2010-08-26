@@ -47,15 +47,6 @@ class sly_A1_Helper
 		return $filtered;
 	}
 
-	public static function getDatabaseDumps($dir)
-	{
-		$files = array();
-		$files = array_merge($files, self::readFilteredFolder($dir, '.sql'));
-		$files = array_merge($files, self::readFilteredFolder($dir, '.sql.gz'));
-		$files = array_merge($files, self::readFilteredFolder($dir, '.sql.bz2'));
-		return $files;
-	}
-
 	public static function getFileArchives($dir)
 	{
 		$files = array();
@@ -115,49 +106,6 @@ class sly_A1_Helper
 		return $result;
 	}
 
-	protected static function matchFilename($filename)
-	{
-
-
-		return $filename;
-	}
-
-	public static function readFolderFiles($dir)
-	{
-		$dir    = rtrim($dir, '/\\');
-		$folder = self::readFolder($dir);
-		$files  = array();
-
-		if (!$folder) return false;
-
-		foreach ($folder as $file) {
-			if (is_file($dir.'/'.$file)) $files[] = $file;
-		}
-
-		return $files;
-	}
-
-	public static function readSubFolders($dir, $ignoreDots = true)
-	{
-		$dir     = rtrim($dir, '/\\');
-		$folder  = self::readFolder($dir);
-		$folders = array();
-
-		if (!$folder) return false;
-
-		foreach ($folder as $file) {
-			if ($ignoreDots && ($file == '.' || $file == '..')) {
-				continue;
-			}
-
-			if (is_dir($dir.'/'.$file)) {
-				$folders[] = $file;
-			}
-		}
-
-		return $folders;
-	}
-
 	public static function getDataDir()
 	{
 		$dir = SLY_DATAFOLDER.DIRECTORY_SEPARATOR.'import_export';
@@ -174,24 +122,5 @@ class sly_A1_Helper
 		}
 
 		return $dir;
-	}
-
-	public static function compareFiles($file_a, $file_b)
-	{
-		$dir    = self::getDataDir();
-		$time_a = filemtime($dir.'/'.$file_a);
-		$time_b = filemtime($dir.'/'.$file_b);
-
-		if ($time_a == $time_b) {
-			return 0;
-		}
-		return ($time_a > $time_b) ? -1 : 1;
-	}
-
-	public static function readImportFolder($fileprefix)
-	{
-		$folder = self::readFilteredFolder(self::getDataDir(), $fileprefix);
-		usort($folder, 'compareFiles');
-		return $folder;
 	}
 }
