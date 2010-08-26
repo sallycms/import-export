@@ -16,26 +16,27 @@
  */
 class sly_Controller_A1imex_Export extends sly_Controller_A1imex{
 
-	protected function index() {
-		$this->head();
-		$params['filename']      = 'sly_'.date('Ymd');
-		$params['systemexports'] = array();
-		$params['extra']         = array();
-		$this->render(self::VIEW_PATH.'export.phtml', $params);
-	}
-
 	protected function export() {
-
-		$params = array();
-		$filename      = sly_post('filename', 'string', 'sly_'.date('Ymd'));
+		$download      = sly_post('download', 'boolean', false);
 		$systemexports = sly_postArray('systemexports', 'string', array());
-		$extra         = sly_postArray('directories', 'string', array());
+		$selectedDirs  = sly_postArray('directories', 'string', array());
 
-		
-		$params = array('filename' => $filename,
-						'systemexports' => $systemexports,
-						'extra' => $extra);
-		$this->render(self::VIEW_PATH.'export.phtml', $params);
+		$filename = sly_post('filename', 'string', 'sly_'.date('Ymd'));
+		$orig     = $filename;
+		$filename = strtolower($filename);
+		$filename = preg_replace('#[^\.a-z0-9_-]#', '', $filename);
+
+		if ($filename != $orig) {
+			$params['info'] = t('im_export_filename_updated');
+			$params['filename'] = addslashes($filename);
+
+			$params['selectedDirs']  = $selectedDirs;
+			$params['systemexports'] = $systemexports;
+			$params['download']      = array(intval($download) => true);
+			$this->exportView($params);
+		}
+
+
 	}
 
 	protected function checkPermission() {

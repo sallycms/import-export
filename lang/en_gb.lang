@@ -35,8 +35,8 @@ im_export_import_file: Import file
 im_export_delete_file: Delete file
 im_export_download_file: Download file
 
-im_export_file_could_not_be_generated : File could not be generated.
-im_export_file_generated_in : File has been generated in
+im_export_file_could_not_be_generated: File could not be generated.
+im_export_file_generated_in: File has been generated in
 
 im_export_proceed_db_import: Current data (articles, templates, modules,...) will be deleted. Are you sure ?
 im_export_proceed_file_import: Current files will be deleted. Are you sure ?
@@ -57,3 +57,4 @@ im_export_hint_filename: please provide a filename without extension (.tar.gz).
 im_export_sql_dump_could_not_be_generated: the SQL dump could not be created.
 im_export_selected_file_not_exists: The selected file does not exists.
 im_export_file_could_not_be_deleted: The selected file could not be deleted.
+im_export_no_backups_available: No Backups available.

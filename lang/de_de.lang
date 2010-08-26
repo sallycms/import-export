@@ -35,8 +35,8 @@ im_export_import_file: Datei importieren
 im_export_delete_file: Datei l&ouml;schen
 im_export_download_file: Datei herunterladen
 
-im_export_file_could_not_be_generated : Datei konnte nicht erstellt werden.
-im_export_file_generated_in : Daten wurden gesichert in
+im_export_file_could_not_be_generated: Datei konnte nicht erstellt werden.
+im_export_file_generated_in: Daten wurden gesichert in
 
 im_export_proceed_db_import: Bestehende Daten (Artikel, Templates, Module,...) gehen verloren. Fortfahren ?
 im_export_proceed_file_import: Bestehende Dateien werden gelöscht. Fortfahren ?
@@ -57,3 +57,4 @@ im_export_hint_filename: Geben Sie den Dateinamen ohne Endung (.tar.gz) an.
 im_export_sql_dump_could_not_be_generated: Der SQL Dump konnte nicht erstellt werden.
 im_export_selected_file_not_exists: Die ausgewählte Datei existiert nicht.
 im_export_file_could_not_be_deleted: Die ausgewählte Datei konnte nicht gelöscht werden.
+im_export_no_backups_available: Es sind keine Backups vorhanden.

@@ -1,15 +1,13 @@
 <?
 /*
- * Copyright (C) 2009 REDAXO
+ * Copyright (c) 2010, webvariants GbR, http://www.webvariants.de
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License Version 2 as published by the
- * Free Software Foundation.
- */
-
-/**
- * @package redaxo4
- */
+ * Diese Datei steht unter der MIT-Lizenz. Der Lizenztext befindet sich in der
+ * beiliegenden LICENSE Datei und unter:
+ *
+ * http://www.opensource.org/licenses/mit-license.php
+ * http://de.wikipedia.org/wiki/MIT-Lizenz
+*/
 ?>
 <div class="sly-content">
 	<?
@@ -25,34 +23,26 @@
 
 	// Formular erzeugen
 
-	$form = new sly_Form('index.php', 'POST', $I18N->msg('im_export_export'), '', 'export');
+	$form = new sly_Form('index.php', 'POST', t('im_export_export'), '', 'export');
 	$form->setEncType('multipart/form-data');
 	$form->addHiddenValue('page', 'a1imex');
 	$form->addHiddenValue('subpage', 'export');
 	$form->addHiddenValue('func', 'export');
 
 	$options = array(
-		'sql'   => $I18N->msg('im_export_database_export'),
-		'configuration' => $I18N->msg('im_export_configuration_export')
+		'sql'   => t('im_export_database_export'),
+		'configuration' => t('im_export_configuration_export')
 	);
-
 	$contents = new sly_Form_Select_Checkbox('systemexports', 'Export-Typ', $systemexports, $options);
-	$filename = new sly_Form_Input_Text('filename', $I18N->msg('im_export_filename'), $filename);
+	$filename = new sly_Form_Input_Text('filename', t('im_export_filename'), $filename);
 	$filename->setHelpText(t('im_export_hint_filename'));
 
 	// Verzeichnis-Auswahl erzeugen
 
-	$root         = SLY_INCLUDE_PATH.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR;
-	$dirs = array(
-		realpath($root.'assets')  => t('im_export_explain_assets'),
-		realpath($root.'develop') => t('im_export_explain_develop'),
-		SLY_MEDIAFOLDER           => t('im_export_explain_mediapool')
-	);
-
-	$root   = new sly_Form_Select_Checkbox('directories', t('im_export_additional_folders'), $extra, $dirs);
-	$format = new sly_Form_Select_Radio('download', 'Download', array(), array(
-		0 => $I18N->msg('im_export_save_on_server'),
-		1 => $I18N->msg('im_export_download_as_file')
+	$root   = new sly_Form_Select_Checkbox('directories', t('im_export_additional_folders'), $selectedDirs, $dirs);
+	$format = new sly_Form_Select_Radio('download', 'Download', $download, array(
+		0 => t('im_export_save_on_server'),
+		1 => t('im_export_download_as_file')
 	));
 
 	// Formular fertigstellen und ausgeben
@@ -60,7 +50,7 @@
 	$form->addElements(array($contents, $root));
 	$form->beginFieldset('Downloadoptionen');
 	$form->addElements(array($format, $filename));
-	$form->getSubmitButton()->setAttribute('value', $I18N->msg('im_export_db_export'));
+	$form->getSubmitButton()->setAttribute('value', t('im_export_db_export'));
 	$form->setResetButton(null);
 	$form->render();
 
