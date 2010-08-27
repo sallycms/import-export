@@ -109,18 +109,8 @@ class sly_A1_Helper
 	public static function getDataDir()
 	{
 		$dir = SLY_DATAFOLDER.DIRECTORY_SEPARATOR.'import_export';
-		$ok = sly_Util_Directory::create($dir);
+		$ok = sly_Util_Directory::createHttpProtected($dir);
 		if (!$ok) throw new Exception('Konnte Backup-Verzeichnis '.$dir.' nicht anlegen.');
-
-		if (!file_exists($dir.'/.htaccess')) {
-			$htaccess = "order deny,allow\ndeny from all";
-			$written  = @file_put_contents($dir.'/.htaccess', $htaccess) > 0;
-
-			if (!$written) {
-				throw new Exception('Konnte Backup-Verzeichnis '.$dir.' nicht gegen HTTP-Zugriffe schützen.');
-			}
-		}
-
 		return $dir;
 	}
 }
