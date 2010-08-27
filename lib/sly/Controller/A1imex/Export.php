@@ -44,7 +44,7 @@ class sly_Controller_A1imex_Export extends sly_Controller_A1imex{
 			@ini_set('memory_limit', '64M');
 
 			if (in_array('configuration', $systemexports)) {
-				$configfilename = sly_Core::config()->getProjectCacheFile();
+				$configfilename = sly_Core::config()->getProjectConfigFile();
 				$exportfiles[] = $configfilename;
 			}
 
