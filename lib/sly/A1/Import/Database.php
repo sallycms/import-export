@@ -189,7 +189,7 @@ class sly_A1_Import_Database
 		global $REX;
 
 		if (!function_exists('PMA_splitSqlFile')) {
-			include_once ($REX['INCLUDE_PATH'].'/functions/function_rex_addons.inc.php');
+			include_once (SLY_INCLUDE_PATH.'/functions/function_rex_addons.inc.php');
 		}
 
 		$this->splitFile();
@@ -224,7 +224,7 @@ class sly_A1_Import_Database
 		$tables = rex_sql::showTables();
 
 		if (!in_array($REX['TABLE_PREFIX'].'user', $tables)) {
-			$createStmt = file_get_contents($REX['INCLUDE_PATH'].'/addons/import_export/user.sql');
+			$createStmt = file_get_contents(SLY_INCLUDE_PATH.'/addons/import_export/user.sql');
 			$createStmt = str_replace('%PREFIX%', $REX['TABLE_PREFIX'], $createStmt);
 
 			$db = new rex_sql();
