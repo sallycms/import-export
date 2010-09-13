@@ -9,8 +9,7 @@
  * http://de.wikipedia.org/wiki/MIT-Lizenz
 */
 
-if (!defined('IS_SALLY_BACKEND')) return;
-
-$I18N->appendFile(SLY_INCLUDE_PATH.'/addons/import_export/lang/');
-
-sly_Loader::addLoadPath(dirname(__FILE__).DIRECTORY_SEPARATOR.'lib');
+if (IS_SALLY_BACKEND){
+	$I18N->appendFile(SLY_INCLUDE_PATH.'/addons/import_export/lang/');
+	sly_Loader::addLoadPath(dirname(__FILE__).DIRECTORY_SEPARATOR.'lib');
+}
