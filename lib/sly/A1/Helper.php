@@ -27,8 +27,9 @@ class sly_A1_Helper
 
 	public static function readFolder($dir)
 	{
-		$dir     = rtrim($dir, '/\\');
-		$entries = array_map('basename', glob($dir.'/{,.}*', GLOB_BRACE | GLOB_NOSORT));
+		$dir = rtrim($dir, '/\\');
+		$dir = new sly_Util_Directory($dir);
+		$entries = array_map('basename', $dir->listPlain(true, false));
 		sort($entries);
 		return $entries;
 	}
