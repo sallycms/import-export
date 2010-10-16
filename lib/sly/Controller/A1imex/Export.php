@@ -101,7 +101,7 @@ class sly_Controller_A1imex_Export extends sly_Controller_A1imex{
 			$params['download']      = array(0 => true);
 		}else {
 			$params['filename']      = addslashes($filename);
-			$params['selectedDirs']  = $selectedDirs;
+			$params['selectedDirs']  = $exportfiles;
 			$params['systemexports'] = $systemexports;
 			$params['download']      = array(intval($download) => true);
 		}
