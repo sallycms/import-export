@@ -55,7 +55,7 @@ class sly_Controller_A1imex_Import extends sly_Controller_A1imex{
 			$sqltempdir   = $addonservice->internalFolder('import_export');
 			$sqlfilename   = $sqltempdir.DIRECTORY_SEPARATOR.$fileInfo['filename'].(!empty($fileInfo['description']) ? '_'.$fileInfo['description']: '').'.sql';
 			if(file_exists($sqlfilename)) {
-				$importer = new sly_A1_Import_Database();
+				$importer = new sly_DB_Importer();
 				$sqlretval = $importer->import($sqlfilename);
 				if ($sqlretval['state']) {
 					$params['info'] .= $sqlretval['message'];
