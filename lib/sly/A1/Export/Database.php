@@ -35,7 +35,7 @@ class sly_A1_Export_Database
 		$tables     = $sql->getArray('SHOW TABLES LIKE "'.$prefix.'%"');
 		$tables     = array_map('reset', $tables);
 		$nl         = "\n";
-		$insertSize = 5000;
+		$insertSize = 500;
 
 		rex_register_extension_point('A1_BEFORE_DB_EXPORT');
 
