@@ -24,9 +24,9 @@
 	// Formular erzeugen
 
 	$table = new sly_Table('exports');
-	$table->addColumn(new sly_Table_Column('<img src="images/import_export/database.png" alt="" />', '', '', array('class' => 'rex-icon')));
+	$table->addColumn(new sly_Table_Column('<img src="../data/dyn/public/import_export/images/backup.png" alt="" />', '', '', array('class' => 'rex-icon')));
 	$table->addColumn(new sly_Table_Column('Datei', 'auto'));
-	$table->addColumn(new sly_Table_Column('Optionen', 'auto', '', array('colspan' => 2)));
+	$table->addColumn(new sly_Table_Column('Optionen', '170px'));
 	$table->addColumn(new sly_Table_Column('Datum', '150px'));
 	$table->addColumn(new sly_Table_Column('Größe', '80px'));
 	$table->setIsEmpty(empty($tars));
@@ -41,17 +41,19 @@
 
 		?>
 		<tr>
-			<td class="rex-col-a rex-icon"><img src="images/import_export/database.png" alt="" /></td>
+			<td class="rex-col-a rex-icon"><img src="../data/dyn/public/import_export/images/backup.png" alt="" /></td>
 			<td class="rex-col-b">
 				<a href="<?= $baseURL ?>download" title="<?= sly_html($tar) ?>"><?= sly_html($info['filename']) ?></a>
 				<? if (!empty($info['description'])): ?>
 				<span>(<?= sly_html($info['description']) ?>)</span>
 				<? endif ?>
 			</td>
-			<td class="rex-col-c"><a href="<?= $baseURL ?>import"><img src="images/import_export/database_import.png" alt="" />&nbsp;einspielen</a></td>
-			<td class="rex-col-d"><a href="<?= $baseURL ?>delete"><img src="images/import_export/database_delete.png" alt="" />&nbsp;löschen</a></td>
-			<td class="rex-col-e"><?= strftime('%d.%m.%Y um %H:%M Uhr', $info['date']) ?></td>
-			<td class="rex-col-f"><?= sly_Util_String::formatFilesize($info['size']) ?></td>
+			<td class="rex-col-c">
+				<a href="<?= $baseURL ?>import" class="import">einspielen</a>
+				<a href="<?= $baseURL ?>delete" class="delete">löschen</a>
+			</td>
+			<td class="rex-col-d"><?= strftime('%d.%m.%Y um %H:%M Uhr', $info['date']) ?></td>
+			<td class="rex-col-e"><?= sly_Util_String::formatFilesize($info['size']) ?></td>
 		</tr>
 		<?
 	}
