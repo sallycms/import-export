@@ -14,8 +14,7 @@
  *
  * @author zozi
  */
-class sly_Controller_A1imex_Import extends sly_Controller_A1imex{
-
+class sly_Controller_A1imex_Import extends sly_Controller_A1imex {
 	protected $baseDir;
 
 	public function __construct() {
@@ -28,16 +27,13 @@ class sly_Controller_A1imex_Import extends sly_Controller_A1imex{
 	}
 
 	protected function importView($params = array()) {
-		$params['tars']    = sly_A1_Helper::getFileArchives($this->baseDir);
+		$params['tars'] = sly_A1_Helper::getFileArchives($this->baseDir);
 		$this->render(self::VIEW_PATH.'import.phtml', $params);
 	}
 
 	protected function import() {
-		$params = array();
-		$params['info'] = '';
-		$params['warning'] = '';
-
-		$filename = rex_request('file', 'string');
+		$params   = array('warning' => '', 'info' => '');
+		$filename = sly_request('file', 'string');
 		$fileInfo = sly_A1_Helper::getFileInfo($this->baseDir.$filename);
 
 		try {
@@ -45,7 +41,8 @@ class sly_Controller_A1imex_Import extends sly_Controller_A1imex{
 			$importer->import($this->baseDir.$filename);
 			$params['info'] .= t('im_export_file_imported').'<br />';
 			$state = true;
-		}catch(Exception $e) {
+		}
+		catch (Exception $e) {
 			$params['warning'] .= $e->getMessage();
 			$state = false;
 		}
@@ -53,45 +50,52 @@ class sly_Controller_A1imex_Import extends sly_Controller_A1imex{
 		if ($state) {
 			$addonservice = sly_Service_Factory::getService('AddOn');
 			$sqltempdir   = $addonservice->internalFolder('import_export');
-			$sqlfilename   = $sqltempdir.DIRECTORY_SEPARATOR.$fileInfo['filename'].(!empty($fileInfo['description']) ? '_'.$fileInfo['description']: '').'.sql';
-			if(file_exists($sqlfilename)) {
-				$importer = new sly_DB_Importer();
+			$sqlfilename  = $sqltempdir.DIRECTORY_SEPARATOR.$fileInfo['filename'].(!empty($fileInfo['description']) ? '_'.$fileInfo['description']: '').'.sql';
+
+			if (file_exists($sqlfilename)) {
+				$importer  = new sly_DB_Importer();
 				$sqlretval = $importer->import($sqlfilename);
+
 				if ($sqlretval['state']) {
 					$params['info'] .= $sqlretval['message'];
-				}else {
+				}
+				else {
 					$params['warning'] .= $sqlretval['message'];
 				}
+
 				unlink($sqlfilename);
 			}
 		}
-		
+
 		$this->importView($params);
 	}
 
 	protected function delete() {
-		$filename = rex_request('file', 'string');
-		$params = array();
+		$filename = sly_request('file', 'string');
+		$params   = array();
+
 		if (unlink($this->baseDir.$filename)) {
 			$params['info'] = t('im_export_file_deleted');
 		}
 		else {
 			$params['warning'] = t('im_export_file_could_not_be_deleted');
 		}
+
 		$this->importView($params);
 	}
 
 	protected function download() {
-		$filename = rex_request('file', 'string');
-		if(!empty($filename) && file_exists($this->baseDir.$filename)) {
+		$filename = sly_request('file', 'string');
+
+		if (!empty($filename) && file_exists($this->baseDir.$filename)) {
 			while (ob_get_level()) ob_end_clean();
-			header("Content-Type: tar/gzip");
-			header("Content-Disposition: attachment; filename=$filename");
+			header('Content-Type: tar/gzip');
+			header('Content-Disposition: attachment; filename='.$filename);
 			readfile($this->baseDir.$filename);
 			exit;
 		}
-		$params = array();
-		$params['warning'] = t('im_export_selected_file_not_exists');
+
+		$params = array('warning' => t('im_export_selected_file_not_exists'));
 		$this->importView($params);
 	}
 
@@ -100,4 +104,3 @@ class sly_Controller_A1imex_Import extends sly_Controller_A1imex{
 		return $user->hasRight('import_export[import]') || $user->isAdmin();
 	}
 }
-?>

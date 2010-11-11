@@ -10,10 +10,8 @@
 /**
  * @package redaxo4
  */
-class sly_A1_Helper
-{
-	public static function getIteratedFilename($directory, $filename, $ext)
-	{
+class sly_A1_Helper {
+	public static function getIteratedFilename($directory, $filename, $ext) {
 		$directory = rtrim($directory, '/\\').'/';
 
 		if (file_exists($directory.$filename.$ext)) {
@@ -25,18 +23,16 @@ class sly_A1_Helper
 		return $filename;
 	}
 
-	public static function readFolder($dir)
-	{
+	public static function readFolder($dir) {
 		$dir = new sly_Util_Directory($dir);
 		return $dir->listPlain(true, false, false, false, 'sort');
 	}
 
-	public static function readFilteredFolder($dir, $suffix)
-	{
+	public static function readFilteredFolder($dir, $suffix) {
 		$folder   = self::readFolder($dir);
 		$filtered = array();
 
-		if (!$folder) return false;
+		if (!$folder) return array();
 
 		foreach ($folder as $file) {
 			if (endsWith($file, $suffix)) $filtered[] = $file;
@@ -45,8 +41,7 @@ class sly_A1_Helper
 		return $filtered;
 	}
 
-	public static function getFileArchives($dir)
-	{
+	public static function getFileArchives($dir) {
 		$files = array();
 		$files = array_merge($files, self::readFilteredFolder($dir, '.tar'));
 		$files = array_merge($files, self::readFilteredFolder($dir, '.tar.gz'));
@@ -54,8 +49,7 @@ class sly_A1_Helper
 		return $files;
 	}
 
-	public static function getFileInfo($filename)
-	{
+	public static function getFileInfo($filename) {
 		$result = array(
 			'real_file'   => $filename,
 			'filename'    => strtolower(basename($filename)),
@@ -104,10 +98,9 @@ class sly_A1_Helper
 		return $result;
 	}
 
-	public static function getDataDir()
-	{
+	public static function getDataDir() {
 		$dir = SLY_DATAFOLDER.DIRECTORY_SEPARATOR.'import_export';
-		$ok = sly_Util_Directory::createHttpProtected($dir);
+		$ok  = sly_Util_Directory::createHttpProtected($dir);
 		if (!$ok) throw new Exception('Konnte Backup-Verzeichnis '.$dir.' nicht anlegen.');
 		return $dir;
 	}
