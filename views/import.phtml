@@ -1,0 +1,64 @@
+<?
+/*
+ * Copyright (c) 2010, webvariants GbR, http://www.webvariants.de
+ *
+ * Diese Datei steht unter der MIT-Lizenz. Der Lizenztext befindet sich in der
+ * beiliegenden LICENSE Datei und unter:
+ *
+ * http://www.opensource.org/licenses/mit-license.php
+ * http://de.wikipedia.org/wiki/MIT-Lizenz
+*/
+?>
+<div class="sly-content rex-addon-output-v2">
+	<?
+
+	// Meldungen ausgeben
+
+	if (!empty($info))    print rex_info($info);
+	if (!empty($warning)) print rex_warning($warning);
+
+	// Intro-Text
+
+	print '<p>'.t('im_export_intro_import').'</p>';
+
+	// Formular erzeugen
+
+	$table = new sly_Table('exports');
+	$table->addColumn(new sly_Table_Column('<img src="../data/dyn/public/import_export/images/backup.png" alt="" />', '', '', array('class' => 'rex-icon')));
+	$table->addColumn(new sly_Table_Column('Datei', 'auto'));
+	$table->addColumn(new sly_Table_Column('Optionen', '170px'));
+	$table->addColumn(new sly_Table_Column('Datum', '150px'));
+	$table->addColumn(new sly_Table_Column('Größe', '80px'));
+	$table->setIsEmpty(empty($tars));
+	$table->setEmptyNotice(t('im_export_no_backups_available'));
+	$table->renderHeader();
+
+	foreach ($tars as $tar) {
+		$info = sly_A1_Helper::getFileInfo($this->baseDir.$tar);
+		if (!$info['exists']) continue;
+
+		$baseURL = 'index.php?page=a1imex&amp;subpage=import&amp;file='.urlencode($tar).'&amp;func=';
+
+		?>
+		<tr>
+			<td class="rex-col-a rex-icon"><img src="../data/dyn/public/import_export/images/backup.png" alt="" /></td>
+			<td class="rex-col-b">
+				<a href="<?= $baseURL ?>download" title="<?= sly_html($tar) ?>"><?= sly_html($info['filename']) ?></a>
+				<? if (!empty($info['description'])): ?>
+				<span>(<?= sly_html($info['description']) ?>)</span>
+				<? endif ?>
+			</td>
+			<td class="rex-col-c">
+				<a href="<?= $baseURL ?>import" class="import">einspielen</a>
+				<a href="<?= $baseURL ?>delete" class="delete sly-delete">löschen</a>
+			</td>
+			<td class="rex-col-d"><?= strftime('%d.%m.%Y um %H:%M Uhr', $info['date']) ?></td>
+			<td class="rex-col-e"><?= sly_Util_String::formatFilesize($info['size']) ?></td>
+		</tr>
+		<?
+	}
+
+	$table->renderFooter();
+
+	?>
+</div>
