@@ -50,8 +50,8 @@ class sly_A1_Export_Database
 				continue;
 			}
 			// CREATE-Statement
-
-			$create = reset($sql->getArray("SHOW CREATE TABLE `$table`"));
+			$create = $sql->getArray("SHOW CREATE TABLE `$table`");
+			$create = reset($create);
 			$create = $create['Create Table'];
 
 			fwrite($fp, "DROP TABLE IF EXISTS `$table`;\n");
