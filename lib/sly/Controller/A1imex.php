@@ -82,7 +82,7 @@ class sly_Controller_A1imex extends sly_Controller_Sally {
 
 		if ($success === true) {
 			$exportPath = sly_A1_Helper::getDataDir().DIRECTORY_SEPARATOR;
-			$filename   = sly_A1_Helper::getIteratedFilename($exportPath, $filename, '.tar.gz');
+			$filename   = sly_A1_Helper::getIteratedFilename($exportPath, $filename, '.zip');
 
 			@ini_set('memory_limit', '64M');
 
@@ -118,7 +118,7 @@ class sly_Controller_A1imex extends sly_Controller_Sally {
 			}
 
 			$exporter = new sly_A1_Export_Files();
-			$success  = $exporter->export($exportPath.$filename.'.tar.gz', $exportfiles);
+			$success  = $exporter->export($exportPath.$filename.'.zip', $exportfiles);
 
 			if (in_array('sql', $systemexports)) {
 				unlink($sqlfilename);
@@ -126,8 +126,8 @@ class sly_Controller_A1imex extends sly_Controller_Sally {
 			if ($success) {
 				if ($download) {
 					while (ob_get_level()) ob_end_clean();
-					$filename = $filename.'.tar.gz';
-					header('Content-Type: tar/gzip');
+					$filename = $filename.'.zip';
+					header('Content-Type: application/zip');
 					header('Content-Disposition: attachment; filename='.$filename);
 					readfile($exportPath.$filename);
 					unlink($exportPath.$filename);
@@ -141,7 +141,7 @@ class sly_Controller_A1imex extends sly_Controller_Sally {
 		}
 
 		if ($success === true) {
-			$params['info']          = t('im_export_file_generated_in').' '.strtr($filename.'.tar.gz', '\\', '/');
+			$params['info']          = t('im_export_file_generated_in').' '.strtr($filename.'.zip', '\\', '/');
 			$params['filename']      = 'sly_'.date('Ymd');
 			$params['systemexports'] = array();
 			$params['selectedDirs']  = array();
