@@ -11,45 +11,37 @@
 
 class sly_A1_Export_Files
 {
-	protected $directories;
-
-	public function __construct()
-	{
-
-	}
-
-	public function export($filename, $directories)
+	public function export($filename, $files)
 	{
 		// Archiv an einem temporären Ort erzeugen (Rekursion vermeiden)
+		$tmpFile = tempnam(sys_get_temp_dir(), 'sly');
 
-		$tmpFile = tempnam(sys_get_temp_dir(), 'sly').'.tar.gz';
-		$tar     = new sly_A1_Archive_Tar($tmpFile);
-		$tar     = rex_register_extension_point('SLY_A1_BEFORE_FILE_EXPORT', $tar);
-		$ignores = array(
-			'data/import_export'
-		);
+		$tmpFile = $tmpFile.'.zip';
+		$archive = new ZipArchive();
+		$success = $archive->open($tmpFile, ZipArchive::OVERWRITE);
 
-		// Backups nicht rekursiv mit sichern!
+		if($success === true) {
+			chdir(SLY_BASE);
+			foreach($files as $file) {
+				if(is_dir($file)) {
+					$dir = new sly_Util_Directory($file, false);
+					foreach($dir->listRecursive(true, false) as $dirfile) {
+						$success = $archive->addFile($file.DIRECTORY_SEPARATOR.$dirfile, $file.DIRECTORY_SEPARATOR.$dirfile);
+						if($success !== true) break;
+					}
+				} else {
+					$success = $archive->addFile($file, $file);
+					if($success !== true) break;
+				}
+			}
+			if($success !== true) {
+				throw new sly_Exception('im_export_failed_to_create_archive', $ok);
+			}
+			$archive->close();
+		}
 
-		$tar->setIgnoreList($ignores);
-
-		// Gewählte Verzeichnisse sichern
-
-		chdir(SLY_BASE);
-		$success = $tar->create($directories);
 		chdir('sally');
-
-		// Archiv ggf. nachträglich noch verändern
-
-		$tar = rex_register_extension_point('SLY_A1_AFTER_FILE_EXPORT', $tar, array(
-			'filename' => $filename,
-			'tmp_file' => $tmpFile,
-			'status'   => $success
-		));
-
-		// Archiv verschieben
-
-		if ($success) rename($tmpFile, $filename);
+		rename($tmpFile, $filename);
 		return $success;
 	}
 }
