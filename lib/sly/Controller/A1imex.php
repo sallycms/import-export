@@ -27,9 +27,9 @@ class sly_Controller_A1imex extends sly_Controller_Sally {
 
 	protected function exportView($params) {
 		$dirs = array(
-			realpath(SLY_BASE.DIRECTORY_SEPARATOR.'assets')  => t('im_export_explain_assets'),
-			realpath(SLY_BASE.DIRECTORY_SEPARATOR.'develop') => t('im_export_explain_develop'),
-			SLY_MEDIAFOLDER                                  => t('im_export_explain_mediapool')
+			'assets'  => t('im_export_explain_assets'),
+			'develop' => t('im_export_explain_develop'),
+			substr(SLY_MEDIAFOLDER, strlen(SLY_BASE)+1) => t('im_export_explain_mediapool')
 		);
 
 		$dispatcher     = sly_Core::dispatcher();
@@ -88,7 +88,7 @@ class sly_Controller_A1imex extends sly_Controller_Sally {
 
 			if (in_array('configuration', $systemexports)) {
 				$configfilename = sly_Core::config()->getProjectConfigFile();
-				$exportfiles[]  = $configfilename;
+				$exportfiles[]  = substr($configfilename, strlen(SLY_BASE)+1);
 			}
 
 			if (in_array('sql', $systemexports)) {
@@ -99,7 +99,7 @@ class sly_Controller_A1imex extends sly_Controller_Sally {
 				$success      = $exporter->export($sqlfilename);
 
 				if ($success) {
-					$exportfiles[] = $sqlfilename;
+					$exportfiles[] = substr($sqlfilename, strlen(SLY_BASE)+1);
 				}
 				else {
 					$params['warning'] .= t('im_export_sql_dump_could_not_be_generated');
@@ -113,10 +113,6 @@ class sly_Controller_A1imex extends sly_Controller_Sally {
 		}
 
 		if ($success === true) {
-			foreach ($exportfiles as $key => $file) {
-				$exportfiles[$key] = str_replace(SLY_BASE, '.'.DIRECTORY_SEPARATOR, $file);
-			}
-
 			$exporter = new sly_A1_Export_Files();
 			$success  = $exporter->export($exportPath.$filename.'.zip', $exportfiles);
 
