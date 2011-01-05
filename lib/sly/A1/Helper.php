@@ -43,9 +43,7 @@ class sly_A1_Helper {
 
 	public static function getFileArchives($dir) {
 		$files = array();
-		$files = array_merge($files, self::readFilteredFolder($dir, '.tar'));
-		$files = array_merge($files, self::readFilteredFolder($dir, '.tar.gz'));
-		$files = array_merge($files, self::readFilteredFolder($dir, '.tar.bz2'));
+		$files = array_merge($files, self::readFilteredFolder($dir, '.zip'));
 		return $files;
 	}
 
@@ -54,7 +52,6 @@ class sly_A1_Helper {
 			'real_file'   => $filename,
 			'filename'    => strtolower(basename($filename)),
 			'exists'      => file_exists($filename),
-			'compression' => '',
 			'size'        => -1,
 			'date'        => -1,
 			'type'        => '',
@@ -67,17 +64,6 @@ class sly_A1_Helper {
 
 		$result['date'] = filectime($filename);
 		$result['size'] = filesize($filename);
-
-		// Komprimierung erkennen
-
-		if (endsWith($filename, '.gz'))  $result['compression'] = 'gz';
-		if (endsWith($filename, '.bz2')) $result['compression'] = 'bz2';
-
-		// Komprimierung entfernen
-
-		if (!empty($result['compression'])) {
-			$result['filename'] = substr($result['filename'], 0, -strlen($result['compression']) - 1);
-		}
 
 		// Erweiterung finden
 
