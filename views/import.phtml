@@ -29,21 +29,21 @@
 	$table->addColumn(new sly_Table_Column('Optionen', '170px'));
 	$table->addColumn(new sly_Table_Column('Datum', '150px'));
 	$table->addColumn(new sly_Table_Column('Größe', '80px'));
-	$table->setIsEmpty(empty($tars));
+	$table->setIsEmpty(empty($files));
 	$table->setEmptyNotice(t('im_export_no_backups_available'));
 	$table->renderHeader();
 
-	foreach ($tars as $tar) {
-		$info = sly_A1_Helper::getFileInfo($this->baseDir.$tar);
+	foreach ($files as $file) {
+		$info = sly_A1_Helper::getFileInfo($this->baseDir.$file);
 		if (!$info['exists']) continue;
 
-		$baseURL = 'index.php?page=a1imex&amp;subpage=import&amp;file='.urlencode($tar).'&amp;func=';
+		$baseURL = 'index.php?page=a1imex&amp;subpage=import&amp;file='.urlencode($file).'&amp;func=';
 
 		?>
 		<tr>
 			<td class="rex-col-a rex-icon"><img src="../data/dyn/public/import_export/images/backup.png" alt="" /></td>
 			<td class="rex-col-b">
-				<a href="<?= $baseURL ?>download" title="<?= sly_html($tar) ?>"><?= sly_html($info['filename']) ?></a>
+				<a href="<?= $baseURL ?>download" title="<?= sly_html($file) ?>"><?= sly_html($info['filename']) ?></a>
 				<? if (!empty($info['description'])): ?>
 				<span>(<?= sly_html($info['description']) ?>)</span>
 				<? endif ?>

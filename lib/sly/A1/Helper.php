@@ -44,6 +44,7 @@ class sly_A1_Helper {
 	public static function getFileArchives($dir) {
 		$files = array();
 		$files = array_merge($files, self::readFilteredFolder($dir, '.zip'));
+		$files = array_merge($files, self::readFilteredFolder($dir, '.tar.gz'));
 		return $files;
 	}
 
@@ -68,7 +69,7 @@ class sly_A1_Helper {
 		// Erweiterung finden
 
 		$result['type']     = substr($result['filename'], strrpos($result['filename'], '.') + 1);
-		$result['filename'] = substr($result['filename'], 0, strrpos($result['filename'], '.'));
+		$result['filename'] = substr($result['filename'], 0, strpos($result['filename'], '.'));
 
 		// Entspricht der Dateiname einem bekannten Muster?
 

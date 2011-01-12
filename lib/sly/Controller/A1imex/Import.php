@@ -27,7 +27,7 @@ class sly_Controller_A1imex_Import extends sly_Controller_A1imex {
 	}
 
 	protected function importView($params = array()) {
-		$params['tars'] = sly_A1_Helper::getFileArchives($this->baseDir);
+		$params['files'] = sly_A1_Helper::getFileArchives($this->baseDir);
 		$this->render(self::VIEW_PATH.'import.phtml', $params);
 	}
 

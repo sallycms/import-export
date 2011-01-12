@@ -16,7 +16,7 @@ class sly_A1_Export_Files
 		// Archiv an einem temporären Ort erzeugen (Rekursion vermeiden)
 		$tmpFile = tempnam(sys_get_temp_dir(), 'sly');
 
-		$tmpFile = $tmpFile.'.zip';
+		$tmpFile = $tmpFile;
 		$archive = new ZipArchive();
 		$success = $archive->open($tmpFile, ZipArchive::OVERWRITE);
 
@@ -42,6 +42,7 @@ class sly_A1_Export_Files
 
 		chdir('sally');
 		rename($tmpFile, $filename);
+		chmod($filename, 0774);
 		return $success;
 	}
 }
