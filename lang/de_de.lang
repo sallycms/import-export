@@ -47,7 +47,7 @@ im_export_explain_assets: assets (Designelemente wie CSS- oder JS-Code für das 
 im_export_explain_develop: develop (Ordner mit Templates, Modulen, Actions usw.)
 im_export_explain_mediapool: data/mediapool (Ordner mit Dateien des Medienpools)
 im_export_additional_folders: zusätzliche Verzeichnisse
-im_export_hint_filename: Geben Sie den Dateinamen ohne Endung (.tar.gz) an.
+im_export_hint_filename: Geben Sie den Dateinamen ohne Endung (.zip) an.
 im_export_sql_dump_could_not_be_generated: Der SQL Dump konnte nicht erstellt werden.
 im_export_selected_file_not_exists: Die ausgewählte Datei existiert nicht.
 im_export_file_could_not_be_deleted: Die ausgewählte Datei konnte nicht gelöscht werden.

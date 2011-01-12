@@ -15,6 +15,9 @@
  */
 class sly_A1_Import_Files
 {
+	const TYPE_TAR = 1;
+	const TYPE_ZIP = 2;
+
 	public function __construct()
 	{
 		// pass...
@@ -22,29 +25,50 @@ class sly_A1_Import_Files
 
 	public function import($filename)
 	{
-		if (empty($filename) || substr($filename, -7, 7) != '.tar.gz') {
+		if (empty($filename)) {
 			throw new Exception(t('im_export_no_import_file_chosen'));
 		}
+		
+		$type = $this->guessFileType($filename);
 
 		if (!file_exists($filename)) {
 			throw new Exception(t('im_export_selected_file_not_exists'));
 		}
 
-		$tar = new sly_A1_Archive_Tar($filename);
-
 		chdir(SLY_BASE);
+		if($type == self::TYPE_TAR) {
 
-		// Extensions auslösen
-		$tar = rex_register_extension_point('SLY_A1_BEFORE_FILE_IMPORT', $tar);
+			$tar = new sly_A1_Archive_Tar($filename);
 
-		// Tar auspacken
-		if (!$tar->extract()) {
-			chdir('sally');
-			throw new Exception(t('im_export_problem_when_extracting'));
+			// Extensions auslösen
+			$tar = rex_register_extension_point('SLY_A1_BEFORE_FILE_IMPORT', $tar);
+
+			// Tar auspacken
+			if (!$tar->extract()) {
+				chdir('sally');
+				throw new Exception(t('im_export_problem_when_extracting'));
+			}
+
+			// Extensions auslösen
+			$tar = rex_register_extension_point('SLY_A1_AFTER_FILE_IMPORT', $tar);
+			
+		}elseif($type == self::TYPE_ZIP) {
+			$zip = new ZipArchive();
+			$success = $zip->open($filename);
+			if($success) {
+				$zip->extractTo('./');
+				$zip->close();
+			}else {
+				chdir('sally');
+				throw new Exception(t('im_export_problem_when_extracting'));
+			}
 		}
-
-		// Extensions auslösen
-		$tar = rex_register_extension_point('SLY_A1_AFTER_FILE_IMPORT', $tar);
 		chdir('sally');
+	}
+
+	private function guessFileType($filename) {
+		if(substr($filename, -7, 7) == '.tar.gz') return self::TYPE_TAR;
+		if(substr($filename, -4, 4) == '.zip') return self::TYPE_ZIP;
+		throw new Exception(t('im_export_no_import_file_chosen'));
 	}
 }
