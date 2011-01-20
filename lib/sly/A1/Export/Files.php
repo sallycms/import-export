@@ -26,12 +26,20 @@ class sly_A1_Export_Files {
 				if (is_dir($file)) {
 					$dir = new sly_Util_Directory($file, false);
 					foreach ($dir->listRecursive(true, false) as $dirfile) {
-						$success = $archive->addFromString(str_replace(DIRECTORY_SEPARATOR, '/', $file . DIRECTORY_SEPARATOR . $dirfile), file_get_contents($file . DIRECTORY_SEPARATOR . $dirfile));
+						if (DIRECTORY_SEPARATOR === '\\') {
+							$success = $archive->addFromString(str_replace(DIRECTORY_SEPARATOR, '/', $file . DIRECTORY_SEPARATOR . $dirfile), file_get_contents($file . DIRECTORY_SEPARATOR . $dirfile));
+						} else {
+							$success = $archive->addFile($file . DIRECTORY_SEPARATOR . $dirfile, $file . DIRECTORY_SEPARATOR . $dirfile);
+						}
 						if ($success !== true)
 							break;
 					}
 				} else {
-					$success = $archive->addFromString(str_replace(DIRECTORY_SEPARATOR, '/', $file), file_get_contents($file));
+					if (DIRECTORY_SEPARATOR === '\\') {
+						$success = $archive->addFromString(str_replace(DIRECTORY_SEPARATOR, '/', $file), file_get_contents($file));
+					} else {
+						$success = $archive->addFile($file, $file);
+					}
 					if ($success !== true)
 						break;
 				}
