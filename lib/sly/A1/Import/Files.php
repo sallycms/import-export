@@ -53,14 +53,24 @@ class sly_A1_Import_Files
 			$tar = rex_register_extension_point('SLY_A1_AFTER_FILE_IMPORT', $tar);
 			
 		}elseif($type == self::TYPE_ZIP) {
-			$zip = new ZipArchive();
-			$success = $zip->open($filename);
-			if($success) {
-				$zip->extractTo('./');
-				$zip->close();
-			}else {
-				chdir('sally');
-				throw new Exception(t('im_export_problem_when_extracting'));
+			if(class_exists('ZipArchive')) {
+				$zip = new ZipArchive();
+				$success = $zip->open($filename);
+				if($success) {
+					$zip->extractTo('./');
+					$zip->close();
+				}else {
+					chdir('sally');
+					throw new Exception(t('im_export_problem_when_extracting'));
+				}
+			} else {
+				$zip = new PclZip($filename);
+				$zip->extract();
+				$success = $zip->errorCode() === PCLZIP_ERR_NO_ERROR;
+				if(!$success) {
+					chdir('sally');
+					throw new Exception(t('im_export_problem_when_extracting'));
+				}
 			}
 		}
 		chdir('sally');

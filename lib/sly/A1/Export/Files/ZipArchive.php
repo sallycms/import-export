@@ -10,13 +10,11 @@
  * http://de.wikipedia.org/wiki/MIT-Lizenz
  */
 
-class sly_A1_Export_Files {
+class sly_A1_Export_Files_ZipArchive extends sly_A1_Export_Files {
 
 	public function export($filename, $files) {
-		// Archiv an einem temporären Ort erzeugen (Rekursion vermeiden)
-		$tmpFile = tempnam(sys_get_temp_dir(), 'sly');
+		$tmpFile = $this->getTempFileName();
 
-		$tmpFile = $tmpFile;
 		$archive = new ZipArchive();
 		$success = $archive->open($tmpFile, ZipArchive::OVERWRITE);
 
@@ -44,16 +42,15 @@ class sly_A1_Export_Files {
 						break;
 				}
 			}
-			if ($success !== true) {
-				throw new sly_Exception('im_export_failed_to_create_archive', $ok);
-			}
+			chdir('sally');
 			$archive->close();
+
+			if ($success !== true) {
+				throw new sly_Exception('im_export_failed_to_create_archive');
+			}
 		}
 
-		chdir('sally');
-		rename($tmpFile, $filename);
-		chmod($filename, 0777);
-		return $success;
+		return @rename($tmpFile, $filename);
 	}
 
 }
