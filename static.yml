@@ -4,4 +4,4 @@ perm: import_export[export]
 author: Christoph Mewes, Jan Kristinus
 supportpage: www.webvariants.de
 sally: ['0.3', '0.4']
-version: '2.4.2'
+version: '2.4.3'
