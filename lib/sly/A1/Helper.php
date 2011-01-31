@@ -23,19 +23,15 @@ class sly_A1_Helper {
 		return $filename;
 	}
 
-	public static function readFolder($dir) {
-		$dir = new sly_Util_Directory($dir);
-		return $dir->listPlain(true, false, false, false, 'sort');
-	}
-
 	public static function readFilteredFolder($dir, $suffix) {
-		$folder   = self::readFolder($dir);
-		$filtered = array();
+		$dir = new sly_Util_Directory($dir);
+		$folder = $dir->listPlain(true, false, false, false, 'sort');
 
 		if (!$folder) return array();
+		$filtered = array();
 
 		foreach ($folder as $file) {
-			if (endsWith($file, $suffix)) $filtered[] = $file;
+			if (sly_Util_String::endsWith($file, $suffix)) $filtered[] = $file;
 		}
 
 		return $filtered;
