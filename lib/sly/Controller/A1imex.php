@@ -113,8 +113,15 @@ class sly_Controller_A1imex extends sly_Controller_Sally {
 		}
 
 		if ($success === true) {
-			$exporter = new sly_A1_Export_Files();
-			$success  = $exporter->export($exportPath.$filename.'.zip', $exportfiles);
+			if(class_exists('ZipArchive')) {
+				$exporter = new sly_A1_Export_Files_ZipArchive();
+			}else {
+				$exporter = new sly_A1_Export_Files_PclZip();
+			}
+
+			$filename = $filename.'.zip';
+
+			$success  = $exporter->export($exportPath.$filename, $exportfiles);
 
 			if (in_array('sql', $systemexports)) {
 				unlink($sqlfilename);
@@ -122,7 +129,6 @@ class sly_Controller_A1imex extends sly_Controller_Sally {
 			if ($success) {
 				if ($download) {
 					while (ob_get_level()) ob_end_clean();
-					$filename = $filename.'.zip';
 					header('Content-Type: application/zip');
 					header('Content-Disposition: attachment; filename='.$filename);
 					readfile($exportPath.$filename);
@@ -130,14 +136,15 @@ class sly_Controller_A1imex extends sly_Controller_Sally {
 					$this->index();
 					exit;
 				}
+				chmod($exportPath.$filename, 0777);
 			}
 			else {
-				$params['warning'] .= t('im_export_file_could_not_be_generated').' '.t('im_export_check_rights_in_directory').' '.$exportPath;
+				$params['warning'] .= t('im_export_file_could_not_be_generated').' '.t('im_export_you_have_no_write_permission_in', $exportPath);
 			}
 		}
 
 		if ($success === true) {
-			$params['info']          = t('im_export_file_generated_in').' '.strtr($filename.'.zip', '\\', '/');
+			$params['info']          = t('im_export_file_generated_in').' '.strtr($filename, '\\', '/');
 			$params['filename']      = 'sly_'.date('Ymd');
 			$params['systemexports'] = array();
 			$params['selectedDirs']  = array();
