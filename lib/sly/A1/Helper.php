@@ -12,7 +12,7 @@
  */
 class sly_A1_Helper {
 	public static function getIteratedFilename($directory, $filename, $ext) {
-		$directory = rtrim($directory, '/\\').'/';
+		$directory = rtrim($directory, '/\\').DIRECTORY_SEPARATOR;
 
 		if (file_exists($directory.$filename.$ext)) {
 			$i = 1;
