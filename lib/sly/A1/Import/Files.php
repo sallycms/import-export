@@ -18,17 +18,12 @@ class sly_A1_Import_Files
 	const TYPE_TAR = 1;
 	const TYPE_ZIP = 2;
 
-	public function __construct()
-	{
-		// pass...
-	}
-
 	public function import($filename)
 	{
 		if (empty($filename)) {
 			throw new Exception(t('im_export_no_import_file_chosen'));
 		}
-		
+
 		$type = $this->guessFileType($filename);
 
 		if (!file_exists($filename)) {
@@ -36,43 +31,49 @@ class sly_A1_Import_Files
 		}
 
 		chdir(SLY_BASE);
-		if($type == self::TYPE_TAR) {
 
-			$tar = new sly_A1_Archive_Tar($filename);
+		if($type == self::TYPE_TAR) {
+			$archive = new sly_A1_Archive_Tar($filename);
 
 			// Extensions auslösen
-			$tar = rex_register_extension_point('SLY_A1_BEFORE_FILE_IMPORT', $tar);
+			$archive = rex_register_extension_point('SLY_A1_BEFORE_FILE_IMPORT', $archive);
 
 			// Tar auspacken
-			if (!$tar->extract()) {
+			if (!$archive->extract()) {
 				chdir('sally');
 				throw new Exception(t('im_export_problem_when_extracting'));
 			}
-
-			// Extensions auslösen
-			$tar = rex_register_extension_point('SLY_A1_AFTER_FILE_IMPORT', $tar);
-			
 		}elseif($type == self::TYPE_ZIP) {
 			if(class_exists('ZipArchive')) {
-				$zip = new ZipArchive();
-				$success = $zip->open($filename);
+				$archive = new ZipArchive();
+
+				// Extensions auslösen
+				$archive = rex_register_extension_point('SLY_A1_BEFORE_FILE_IMPORT', $archive);
+
+				$success = $archive->open($filename);
 				if($success) {
-					$zip->extractTo('./');
-					$zip->close();
+					$archive->extractTo('./');
+					$archive->close();
 				}else {
 					chdir('sally');
 					throw new Exception(t('im_export_problem_when_extracting'));
 				}
 			} else {
-				$zip = new PclZip($filename);
-				$zip->extract();
-				$success = $zip->errorCode() === PCLZIP_ERR_NO_ERROR;
+				$archive = new PclZip($filename);
+
+				// Extensions auslösen
+				$archive = rex_register_extension_point('SLY_A1_BEFORE_FILE_IMPORT', $archive);
+
+				$archive->extract();
+				$success = $archive->errorCode() === PCLZIP_ERR_NO_ERROR;
 				if(!$success) {
 					chdir('sally');
 					throw new Exception(t('im_export_problem_when_extracting'));
 				}
 			}
 		}
+		// Extensions auslösen
+		$archive = rex_register_extension_point('SLY_A1_AFTER_FILE_IMPORT', $archive);
 		chdir('sally');
 	}
 
