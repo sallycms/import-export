@@ -15,26 +15,19 @@
  * @author zozi
  */
 class sly_Controller_A1imex_Import extends sly_Controller_A1imex {
-	protected $baseDir;
-
-	public function __construct() {
-		parent::__construct();
-		$this->baseDir = SLY_DATAFOLDER.DIRECTORY_SEPARATOR.'import_export'.DIRECTORY_SEPARATOR;
-	}
 
 	protected function index() {
 		$this->importView();
 	}
 
 	protected function importView($params = array()) {
-		$params['files'] = sly_A1_Helper::getFileArchives($this->baseDir);
+		$params['files'] = sly_A1_Util::getArchives($this->baseDir);
 		$this->render(self::VIEW_PATH.'import.phtml', $params);
 	}
 
 	protected function import() {
 		$params   = array('warning' => '', 'info' => '');
 		$filename = sly_request('file', 'string');
-		$fileInfo = sly_A1_Helper::getFileInfo($this->baseDir.$filename);
 
 		try {
 			$importer = new sly_A1_Import_Files();

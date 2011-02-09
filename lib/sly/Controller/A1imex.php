@@ -17,6 +17,13 @@
 class sly_Controller_A1imex extends sly_Controller_Sally {
 	const VIEW_PATH = 'addons/import_export/views/';
 
+	protected $baseDir;
+
+	public function __construct() {
+		parent::__construct();
+		$this->baseDir = sly_A1_Util::getDataDir().DIRECTORY_SEPARATOR;
+	}
+
 	protected function index() {
 		$params['filename']      = 'sly_'.date('Ymd');
 		$params['systemexports'] = array();
@@ -81,10 +88,7 @@ class sly_Controller_A1imex extends sly_Controller_Sally {
 		}
 
 		if ($success === true) {
-			$exportPath = sly_A1_Helper::getDataDir().DIRECTORY_SEPARATOR;
-			$filename   = sly_A1_Helper::getIteratedFilename($exportPath, $filename, '.zip');
-
-			@ini_set('memory_limit', '64M');
+			$filename   = sly_A1_Util::getIteratedFilename($filename, '.zip');
 
 			if (in_array('configuration', $systemexports)) {
 				$configfilename = sly_Core::config()->getProjectConfigFile();
@@ -121,7 +125,7 @@ class sly_Controller_A1imex extends sly_Controller_Sally {
 
 			$filename = $filename.'.zip';
 
-			$success  = $exporter->export($exportPath.$filename, $exportfiles);
+			$success  = $exporter->export($this->baseDir.$filename, $exportfiles);
 
 			if (in_array('sql', $systemexports)) {
 				unlink($sqlfilename);
@@ -131,12 +135,11 @@ class sly_Controller_A1imex extends sly_Controller_Sally {
 					while (ob_get_level()) ob_end_clean();
 					header('Content-Type: application/zip');
 					header('Content-Disposition: attachment; filename='.$filename);
-					readfile($exportPath.$filename);
-					unlink($exportPath.$filename);
-					$this->index();
+					readfile($this->baseDir.$filename);
+					unlink($this->baseDir.$filename);
 					exit;
 				}
-				chmod($exportPath.$filename, 0777);
+				chmod($this->baseDir.$filename, 0777);
 			}
 			else {
 				$params['warning'] .= t('im_export_file_could_not_be_generated').' '.t('im_export_you_have_no_write_permission_in', $exportPath);

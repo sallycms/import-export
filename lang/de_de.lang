@@ -15,7 +15,7 @@ im_export_db_import: Import
 im_export_db_export: Export
 im_export_filename_updated: Ihr Dateiname wurde angepasst, da er unkorrekte Zeichen enthielt. Sofern dieser stimmig ist bitte nochmal auf Export klicken
 im_export_please_choose_files: Bitte wählen Sie Typen und/oder Verzeichnisse aus die exportiert werden sollen!
-im_export_intro_import: Bitte bedenken Sie das beim Importieren einer Datenbank <b>die alte Datenbank gelöscht</b> wird. Bitte speichern/exportieren Sie diese vorher wenn Sie sich unsicher sind.
+im_export_intro_import: Bitte bedenken Sie das beim Importieren einer Datenbank <b>die alte Datenbank gelöscht</b> wird. Bitte sichern/exportieren Sie diese vorher wenn Sie sich unsicher sind.
 im_export_database: Datenbankimport
 im_export_filename: Dateiname
 im_export_filesize: Dateigröße
@@ -28,9 +28,8 @@ im_export_save_on_server: Auf dem Server speichern
 im_export_download_as_file: Als Datei herunterladen
 im_export_createdate: Erstellt am
 
-im_export_import_file: Datei importieren
-im_export_delete_file: Datei l&ouml;schen
-im_export_download_file: Datei herunterladen
+im_export_import_file: importieren
+im_export_delete_file: l&ouml;schen
 
 im_export_file_could_not_be_generated: Datei konnte nicht erstellt werden.
 im_export_file_generated_in: Daten wurden gesichert in
