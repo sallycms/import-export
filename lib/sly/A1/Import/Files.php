@@ -51,8 +51,9 @@ class sly_A1_Import_Files
 				$archive = rex_register_extension_point('SLY_A1_BEFORE_FILE_IMPORT', $archive);
 
 				$success = $archive->open($filename);
+				if($success) $success =	$archive->extractTo('./');
+
 				if($success) {
-					$archive->extractTo('./');
 					$archive->close();
 				}else {
 					chdir('sally');
