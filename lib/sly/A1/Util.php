@@ -84,6 +84,8 @@ class sly_A1_Util {
 
 		$type = self::guessFileType($filename);
 
+		$filename = self::getDataDir().DIRECTORY_SEPARATOR.$filename;
+		
 		if (!file_exists($filename)) {
 			throw new Exception(t('im_export_selected_file_not_exists'));
 		}
