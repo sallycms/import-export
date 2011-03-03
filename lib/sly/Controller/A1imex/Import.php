@@ -30,10 +30,7 @@ class sly_Controller_A1imex_Import extends sly_Controller_A1imex {
 		$filename = sly_request('file', 'string');
 
 		try {
-			//$importer = new sly_A1_Import_Files();
-			//$importer->import($this->baseDir.$filename);
-			
-			sly_A1_Util::import($this->baseDir.$filename);
+			sly_A1_Util::import($filename);
 			$params['info'] .= t('im_export_file_imported').'<br />';
 			$state = true;
 		}
