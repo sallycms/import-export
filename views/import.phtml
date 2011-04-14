@@ -24,7 +24,7 @@
 	// Formular erzeugen
 
 	$table = new sly_Table('exports');
-	$table->addColumn(new sly_Table_Column('<img src="../data/dyn/public/import_export/images/backup.png" alt="" />', '', '', array('class' => 'rex-icon')));
+	$table->addColumn(new sly_Table_Column('<img src="../data/dyn/public/import_export/images/backup.png" alt="" />', '', '', array('class' => 'sly-icon')));
 	$table->addColumn(new sly_Table_Column('Datei', 'auto'));
 	$table->addColumn(new sly_Table_Column('Optionen', '170px'));
 	$table->addColumn(new sly_Table_Column('Datum', '150px'));
@@ -42,7 +42,7 @@
 
 		?>
 		<tr>
-			<td class="rex-col-a rex-icon"><img src="../data/dyn/public/import_export/images/backup.png" alt="" /></td>
+			<td class="rex-col-a sly-icon"><img src="../data/dyn/public/import_export/images/backup.png" alt="" /></td>
 			<td class="rex-col-b">
 				<a href="<?= $baseURL ?>download" title="<?= sly_html($file) ?>"><?= sly_html($info['name']) ?></a>
 				<? if (!empty($info['description'])): ?>
