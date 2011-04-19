@@ -110,12 +110,12 @@ class sly_A1_Export_Database
 	{
 		global $REX;
 
-		$prefix = $REX['TABLE_PREFIX'];
+		$prefix = sly_Core::config()->get('DATABASE/TABLE_PREFIX');
 		$tmp    = $REX['TEMP_PREFIX'];
 
 		return
-			strstr($table, $prefix) == $table &&                      // Nur Tabellen mit dem aktuellen Präfix
-			$table != $prefix.'user' &&                               // User-Tabelle nicht exportieren
+			strstr($table, $prefix) == $table &&                     // Nur Tabellen mit dem aktuellen Präfix
+			$table != $prefix.'user' &&                              // User-Tabelle nicht exportieren
 			substr($table, 0, strlen($prefix.$tmp)) != $prefix.$tmp; // Tabellen die mit rex_tmp_ beginnnen, werden nicht exportiert!
 	}
 
