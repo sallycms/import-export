@@ -10,19 +10,14 @@
 /**
  * @package redaxo4
  */
-class sly_A1_Export_Database
-{
+class sly_A1_Export_Database {
 	protected $filename;
 
-	public function __construct()
-	{
+	public function __construct() {
 		$this->filename = '';
 	}
 
-	public function export($filename)
-	{
-		global $REX, $I18N;
-
+	public function export($filename) {
 		$config = sly_Core::config();
 		$prefix = $config->get('DATABASE/TABLE_PREFIX');
 
@@ -37,7 +32,7 @@ class sly_A1_Export_Database
 		$nl         = "\n";
 		$insertSize = 500;
 
-		rex_register_extension_point('A1_BEFORE_DB_EXPORT');
+		sly_Core::dispatcher()->notify('A1_BEFORE_DB_EXPORT');
 
 		// Versionsstempel hinzufügen
 
@@ -98,7 +93,7 @@ class sly_A1_Export_Database
 
 		$hasContent = true;
 
-		if (rex_extension_is_registered('A1_AFTER_DB_EXPORT')) {
+		if (sly_Core::dispatcher()->notify('A1_AFTER_DB_EXPORT')) {
 			fclose($fp);
 			$hashContent = $this->handleExtensions($filename);
 		}
@@ -106,8 +101,7 @@ class sly_A1_Export_Database
 	  return $hasContent;
 	}
 
-	protected function includeTable($table)
-	{
+	protected function includeTable($table) {
 		global $REX;
 
 		$prefix = sly_Core::config()->get('DATABASE/TABLE_PREFIX');
@@ -119,8 +113,7 @@ class sly_A1_Export_Database
 			substr($table, 0, strlen($prefix.$tmp)) != $prefix.$tmp; // Tabellen die mit rex_tmp_ beginnnen, werden nicht exportiert!
 	}
 
-	protected function getFields($sql, $table)
-	{
+	protected function getFields($sql, $table) {
 		$fields = $sql->getArray("SHOW FIELDS FROM `$table`");
 
 		foreach ($fields as &$field) {
@@ -138,8 +131,7 @@ class sly_A1_Export_Database
 		return $fields;
 	}
 
-	protected function getRecord($sql, $fields)
-	{
+	protected function getRecord($sql, $fields) {
 		$record = array();
 
 		foreach ($fields as $idx => $type) {
@@ -169,11 +161,10 @@ class sly_A1_Export_Database
 		return '('.implode(',', $record).')';
 	}
 
-	protected function handleExtensions($filename)
-	{
+	protected function handleExtensions($filename) {
 		$content    = file_get_contents($filename);
 		$hashBefore = md5($content);
-		$content    = rex_register_extension_point('A1_AFTER_DB_EXPORT', $content);
+		$content    = sly_Core::dispatcher()->filter('A1_AFTER_DB_EXPORT', $content);
 		$hashAfter  = md5($content);
 
 		if ($hashAfter != $hashBefore) {
