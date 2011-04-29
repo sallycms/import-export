@@ -26,11 +26,16 @@ class sly_A1_Export_Database {
 		$fp = @fopen($this->filename, 'wb');
 		if (!$fp) return false;
 
-		$sql        = new rex_sql();
-		$tables     = $sql->getArray('SHOW TABLES LIKE "'.$prefix.'%"');
-		$tables     = array_map('reset', $tables);
+		$sql        = sly_DB_Persistence::getInstance();
+		$tables     = $sql->listTables();
 		$nl         = "\n";
 		$insertSize = 500;
+
+		foreach ($tables as $idx => $table) {
+			if (!sly_Util_String::startsWith($table, $prefix)) {
+				unset($tables[$idx]);
+			}
+		}
 
 		sly_Core::dispatcher()->notify('A1_BEFORE_DB_EXPORT');
 
@@ -44,10 +49,10 @@ class sly_A1_Export_Database {
 			if (!$this->includeTable($table)) {
 				continue;
 			}
+
 			// CREATE-Statement
-			$create = $sql->getArray("SHOW CREATE TABLE `$table`");
-			$create = reset($create);
-			$create = $create['Create Table'];
+			$sql->query("SHOW CREATE TABLE `$table`");
+			foreach ($sql as $row) $create = $row['Create Table'];
 
 			fwrite($fp, "DROP TABLE IF EXISTS `$table`;\n");
 			fwrite($fp, "$create;\n");
@@ -59,21 +64,20 @@ class sly_A1_Export_Database {
 			$max    = $insertSize;
 
 			do {
-				$sql->freeResult();
-				$sql->setQuery("SELECT * FROM `$table` LIMIT $start,$max");
+				// don't forget to remove the table prefix
+				$sql->select(substr($table, strlen($prefix)), '*', null, null, null, $start, $max);
 
-				if ($sql->getRows() > 0 && $start == 0) {
-					fwrite($fp, "\n/*!40000 ALTER TABLE `$table` DISABLE KEYS */;");
-				}
-				elseif ($sql->getRows() == 0) {
-					break;
-				}
-
-				$start += $max;
+				$rowNum = 0;
 				$values = array();
 
-				for ($i = 0; $i < $sql->rows; $i++, $sql->next()) {
-					$values[] = $this->getRecord($sql, $fields);
+				foreach ($sql as $row) {
+					// if it's the first row of this table, disable the keys
+					if ($rowNum === 0 && $start === 0) {
+						fwrite($fp, "\n/*!40000 ALTER TABLE `$table` DISABLE KEYS */;");
+					}
+
+					$values[] = $this->getRecord($row, $fields);
+					++$rowNum;
 				}
 
 				if (!empty($values)) {
@@ -81,11 +85,19 @@ class sly_A1_Export_Database {
 					fwrite($fp, "\nINSERT INTO `$table` VALUES $values;");
 					unset($values);
 				}
-			}
-			while ($sql->getRows() >= $max);
 
+				if ($rowNum) {
+					$start += $max;
+				}
+			}
+			while ($rowNum === $max);
+
+			// if something has been exported, unlock the table again
 			if ($start > 0) {
-				fwrite($fp, "\n/*!40000 ALTER TABLE `$table` ENABLE KEYS */;");
+				fwrite($fp, "\n/*!40000 ALTER TABLE `$table` ENABLE KEYS */;\n\n");
+			}
+			else {
+				fwrite($fp, "\n");
 			}
 		}
 
@@ -102,10 +114,9 @@ class sly_A1_Export_Database {
 	}
 
 	protected function includeTable($table) {
-		global $REX;
-
-		$prefix = sly_Core::config()->get('DATABASE/TABLE_PREFIX');
-		$tmp    = $REX['TEMP_PREFIX'];
+		$config = sly_Core::config();
+		$prefix = $config->get('DATABASE/TABLE_PREFIX');
+		$tmp    = $config->get('TEMP_PREFIX');
 
 		return
 			strstr($table, $prefix) == $table &&                     // Nur Tabellen mit dem aktuellen Präfix
@@ -114,9 +125,13 @@ class sly_A1_Export_Database {
 	}
 
 	protected function getFields($sql, $table) {
-		$fields = $sql->getArray("SHOW FIELDS FROM `$table`");
+		$fields = array();
 
-		foreach ($fields as &$field) {
+		$sql->query("SHOW FIELDS FROM `$table`");
+
+		foreach ($sql as $field) {
+			$name = $field['Field'];
+
 			if (preg_match('#^(bigint|int|smallint|mediumint|tinyint|timestamp)#i', $field['Type'])) {
 				$field = 'int';
 			}
@@ -126,16 +141,18 @@ class sly_A1_Export_Database {
 			elseif (preg_match('#^(char|varchar|text|longtext|mediumtext|tinytext)#', $field['Type'])) {
 				$field = 'string';
 			}
+
+			$fields[$name] = $field;
 		}
 
 		return $fields;
 	}
 
-	protected function getRecord($sql, $fields) {
+	protected function getRecord($row, $fields) {
 		$record = array();
 
-		foreach ($fields as $idx => $type) {
-			$column = $sql->getValue($idx);
+		foreach ($fields as $col => $type) {
+			$column = $row[$col];
 
 			if ($column === null) {
 				$record[] = 'NULL';
