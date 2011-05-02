@@ -150,6 +150,7 @@ class sly_A1_Export_Database {
 
 	protected function getRecord($row, $fields) {
 		$record = array();
+		$sql    = sly_DB_Persistence::getInstance();
 
 		foreach ($fields as $col => $type) {
 			$column = $row[$col];
@@ -170,7 +171,7 @@ class sly_A1_Export_Database {
 
 				case 'string':
 				default:
-					$record[] = "'".mysql_real_escape_string($column)."'";
+					$record[] = $sql->quote($column);
 					break;
 			}
 		}
