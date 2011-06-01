@@ -40,12 +40,37 @@ class sly_Controller_A1imex_Import extends sly_Controller_A1imex {
 		}
 
 		if ($state) {
-			$addonservice = sly_Service_Factory::getService('AddOn');
+			$addonservice = sly_Service_Factory::getAddOnService();
 			$sqltempdir   = $addonservice->internalFolder('import_export');
+			$error        = false;
+
+			$addonListFilename = $sqltempdir.DIRECTORY_SEPARATOR.'addons.php';
+
+			if (file_exists($addonListFilename)) {
+
+				$handle = fopen($addonListFilename, 'r');
+				flock($handle, LOCK_SH);
+
+				include $addonListFilename;
+
+				// release lock again
+				flock($handle, LOCK_UN);
+				fclose($handle);
+
+				$availableAddons = $addonservice->getAvailableAddons();
+				$missingAddons = array_diff($addons, array_intersect($addons, $availableAddons));
+				if (isset($addons) && count($missingAddons)) {
+					$params['warning'] .= t('addon_missing_addons_for_db_import').': '.implode(', ', $missingAddons);
+					$error = true;
+				}
+				unlink($addonListFilename);
+			}
+
 			$sqlfilename  = explode('.', $filename);
 			$sqlfilename  = $sqltempdir.DIRECTORY_SEPARATOR.$sqlfilename[0].'.sql';
 
-			if (file_exists($sqlfilename)) {
+			if (!$error && file_exists($sqlfilename)) {
+
 				$importer  = new sly_DB_Importer();
 				$sqlretval = $importer->import($sqlfilename);
 
