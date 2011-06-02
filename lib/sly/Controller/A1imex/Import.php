@@ -60,7 +60,7 @@ class sly_Controller_A1imex_Import extends sly_Controller_A1imex {
 				$availableAddons = $addonservice->getAvailableAddons();
 				$missingAddons = array_diff($addons, array_intersect($addons, $availableAddons));
 				if (isset($addons) && count($missingAddons)) {
-					$params['warning'] .= t('addon_missing_addons_for_db_import').': '.implode(', ', $missingAddons);
+					$params['warning'] .= t('im_export_missing_addons_for_db_import').': '.implode(', ', $missingAddons);
 					$error = true;
 				}
 				unlink($addonListFilename);

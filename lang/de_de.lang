@@ -9,6 +9,7 @@ im_export_no_import_file_chosen: Keine Importdatei ausgewählt.
 im_export_problem_when_extracting: Es gab Probleme beim Extrahieren der Datei.
 im_export_create_dirs_manually: Erstellen Sie bitte folgende Ordner manuell und setzen Sie die Schreibrechte auf diese Ordner(&uuml;ber ftp).
 im_export_file_imported: Die Datei wurde erfolgreich importiert.
+im_export_missing_addons_for_db_import: Fehlende Addons für den DB-Import
 im_export_import: Import
 im_export_export: Export
 im_export_db_import: Import
