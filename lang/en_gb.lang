@@ -9,6 +9,7 @@ im_export_no_import_file_chosen: Please choose an import file.
 im_export_problem_when_extracting: Problems occured during extracting.
 im_export_create_dirs_manually: Please create the following folders manually(via ftp).
 im_export_file_imported: File has been imported.
+im_export_missing_addons_for_db_import: Missing addons for db import
 im_export_import: Import
 im_export_export: Export
 im_export_db_import: Import
