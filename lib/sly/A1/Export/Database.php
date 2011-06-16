@@ -115,13 +115,11 @@ class sly_A1_Export_Database {
 
 	protected function includeTable($table) {
 		$config = sly_Core::config();
-		$prefix = $config->get('DATABASE/TABLE_PREFIX');
-		$tmp    = $config->get('TEMP_PREFIX');
+		$prefix = $config->get('DATABASE/TABLE_PREFIX');;
 
 		return
 			strstr($table, $prefix) == $table &&                     // Nur Tabellen mit dem aktuellen Präfix
-			$table != $prefix.'user' &&                              // User-Tabelle nicht exportieren
-			substr($table, 0, strlen($prefix.$tmp)) != $prefix.$tmp; // Tabellen die mit rex_tmp_ beginnnen, werden nicht exportiert!
+			$table != $prefix.'user';                                // User-Tabelle nicht exportieren
 	}
 
 	protected function getFields($sql, $table) {
