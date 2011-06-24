@@ -41,9 +41,9 @@ class sly_A1_Export_Database {
 
 		// Versionsstempel hinzufügen
 
-		fwrite($fp, '## Sally Database Dump Version '.$config->get('VERSION').'.'.$config->get('SUBVERSION').$nl);
+		fwrite($fp, '## Sally Database Dump Version '.sly_Core::getVersion('X.Y').$nl);
 		fwrite($fp, '## Prefix '.$prefix.$nl);
-		fwrite($fp, '## charset '.t('htmlcharset').$nl.$nl);
+		fwrite($fp, '## charset UTF-8'.$nl.$nl);
 
 		foreach ($tables as $table) {
 			if (!$this->includeTable($table)) {
