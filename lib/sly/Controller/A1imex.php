@@ -2,21 +2,18 @@
 /*
  * Copyright (c) 2011, webvariants GbR, http://www.webvariants.de
  *
- * Diese Datei steht unter der MIT-Lizenz. Der Lizenztext befindet sich in der
- * beiliegenden LICENSE Datei und unter:
+ * This file is released under the terms of the MIT license. You can find the
+ * complete text in the attached LICENSE file or online at:
  *
  * http://www.opensource.org/licenses/mit-license.php
- * http://de.wikipedia.org/wiki/MIT-Lizenz
-*/
+ */
 
 /**
  * Basic Controller for Import and Export Pages
  *
  * @author zozi
  */
-class sly_Controller_A1imex extends sly_Controller_Sally {
-	const VIEW_PATH = 'addons/import_export/views/';
-
+class sly_Controller_A1imex extends sly_Controller_Backend {
 	protected $baseDir;
 
 	public function __construct() {
@@ -43,7 +40,7 @@ class sly_Controller_A1imex extends sly_Controller_Sally {
 		$dirs           = $dispatcher->filter('SLY_A1_EXPORT_FILENAMES', $dirs);
 		$params['dirs'] = $dirs;
 
-		$this->render(self::VIEW_PATH.'export.phtml', $params);
+		print $this->render('export.phtml', $params);
 	}
 
 	protected function init() {
@@ -67,7 +64,7 @@ class sly_Controller_A1imex extends sly_Controller_Sally {
 			}
 		}
 
-		$this->render(self::VIEW_PATH.'head.phtml', compact('subpages'));
+		print $this->render('head.phtml', compact('subpages'));
 	}
 
 	protected function export() {
@@ -105,7 +102,6 @@ class sly_Controller_A1imex extends sly_Controller_Sally {
 				if ($success) {
 					$exportfiles[] = substr($sqlfilename, strlen(SLY_BASE)+1);
 
-
 					// add file with list of all installed addons
 
 					$addonList = $addonservice->getAvailableAddons();
@@ -130,14 +126,14 @@ class sly_Controller_A1imex extends sly_Controller_Sally {
 		}
 
 		if ($success === true) {
-			if(class_exists('ZipArchive')) {
+			if (class_exists('ZipArchive')) {
 				$exporter = new sly_A1_Export_Files_ZipArchive();
-			}else {
+			}
+			else {
 				$exporter = new sly_A1_Export_Files_PclZip();
 			}
 
 			$filename = $filename.'.zip';
-
 			$success  = $exporter->export($this->baseDir.$filename, $exportfiles);
 
 			if (in_array('sql', $systemexports)) {
@@ -177,7 +173,11 @@ class sly_Controller_A1imex extends sly_Controller_Sally {
 	}
 
 	protected function checkPermission() {
-		$user = sly_Service_Factory::getService('User')->getCurrentUser();
+		$user = sly_Util_User::getCurrentUser();
 		return $user->hasRight('import_export[export]') || $user->isAdmin();
+	}
+
+	protected function getViewFolder() {
+		return SLY_ADDONFOLDER.'/import_export/views/';
 	}
 }

@@ -1,48 +1,39 @@
 <?php
-
 /*
  * Copyright (c) 2011, webvariants GbR, http://www.webvariants.de
  *
- * Diese Datei steht unter der MIT-Lizenz. Der Lizenztext befindet sich in der
- * beiliegenden LICENSE Datei und unter:
+ * This file is released under the terms of the MIT license. You can find the
+ * complete text in the attached LICENSE file or online at:
  *
  * http://www.opensource.org/licenses/mit-license.php
- * http://de.wikipedia.org/wiki/MIT-Lizenz
  */
 
 class sly_A1_Export_Files_ZipArchive extends sly_A1_Export_Files {
-
 	public function export($filename, $files) {
-		$tmpFile = $this->getTempFileName();
-
-		$archive = new ZipArchive();
-		$success = $archive->open($tmpFile, ZipArchive::OVERWRITE);
+		$tmpFile   = $this->getTempFileName();
+		$archive   = new ZipArchive $archive, $baseDir, $file();
+		$success   = $archive->open($tmpFile, ZipArchive::OVERWRITE);
+		$isWindows = DIRECTORY_SEPARATOR === '\\';
 
 		if ($success === true) {
 			chdir(SLY_BASE);
+
 			foreach ($files as $file) {
 				if (is_dir($file)) {
 					$dir = new sly_Util_Directory($file, false);
+
 					foreach ($dir->listRecursive(true, false) as $dirfile) {
-						if (DIRECTORY_SEPARATOR === '\\') {
-							$success = $archive->addFromString(str_replace(DIRECTORY_SEPARATOR, '/', $file . DIRECTORY_SEPARATOR . $dirfile), file_get_contents($file . DIRECTORY_SEPARATOR . $dirfile));
-						} else {
-							$success = $archive->addFile($file . DIRECTORY_SEPARATOR . $dirfile, $file . DIRECTORY_SEPARATOR . $dirfile);
-						}
-						if ($success !== true)
-							break;
+						$success = $this->addFile($archive, $file, $dirfile);
+						if ($success !== true) break;
 					}
-				} else {
-					if (DIRECTORY_SEPARATOR === '\\') {
-						$success = $archive->addFromString(str_replace(DIRECTORY_SEPARATOR, '/', $file), file_get_contents($file));
-					} else {
-						$success = $archive->addFile($file, $file);
-					}
-					if ($success !== true)
-						break;
+				}
+				else {
+					$success = $this->addFile($archive, $file, null);
+					if ($success !== true) break;
 				}
 			}
-			chdir('sally');
+
+			chdir('sally/backend');
 			$archive->close();
 
 			if ($success !== true) {
@@ -53,4 +44,16 @@ class sly_A1_Export_Files_ZipArchive extends sly_A1_Export_Files {
 		return @rename($tmpFile, $filename);
 	}
 
+	protected function addFile(ZipArchive $archive, $base, $file) {
+		$fullpath = str_replace('\\', '/', $file === null ? $base : "$base/$file");
+
+		if (DIRECTORY_SEPARATOR === '\\') {
+			$success = $archive->addFromString($fullpath, file_get_contents($fullpath));
+		}
+		else {
+			$success = $archive->addFile($fullpath, $fullpath);
+		}
+
+		return $success;
+	}
 }

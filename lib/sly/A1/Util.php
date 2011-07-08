@@ -1,17 +1,14 @@
 <?php
-
 /*
  * Copyright (c) 2011, webvariants GbR, http://www.webvariants.de
  *
- * Diese Datei steht unter der MIT-Lizenz. Der Lizenztext befindet sich in der
- * beiliegenden LICENSE Datei und unter:
+ * This file is released under the terms of the MIT license. You can find the
+ * complete text in the attached LICENSE file or online at:
  *
  * http://www.opensource.org/licenses/mit-license.php
- * http://de.wikipedia.org/wiki/MIT-Lizenz
  */
 
 class sly_A1_Util {
-
 	const TYPE_TAR = 1;
 	const TYPE_ZIP = 2;
 
@@ -95,7 +92,7 @@ class sly_A1_Util {
 
 			// Tar auspacken
 			if (!$archive->extract()) {
-				chdir('sally');
+				chdir('sally/backend');
 				throw new Exception(t('im_export_problem_when_extracting'));
 			}
 		}
@@ -113,7 +110,7 @@ class sly_A1_Util {
 					$archive->close();
 				}
 				else {
-					chdir('sally');
+					chdir('sally/backend');
 					throw new Exception(t('im_export_problem_when_extracting'));
 				}
 			}
@@ -127,7 +124,7 @@ class sly_A1_Util {
 				$success = $archive->errorCode() === PCLZIP_ERR_NO_ERROR;
 
 				if (!$success) {
-					chdir('sally');
+					chdir('sally/backend');
 					throw new Exception(t('im_export_problem_when_extracting'));
 				}
 			}
@@ -135,12 +132,12 @@ class sly_A1_Util {
 
 		// Extensions auslösen
 		$archive = sly_Core::dispatcher()->filter('SLY_A1_AFTER_FILE_IMPORT', $archive);
-		chdir('sally');
+		chdir('sally/backend');
 	}
 
 	private static function guessFileType($filename) {
-		if (substr($filename, -7, 7) == '.tar.gz') return self::TYPE_TAR;
-		if (substr($filename, -4, 4) == '.zip') return self::TYPE_ZIP;
+		if (substr($filename, -7) == '.tar.gz') return self::TYPE_TAR;
+		if (substr($filename, -4) == '.zip') return self::TYPE_ZIP;
 		throw new Exception(t('im_export_no_import_file_chosen'));
 	}
 }
