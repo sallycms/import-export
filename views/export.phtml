@@ -1,0 +1,61 @@
+<?php
+/*
+ * Copyright (c) 2011, webvariants GbR, http://www.webvariants.de
+ *
+ * This file is released under the terms of the MIT license. You can find the
+ * complete text in the attached LICENSE file or online at:
+ *
+ * http://www.opensource.org/licenses/mit-license.php
+ */
+?>
+<div class="sly-content">
+	<?
+
+	// Meldungen ausgeben
+
+	if (!empty($info))    print rex_info($info);
+	if (!empty($warning)) print rex_warning($warning);
+
+	// Intro-Text
+
+	print '<p>'.t('im_export_intro_export').'</p>';
+
+	// Formular erzeugen
+
+	$form = new sly_Form('index.php', 'POST', t('im_export_export'), '', 'export');
+	$form->setEncType('multipart/form-data');
+	$form->addHiddenValue('page', 'a1imex');
+	$form->addHiddenValue('func', 'export');
+
+	$options = array(
+		'sql'           => t('im_export_database_export'),
+		'configuration' => t('im_export_configuration_export')
+	);
+
+	if (empty($_POST)) {
+		$systemexports = array('sql', 'configuration');
+	}
+
+	$contents = new sly_Form_Select_Checkbox('systemexports', 'Export-Typ', $systemexports, $options);
+	$filename = new sly_Form_Input_Text('filename', t('im_export_filename'), $filename);
+	$filename->setHelpText(t('im_export_hint_filename'));
+
+	// Verzeichnis-Auswahl erzeugen
+
+	$root   = new sly_Form_Select_Checkbox('directories', t('im_export_additional_folders'), $selectedDirs, $dirs);
+	$format = new sly_Form_Select_Radio('download', 'Download', $download, array(
+		0 => t('im_export_save_on_server'),
+		1 => t('im_export_download_as_file')
+	));
+
+	// Formular fertigstellen und ausgeben
+
+	$form->addElements(array($contents, $root));
+	$form->beginFieldset('Downloadoptionen');
+	$form->addElements(array($format, $filename));
+	$form->getSubmitButton()->setAttribute('value', t('im_export_db_export'));
+	$form->setResetButton(null);
+	print $form->render();
+
+	?>
+</div>
