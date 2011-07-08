@@ -2,12 +2,11 @@
 /*
  * Copyright (c) 2011, webvariants GbR, http://www.webvariants.de
  *
- * Diese Datei steht unter der MIT-Lizenz. Der Lizenztext befindet sich in der
- * beiliegenden LICENSE Datei und unter:
+ * This file is released under the terms of the MIT license. You can find the
+ * complete text in the attached LICENSE file or online at:
  *
  * http://www.opensource.org/licenses/mit-license.php
- * http://de.wikipedia.org/wiki/MIT-Lizenz
-*/
+ */
 
 /**
  * Basic Controller for Import and Export Pages
@@ -15,14 +14,13 @@
  * @author zozi
  */
 class sly_Controller_A1imex_Import extends sly_Controller_A1imex {
-
 	protected function index() {
 		$this->importView();
 	}
 
 	protected function importView($params = array()) {
 		$params['files'] = sly_A1_Util::getArchives($this->baseDir);
-		$this->render(self::VIEW_PATH.'import.phtml', $params);
+		print $this->render('import.phtml', $params);
 	}
 
 	protected function import() {
@@ -47,7 +45,6 @@ class sly_Controller_A1imex_Import extends sly_Controller_A1imex {
 			$addonListFilename = $sqltempdir.DIRECTORY_SEPARATOR.'addons.php';
 
 			if (file_exists($addonListFilename)) {
-
 				$handle = fopen($addonListFilename, 'r');
 				flock($handle, LOCK_SH);
 
@@ -58,19 +55,20 @@ class sly_Controller_A1imex_Import extends sly_Controller_A1imex {
 				fclose($handle);
 
 				$availableAddons = $addonservice->getAvailableAddons();
-				$missingAddons = array_diff($addons, array_intersect($addons, $availableAddons));
+				$missingAddons   = array_diff($addons, array_intersect($addons, $availableAddons));
+
 				if (isset($addons) && count($missingAddons)) {
 					$params['warning'] .= t('im_export_missing_addons_for_db_import').': '.implode(', ', $missingAddons);
 					$error = true;
 				}
+
 				unlink($addonListFilename);
 			}
 
-			$sqlfilename  = explode('.', $filename);
-			$sqlfilename  = $sqltempdir.DIRECTORY_SEPARATOR.$sqlfilename[0].'.sql';
+			$sqlfilename = explode('.', $filename);
+			$sqlfilename = $sqltempdir.DIRECTORY_SEPARATOR.$sqlfilename[0].'.sql';
 
 			if (!$error && file_exists($sqlfilename)) {
-
 				$importer  = new sly_DB_Importer();
 				$sqlretval = $importer->import($sqlfilename);
 
@@ -118,7 +116,7 @@ class sly_Controller_A1imex_Import extends sly_Controller_A1imex {
 	}
 
 	protected function checkPermission() {
-		$user = sly_Service_Factory::getService('User')->getCurrentUser();
+		$user = sly_Util_User::getCurrentUser();
 		return $user->hasRight('import_export[import]') || $user->isAdmin();
 	}
 }

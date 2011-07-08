@@ -2,14 +2,15 @@
 /*
  * Copyright (c) 2011, webvariants GbR, http://www.webvariants.de
  *
- * Diese Datei steht unter der MIT-Lizenz. Der Lizenztext befindet sich in der
- * beiliegenden LICENSE Datei und unter:
+ * This file is released under the terms of the MIT license. You can find the
+ * complete text in the attached LICENSE file or online at:
  *
  * http://www.opensource.org/licenses/mit-license.php
- * http://de.wikipedia.org/wiki/MIT-Lizenz
-*/
+ */
 
 if (sly_Core::isBackend()) {
-	sly_Core::getI18N()->appendFile(SLY_INCLUDE_PATH.'/addons/import_export/lang/');
-	sly_Loader::addLoadPath(dirname(__FILE__).DIRECTORY_SEPARATOR.'lib');
+	$base = dirname(__FILE__);
+
+	sly_Core::getI18N()->appendFile($base.'/lang');
+	sly_Loader::addLoadPath($base.'/lib');
 }

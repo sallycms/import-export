@@ -43,7 +43,6 @@ class sly_A1_Export_Database {
 
 		fwrite($fp, '## Sally Database Dump Version '.sly_Core::getVersion('X.Y').$nl);
 		fwrite($fp, '## Prefix '.$prefix.$nl);
-		fwrite($fp, '## charset UTF-8'.$nl.$nl);
 
 		foreach ($tables as $table) {
 			if (!$this->includeTable($table)) {
@@ -118,8 +117,8 @@ class sly_A1_Export_Database {
 		$prefix = $config->get('DATABASE/TABLE_PREFIX');;
 
 		return
-			strstr($table, $prefix) == $table &&                     // Nur Tabellen mit dem aktuellen Präfix
-			$table != $prefix.'user';                                // User-Tabelle nicht exportieren
+			strstr($table, $prefix) == $table && // Nur Tabellen mit dem aktuellen Präfix
+			$table != $prefix.'user';            // User-Tabelle nicht exportieren
 	}
 
 	protected function getFields($sql, $table) {
