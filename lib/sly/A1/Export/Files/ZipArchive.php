@@ -11,7 +11,7 @@
 class sly_A1_Export_Files_ZipArchive extends sly_A1_Export_Files {
 	public function export($filename, $files) {
 		$tmpFile   = $this->getTempFileName();
-		$archive   = new ZipArchive $archive, $baseDir, $file();
+		$archive   = new ZipArchive($archive, $baseDir, $file);
 		$success   = $archive->open($tmpFile, ZipArchive::OVERWRITE);
 		$isWindows = DIRECTORY_SEPARATOR === '\\';
 
