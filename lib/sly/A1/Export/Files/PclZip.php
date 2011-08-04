@@ -9,13 +9,13 @@
  */
 
 class sly_A1_Export_Files_PclZip extends sly_A1_Export_Files {
-	public function export($filename, $files) {
+	public function export($filename, $files, $addons) {
 		$tmpFile = $this->getTempFileName();
 
 		chdir(SLY_BASE);
 
 		$archive = new PclZip($tmpFile);
-		$archive->create($files);
+		$archive->create($files, PCLZIP_OPT_COMMENT, $addons);
 
 		chdir('sally/backend');
 

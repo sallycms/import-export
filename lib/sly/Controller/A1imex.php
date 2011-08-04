@@ -85,7 +85,9 @@ class sly_Controller_A1imex extends sly_Controller_Backend {
 		}
 
 		if ($success === true) {
-			$filename   = sly_A1_Util::getIteratedFilename($filename, '.zip');
+			$filename     = sly_A1_Util::getIteratedFilename($filename, '.zip');
+			$addonservice = sly_Service_Factory::getAddOnService();
+			$addonList    = implode("\n", $addonservice->getAvailableAddons());
 
 			if (in_array('configuration', $systemexports)) {
 				$configfilename = sly_Core::config()->getProjectConfigFile();
@@ -93,7 +95,6 @@ class sly_Controller_A1imex extends sly_Controller_Backend {
 			}
 
 			if (in_array('sql', $systemexports)) {
-				$addonservice = sly_Service_Factory::getAddOnService();
 				$sqltempdir   = $addonservice->internalFolder('import_export');
 				$sqlfilename  = $sqltempdir.DIRECTORY_SEPARATOR.$filename.'.sql';
 				$exporter     = new sly_A1_Export_Database();
@@ -101,18 +102,6 @@ class sly_Controller_A1imex extends sly_Controller_Backend {
 
 				if ($success) {
 					$exportfiles[] = substr($sqlfilename, strlen(SLY_BASE)+1);
-
-					// add file with list of all installed addons
-
-					$addonList = $addonservice->getAvailableAddons();
-					if (is_array($addonList)) {
-						$addonListFilename = $addonservice->internalFolder('import_export').DIRECTORY_SEPARATOR.'addons.php';
-						file_put_contents($addonListFilename, '<?php $addons = '.var_export($addonList, true).';', LOCK_EX);
-
-						if (file_exists($addonListFilename)) {
-							$exportfiles[] = substr($addonListFilename, strlen(SLY_BASE)+1);
-						}
-					}
 				}
 				else {
 					$params['warning'] .= t('im_export_sql_dump_could_not_be_generated');
@@ -134,7 +123,7 @@ class sly_Controller_A1imex extends sly_Controller_Backend {
 			}
 
 			$filename = $filename.'.zip';
-			$success  = $exporter->export($this->baseDir.$filename, $exportfiles);
+			$success  = $exporter->export($this->baseDir.$filename, $exportfiles, $addonList);
 
 			if (in_array('sql', $systemexports)) {
 				unlink($sqlfilename);
