@@ -9,13 +9,15 @@
  */
 
 class sly_A1_Export_Files_ZipArchive extends sly_A1_Export_Files {
-	public function export($filename, $files) {
+	public function export($filename, $files, $addons) {
 		$tmpFile   = $this->getTempFileName();
 		$archive   = new ZipArchive($archive, $baseDir, $file);
 		$success   = $archive->open($tmpFile, ZipArchive::OVERWRITE);
 		$isWindows = DIRECTORY_SEPARATOR === '\\';
 
 		if ($success === true) {
+			$archive->setArchiveComment($addons);
+
 			chdir(SLY_BASE);
 
 			foreach ($files as $file) {

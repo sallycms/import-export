@@ -12,7 +12,7 @@
  * Base class for File Exports
  */
 abstract class sly_A1_Export_Files {
-	abstract public function export($filename, $files);
+	abstract public function export($filename, $files, $addons);
 
 	protected function getTempFileName() {
 		$addonservice = sly_Service_Factory::getAddOnService();

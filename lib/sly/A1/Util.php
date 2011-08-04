@@ -102,9 +102,13 @@ class sly_A1_Util {
 
 				// Extensions auslösen
 				$archive = sly_Core::dispatcher()->filter('SLY_A1_BEFORE_FILE_IMPORT', $archive);
-
 				$success = $archive->open($filename);
-				if ($success) $success = $archive->extractTo('./');
+
+				if ($success) {
+					$addons = $archive->getArchiveComment();
+					self::checkAddOns($addons);
+					$success = $archive->extractTo('./');
+				}
 
 				if ($success) {
 					$archive->close();
@@ -119,6 +123,12 @@ class sly_A1_Util {
 
 				// Extensions auslösen
 				$archive = sly_Core::dispatcher()->filter('SLY_A1_BEFORE_FILE_IMPORT', $archive);
+
+				$props = $archive->properties();
+
+				if (isset($props['comment'])) {
+					self::checkAddOns($props['comment']);
+				}
 
 				$archive->extract();
 				$success = $archive->errorCode() === PCLZIP_ERR_NO_ERROR;
@@ -139,5 +149,22 @@ class sly_A1_Util {
 		if (substr($filename, -7) == '.tar.gz') return self::TYPE_TAR;
 		if (substr($filename, -4) == '.zip') return self::TYPE_ZIP;
 		throw new Exception(t('im_export_no_import_file_chosen'));
+	}
+
+	private static function checkAddOns($requiredAddOns) {
+		if ($requiredAddOns === false) return true; // no comment was found inside ZIP
+
+		$required = explode("\n", $requiredAddOns);
+		if (empty($required)) return true;
+
+		$addonservice = sly_Service_Factory::getAddOnService();
+		$available    = $addonservice->getAvailableAddons();
+		$missing      = array_diff($required, array_intersect($required, $available));
+
+		if (!empty($missing)) {
+			throw new Exception(t('im_export_missing_addons_for_db_import').': '.implode(', ', $missing));
+		}
+
+		return true;
 	}
 }
