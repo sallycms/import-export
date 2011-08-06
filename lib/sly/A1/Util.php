@@ -154,7 +154,7 @@ class sly_A1_Util {
 	private static function checkAddOns($requiredAddOns) {
 		if ($requiredAddOns === false) return true; // no comment was found inside ZIP
 
-		$required = explode("\n", $requiredAddOns);
+		$required = array_filter(explode("\n", $requiredAddOns));
 		if (empty($required)) return true;
 
 		$addonservice = sly_Service_Factory::getAddOnService();
