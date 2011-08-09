@@ -137,7 +137,7 @@ class sly_Controller_A1imex extends sly_Controller_Backend {
 					unlink($this->baseDir.$filename);
 					exit;
 				}
-				chmod($this->baseDir.$filename, 0777);
+				chmod($this->baseDir.$filename, sly_Core::getFilePerm());
 			}
 			else {
 				$params['warning'] .= t('im_export_file_could_not_be_generated').' '.t('im_export_you_have_no_write_permission_in', $exportPath);

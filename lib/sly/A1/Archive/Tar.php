@@ -1087,12 +1087,12 @@ class sly_A1_Archive_Tar extends sly_A1_PEAR
         $v_magic = 'ustar ';
 
         $v_version = ' ';
-        
+
         if (function_exists('posix_getpwuid'))
         {
           $userinfo = posix_getpwuid($v_info[4]);
           $groupinfo = posix_getgrgid($v_info[5]);
-          
+
           $v_uname = $userinfo['name'];
           $v_gname = $groupinfo['name'];
         }
@@ -1176,7 +1176,7 @@ class sly_A1_Archive_Tar extends sly_A1_PEAR
         {
           $userinfo = posix_getpwuid($p_uid);
           $groupinfo = posix_getgrgid($p_gid);
-          
+
           $v_uname = $userinfo['name'];
           $v_gname = $groupinfo['name'];
         }
@@ -1185,7 +1185,7 @@ class sly_A1_Archive_Tar extends sly_A1_PEAR
           $v_uname = '';
           $v_gname = '';
         }
-        
+
         $v_devmajor = '';
 
         $v_devminor = '';
@@ -1611,7 +1611,7 @@ class sly_A1_Archive_Tar extends sly_A1_PEAR
         if ($v_extract_file) {
           if ($v_header['typeflag'] == "5") {
             if (!@file_exists($v_header['filename'])) {
-                if (!@mkdir($v_header['filename'], 0777)) {
+                if (!@mkdir($v_header['filename'], sly_Core::getDirPerm())) {
                     $this->_error('Unable to create directory {'
 					              .$v_header['filename'].'}');
                     return false;
@@ -1824,7 +1824,7 @@ class sly_A1_Archive_Tar extends sly_A1_PEAR
             (!$this->_dirCheck($p_parent_dir)))
              return false;
 
-        if (!@mkdir($p_dir, 0777)) {
+        if (!@mkdir($p_dir, sly_Core::getDirPerm())) {
             $this->_error("Unable to create directory '$p_dir'");
             return false;
         }
