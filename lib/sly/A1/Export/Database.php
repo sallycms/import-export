@@ -45,6 +45,11 @@ class sly_A1_Export_Database {
 		fwrite($fp, '## Prefix '.$prefix.$nl);
 		fwrite($fp, '## charset UTF-8'.$nl.$nl);
 
+		// make sure already existing '0' values for auto_increment columns don't
+		// create new incremented values when importing
+
+		fwrite($fp, 'SET SQL_MODE=\'NO_AUTO_VALUE_ON_ZERO\';'.$nl.$nl);
+
 		foreach ($tables as $table) {
 			if (!$this->includeTable($table)) {
 				continue;
