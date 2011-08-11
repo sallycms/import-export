@@ -44,6 +44,11 @@ class sly_A1_Export_Database {
 		fwrite($fp, '## Sally Database Dump Version '.sly_Core::getVersion('X.Y').$nl);
 		fwrite($fp, '## Prefix '.$prefix.$nl);
 
+		// make sure already existing '0' values for auto_increment columns don't
+		// create new incremented values when importing
+
+		fwrite($fp, 'SET SQL_MODE=\'NO_AUTO_VALUE_ON_ZERO\';'.$nl.$nl);
+
 		foreach ($tables as $table) {
 			if (!$this->includeTable($table)) {
 				continue;
