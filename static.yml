@@ -1,6 +1,6 @@
 page: a1imex
 name: translate:im_export_importexport
-perm: import_export[export]
+perm: ['import_export[export]', 'import_export[import]']
 author: 'Christoph Mewes, Christian Zozmann, Jan Kristinus'
 supportpage: www.webvariants.de
 sally: ['0.5']
