@@ -117,6 +117,6 @@ class sly_Controller_A1imex_Import extends sly_Controller_A1imex {
 
 	protected function checkPermission() {
 		$user = sly_Util_User::getCurrentUser();
-		return $user->hasRight('import_export[import]') || $user->isAdmin();
+		return $user->isAdmin() || $user->hasRight('import_export[import]');
 	}
 }

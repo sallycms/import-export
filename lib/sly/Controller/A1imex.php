@@ -163,7 +163,7 @@ class sly_Controller_A1imex extends sly_Controller_Backend {
 
 	protected function checkPermission() {
 		$user = sly_Util_User::getCurrentUser();
-		return $user->hasRight('import_export[export]') || $user->isAdmin();
+		return $user->isAdmin() || $user->hasRight('import_export[export]');
 	}
 
 	protected function getViewFolder() {
