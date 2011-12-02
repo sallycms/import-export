@@ -44,15 +44,17 @@ class sly_Controller_A1imex extends sly_Controller_Backend {
 	}
 
 	protected function init() {
-		$user     = sly_Service_Factory::getService('User')->getCurrentUser();
+		$user     = sly_Util_User::getCurrentUser();
 		$subpages = array();
+		$isAdmin  = $user->isAdmin();
+		$is06     = version_compare(sly_Core::getVersion(), '0.6', '>=');
 
-		if ($user->hasRight('import_export[export]') || $user->isAdmin()){
-			$subpages[] = array('', t('im_export_export'));
+		if ($isAdmin || $user->hasRight('import_export[export]')) {
+			$subpages[] = array($is06 ? 'a1imex' : '', t('im_export_export'));
 		}
 
-		if ($user->hasRight('import_export[import]') || $user->isAdmin()){
-			$subpages[] = array('import', t('im_export_import'));
+		if ($isAdmin || $user->hasRight('import_export[import]')) {
+			$subpages[] = array($is06 ? 'a1imex_import' : 'import', t('im_export_import'));
 		}
 
 		$nav  = sly_Core::getNavigation();

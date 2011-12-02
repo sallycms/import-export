@@ -13,8 +13,8 @@
 
 	// Meldungen ausgeben
 
-	if (!empty($info))    print rex_info($info);
-	if (!empty($warning)) print rex_warning($warning);
+	if (!empty($info))    print sly_Helper_Message::info($info);
+	if (!empty($warning)) print sly_Helper_Message::warn($warning);
 
 	// Intro-Text
 
@@ -33,12 +33,14 @@
 
 	$table->openBuffer();
 
+	$is06 = version_compare(sly_Core::getVersion(), '0.6', '>=');
+
 	foreach ($files as $file) {
 		$filename = $this->baseDir.$file;
 		if (!file_exists($filename)) continue;
 
 		$info    = sly_A1_Util::getArchiveInfo($file);
-		$baseURL = 'index.php?page=a1imex&amp;subpage=import&amp;file='.urlencode($file).'&amp;func=';
+		$baseURL = 'index.php?page='.($is06 ? 'a1imex_import' : 'a1imex&amp;subpage=import').'&amp;file='.urlencode($file).'&amp;func=';
 
 		?>
 		<tr>
@@ -53,7 +55,7 @@
 				<a href="<?= $baseURL ?>import" class="import"><?= t('im_export_import_file') ?></a>
 				<a href="<?= $baseURL ?>delete" class="delete sly-delete"><?= t('im_export_delete_file') ?></a>
 			</td>
-			<td class="rex-col-d"><?= strftime('%d.%m.%Y um %H:%M Uhr', filectime($filename)) ?></td>
+			<td class="rex-col-d"><?= sly_Util_String::formatDatetime(filectime($filename)) ?></td>
 			<td class="rex-col-e"><?= sly_Util_String::formatFilesize(filesize($filename)) ?></td>
 		</tr>
 		<?
