@@ -1,0 +1,68 @@
+<?php
+/*
+ * Copyright (c) 2011, webvariants GbR, http://www.webvariants.de
+ *
+ * This file is released under the terms of the MIT license. You can find the
+ * complete text in the attached LICENSE file or online at:
+ *
+ * http://www.opensource.org/licenses/mit-license.php
+ */
+?>
+<div class="sly-content">
+	<?
+
+	// Meldungen ausgeben
+
+	if (!empty($info))    print sly_Helper_Message::info($info);
+	if (!empty($warning)) print sly_Helper_Message::warn($warning);
+
+	// Intro-Text
+
+	print '<p>'.t('im_export_intro_import').'</p>';
+
+	// Formular erzeugen
+
+	$table = new sly_Table('exports');
+	$table->addColumn(new sly_Table_Column('<img src="../sally/data/dyn/public/import_export/images/backup.png" alt="" />', '', '', array('class' => 'sly-icon')));
+	$table->addColumn(new sly_Table_Column('Datei', 'auto'));
+	$table->addColumn(new sly_Table_Column('Optionen', '170px'));
+	$table->addColumn(new sly_Table_Column('Datum', '150px'));
+	$table->addColumn(new sly_Table_Column('Größe', '95px'));
+	$table->setIsEmpty(empty($files));
+	$table->setEmptyNotice(t('im_export_no_backups_available'));
+
+	$table->openBuffer();
+
+	$is06 = version_compare(sly_Core::getVersion(), '0.6', '>=');
+
+	foreach ($files as $file) {
+		$filename = $this->baseDir.$file;
+		if (!file_exists($filename)) continue;
+
+		$info    = sly_A1_Util::getArchiveInfo($file);
+		$baseURL = 'index.php?page='.($is06 ? 'a1imex_import' : 'a1imex&amp;subpage=import').'&amp;file='.urlencode($file).'&amp;func=';
+
+		?>
+		<tr>
+			<td class="rex-col-a sly-icon"><img src="../sally/data/dyn/public/import_export/images/backup.png" alt="" /></td>
+			<td class="rex-col-b">
+				<a href="<?= $baseURL ?>download" title="<?= sly_html($file) ?>"><?= sly_html($info['name']) ?></a>
+				<? if (!empty($info['description'])): ?>
+				<span>(<?= sly_html($info['description']) ?>)</span>
+				<? endif ?>
+			</td>
+			<td class="rex-col-c">
+				<a href="<?= $baseURL ?>import" class="import"><?= t('im_export_import_file') ?></a>
+				<a href="<?= $baseURL ?>delete" class="delete sly-delete"><?= t('im_export_delete_file') ?></a>
+			</td>
+			<td class="rex-col-d"><?= sly_Util_String::formatDatetime(filectime($filename)) ?></td>
+			<td class="rex-col-e"><?= sly_Util_String::formatFilesize(filesize($filename)) ?></td>
+		</tr>
+		<?
+	}
+
+	$table->closeBuffer();
+	print $table->render();
+
+	?>
+</div>
