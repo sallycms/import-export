@@ -21,11 +21,12 @@ class sly_Controller_A1imex extends sly_Controller_Backend {
 		$this->baseDir = sly_A1_Util::getDataDir().DIRECTORY_SEPARATOR;
 	}
 
-	protected function index() {
+	public function indexAction() {
 		$params['filename']      = 'sly_'.date('Ymd');
 		$params['systemexports'] = array();
 		$params['selectedDirs']  = array();
 		$params['download']      = array(0);
+
 		$this->exportView($params);
 	}
 
@@ -43,7 +44,7 @@ class sly_Controller_A1imex extends sly_Controller_Backend {
 		print $this->render('export.phtml', $params);
 	}
 
-	protected function init() {
+	public function init() {
 		$user     = sly_Util_User::getCurrentUser();
 		$subpages = array();
 		$isAdmin  = $user->isAdmin();
@@ -69,7 +70,7 @@ class sly_Controller_A1imex extends sly_Controller_Backend {
 		print $this->render('head.phtml', compact('subpages'));
 	}
 
-	protected function export() {
+	public function exportAction() {
 		$download      = sly_post('download', 'boolean', false);
 		$systemexports = sly_postArray('systemexports', 'string', array());
 		$exportfiles   = sly_postArray('directories', 'string', array());
@@ -163,9 +164,9 @@ class sly_Controller_A1imex extends sly_Controller_Backend {
 		$this->exportView($params);
 	}
 
-	protected function checkPermission() {
+	public function checkPermission() {
 		$user = sly_Util_User::getCurrentUser();
-		return $user->isAdmin() || $user->hasRight('import_export[export]');
+		return $user && ($user->isAdmin() || $user->hasRight('import_export[export]'));
 	}
 
 	protected function getViewFolder() {

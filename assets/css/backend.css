@@ -1,27 +1,30 @@
-#rex-page-a1imex, #sly-page-a1imex-import {
-	#exports {
-		a.import {
-			background: url(../images/import.png) left center no-repeat;
-			padding-left: 20px;
-			color: green;
-		}
+#sly-page-a1imex,
+#sly-page-a1imex-import {
+	a.import {
+		background: url(../images/import.png) left center no-repeat;
+		padding-left: 20px;
+		color: green;
+	}
 
-		a.delete {
-			background: url(../images/delete.png) left center no-repeat;
-			padding-left: 20px;
-			margin-left: 10px;
-			color: red;
-		}
+	a.delete {
+		background: url(../images/delete.png) left center no-repeat;
+		padding-left: 20px;
+		margin-left: 10px;
+		color: red;
+	}
 
-		.rex-col-b span {
-			color: #aca9a9;
-			font-size: 12px;
-		}
+	.sly-col-funcs { width: 180px; }
+	.sly-col-date  { width: 150px; }
+	.sly-col-size  { width: 100px; }
 
-		.rex-col-e {
-			min-width: 95px;
-			text-align: right;
-			padding-right: 5px;
-		}
+	.sly-col-file span {
+		color: #aca9a9;
+		font-size: 12px;
+	}
+
+	td.sly-col-size,
+	td.sly-col-date {
+		text-align: right;
+		padding-right: 5px;
 	}
 }

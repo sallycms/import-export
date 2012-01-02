@@ -23,11 +23,11 @@
 	// Formular erzeugen
 
 	$table = new sly_Table('exports');
-	$table->addColumn(new sly_Table_Column('<img src="../sally/data/dyn/public/import_export/images/backup.png" alt="" />', '', '', array('class' => 'sly-icon')));
-	$table->addColumn(new sly_Table_Column('Datei', 'auto'));
-	$table->addColumn(new sly_Table_Column('Optionen', '170px'));
-	$table->addColumn(new sly_Table_Column('Datum', '150px'));
-	$table->addColumn(new sly_Table_Column('Größe', '95px'));
+	$table->addColumn(new sly_Table_Column('<img src="../data/dyn/public/import_export/images/backup.png" alt="" />', '', '', array('class' => 'sly-col-icon sly-icon')));
+	$table->addColumn(new sly_Table_Column('Datei', '', '', array('class' => 'sly-col-file')));
+	$table->addColumn(new sly_Table_Column('Optionen', '', '', array('class' => 'sly-col-funcs')));
+	$table->addColumn(new sly_Table_Column('Datum', '', '', array('class' => 'sly-col-date')));
+	$table->addColumn(new sly_Table_Column('Größe', '', '', array('class' => 'sly-col-size')));
 	$table->setIsEmpty(empty($files));
 	$table->setEmptyNotice(t('im_export_no_backups_available'));
 
@@ -44,19 +44,19 @@
 
 		?>
 		<tr>
-			<td class="rex-col-a sly-icon"><img src="../sally/data/dyn/public/import_export/images/backup.png" alt="" /></td>
-			<td class="rex-col-b">
+			<td class="sly-col-icon sly-icon"><img src="../data/dyn/public/import_export/images/backup.png" alt="" /></td>
+			<td class="sly-col-file">
 				<a href="<?= $baseURL ?>download" title="<?= sly_html($file) ?>"><?= sly_html($info['name']) ?></a>
 				<? if (!empty($info['description'])): ?>
 				<span>(<?= sly_html($info['description']) ?>)</span>
 				<? endif ?>
 			</td>
-			<td class="rex-col-c">
+			<td class="sly-col-funcs">
 				<a href="<?= $baseURL ?>import" class="import"><?= t('im_export_import_file') ?></a>
 				<a href="<?= $baseURL ?>delete" class="delete sly-delete"><?= t('im_export_delete_file') ?></a>
 			</td>
-			<td class="rex-col-d"><?= sly_Util_String::formatDatetime(filectime($filename)) ?></td>
-			<td class="rex-col-e"><?= sly_Util_String::formatFilesize(filesize($filename)) ?></td>
+			<td class="sly-col-date"><?= sly_Util_String::formatDatetime(filectime($filename)) ?></td>
+			<td class="sly-col-size"><?= sly_Util_String::formatFilesize(filesize($filename)) ?></td>
 		</tr>
 		<?
 	}
