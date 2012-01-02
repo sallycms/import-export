@@ -5,4 +5,4 @@ extperm: ['import_export[export]', 'import_export[import]']
 author: 'Christoph Mewes, Christian Zozmann, Jan Kristinus'
 supportpage: www.webvariants.de
 sally: ['0.5']
-version: '2.7.2'
+version: '2.7.3'
