@@ -15,6 +15,7 @@
  */
 class sly_Controller_A1imex_Import extends sly_Controller_A1imex {
 	public function indexAction() {
+		$this->init();
 		$this->importView();
 	}
 
@@ -24,6 +25,8 @@ class sly_Controller_A1imex_Import extends sly_Controller_A1imex {
 	}
 
 	public function importAction() {
+		$this->init();
+
 		$params   = array('warning' => '', 'info' => '');
 		$filename = sly_request('file', 'string');
 
@@ -87,6 +90,8 @@ class sly_Controller_A1imex_Import extends sly_Controller_A1imex {
 	}
 
 	public function deleteAction() {
+		$this->init();
+
 		$filename = sly_request('file', 'string');
 		$params   = array();
 
@@ -101,6 +106,8 @@ class sly_Controller_A1imex_Import extends sly_Controller_A1imex {
 	}
 
 	public function downloadAction() {
+		$this->init();
+
 		$filename = sly_request('file', 'string');
 
 		if (!empty($filename) && file_exists($this->baseDir.$filename)) {
@@ -115,7 +122,7 @@ class sly_Controller_A1imex_Import extends sly_Controller_A1imex {
 		$this->importView($params);
 	}
 
-	public function checkPermission() {
+	public function checkPermission($action) {
 		$user = sly_Util_User::getCurrentUser();
 		return $user && ($user->isAdmin() || $user->hasRight('import_export[import]'));
 	}

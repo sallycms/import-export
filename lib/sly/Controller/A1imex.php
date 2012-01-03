@@ -13,7 +13,7 @@
  *
  * @author zozi
  */
-class sly_Controller_A1imex extends sly_Controller_Backend {
+class sly_Controller_A1imex extends sly_Controller_Backend implements sly_Controller_Interface {
 	protected $baseDir;
 
 	public function __construct() {
@@ -21,30 +21,7 @@ class sly_Controller_A1imex extends sly_Controller_Backend {
 		$this->baseDir = sly_A1_Util::getDataDir().DIRECTORY_SEPARATOR;
 	}
 
-	public function indexAction() {
-		$params['filename']      = 'sly_'.date('Ymd');
-		$params['systemexports'] = array();
-		$params['selectedDirs']  = array();
-		$params['download']      = array(0);
-
-		$this->exportView($params);
-	}
-
-	protected function exportView($params) {
-		$dirs = array(
-			'assets'  => t('im_export_explain_assets'),
-			'develop' => t('im_export_explain_develop'),
-			substr(SLY_MEDIAFOLDER, strlen(SLY_BASE)+1) => t('im_export_explain_mediapool')
-		);
-
-		$dispatcher     = sly_Core::dispatcher();
-		$dirs           = $dispatcher->filter('SLY_A1_EXPORT_FILENAMES', $dirs);
-		$params['dirs'] = $dirs;
-
-		print $this->render('export.phtml', $params);
-	}
-
-	public function init() {
+	protected function init() {
 		$user     = sly_Util_User::getCurrentUser();
 		$subpages = array();
 		$isAdmin  = $user->isAdmin();
@@ -70,7 +47,34 @@ class sly_Controller_A1imex extends sly_Controller_Backend {
 		print $this->render('head.phtml', compact('subpages'));
 	}
 
+	public function indexAction() {
+		$this->init();
+
+		$params['filename']      = 'sly_'.date('Ymd');
+		$params['systemexports'] = array();
+		$params['selectedDirs']  = array();
+		$params['download']      = array(0);
+
+		$this->exportView($params);
+	}
+
+	protected function exportView($params) {
+		$dirs = array(
+			'assets'  => t('im_export_explain_assets'),
+			'develop' => t('im_export_explain_develop'),
+			substr(SLY_MEDIAFOLDER, strlen(SLY_BASE)+1) => t('im_export_explain_mediapool')
+		);
+
+		$dispatcher     = sly_Core::dispatcher();
+		$dirs           = $dispatcher->filter('SLY_A1_EXPORT_FILENAMES', $dirs);
+		$params['dirs'] = $dirs;
+
+		print $this->render('export.phtml', $params);
+	}
+
 	public function exportAction() {
+		$this->init();
+
 		$download      = sly_post('download', 'boolean', false);
 		$systemexports = sly_postArray('systemexports', 'string', array());
 		$exportfiles   = sly_postArray('directories', 'string', array());
@@ -164,7 +168,7 @@ class sly_Controller_A1imex extends sly_Controller_Backend {
 		$this->exportView($params);
 	}
 
-	public function checkPermission() {
+	public function checkPermission($action) {
 		$user = sly_Util_User::getCurrentUser();
 		return $user && ($user->isAdmin() || $user->hasRight('import_export[export]'));
 	}
