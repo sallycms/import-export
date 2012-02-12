@@ -18,8 +18,7 @@ class sly_A1_Export_Database {
 	}
 
 	public function export($filename) {
-		$config = sly_Core::config();
-		$prefix = $config->get('DATABASE/TABLE_PREFIX');
+		$prefix = sly_Core::getTablePrefix();
 
 		$this->filename = $filename;
 
@@ -118,8 +117,7 @@ class sly_A1_Export_Database {
 	}
 
 	protected function includeTable($table) {
-		$config = sly_Core::config();
-		$prefix = $config->get('DATABASE/TABLE_PREFIX');;
+		$prefix = sly_Core::getTablePrefix();
 
 		return
 			strstr($table, $prefix) == $table && // Nur Tabellen mit dem aktuellen Präfix
