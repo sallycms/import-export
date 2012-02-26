@@ -53,3 +53,6 @@ im_export_sql_dump_could_not_be_generated: the SQL dump could not be created.
 im_export_selected_file_not_exists: The selected file does not exists.
 im_export_file_could_not_be_deleted: The selected file could not be deleted.
 im_export_no_backups_available: No Backups available.
+im_export_include_addons: AddOns/Plugins
+im_export_include_addons_help: Require the currently installed addOns and plugins when importing.
+im_export_comment: Comment

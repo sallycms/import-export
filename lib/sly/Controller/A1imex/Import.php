@@ -31,8 +31,32 @@ class sly_Controller_A1imex_Import extends sly_Controller_A1imex {
 		$filename = sly_request('file', 'string');
 
 		try {
+			sly_A1_Util::cleanup();
 			sly_A1_Util::import($filename);
-			$params['info'] .= t('im_export_file_imported').'<br />';
+
+			$params['info'] = t('im_export_file_imported').'<br />';
+
+			// import all dumps we can find
+
+			$tmpDir = new sly_Util_Directory(sly_A1_Util::getTempDir(), false);
+			$files  = $tmpDir->listPlain(true, false, false, true);
+
+			foreach ($files as $file) {
+				if (substr($file, -4) === '.sql') {
+					$importer  = new sly_DB_Importer();
+					$sqlretval = $importer->import($file);
+
+					if ($sqlretval['state']) {
+						$params['info'] .= $sqlretval['message'];
+					}
+					else {
+						throw new Exception($sqlretval['message']);
+					}
+				}
+
+				unlink($file);
+			}
+
 			$state = true;
 		}
 		catch (Exception $e) {
@@ -40,50 +64,8 @@ class sly_Controller_A1imex_Import extends sly_Controller_A1imex {
 			$state = false;
 		}
 
-		if ($state) {
-			$addonservice = sly_Service_Factory::getAddOnService();
-			$sqltempdir   = $addonservice->internalFolder('import_export');
-			$error        = false;
-
-			$addonListFilename = $sqltempdir.DIRECTORY_SEPARATOR.'addons.php';
-
-			if (file_exists($addonListFilename)) {
-				$handle = fopen($addonListFilename, 'r');
-				flock($handle, LOCK_SH);
-
-				include $addonListFilename;
-
-				// release lock again
-				flock($handle, LOCK_UN);
-				fclose($handle);
-
-				$availableAddons = $addonservice->getAvailableAddons();
-				$missingAddons   = array_diff($addons, array_intersect($addons, $availableAddons));
-
-				if (isset($addons) && count($missingAddons)) {
-					$params['warning'] .= t('im_export_missing_addons_for_db_import').': '.implode(', ', $missingAddons);
-					$error = true;
-				}
-
-				unlink($addonListFilename);
-			}
-
-			$sqlfilename = explode('.', $filename);
-			$sqlfilename = $sqltempdir.DIRECTORY_SEPARATOR.$sqlfilename[0].'.sql';
-
-			if (!$error && file_exists($sqlfilename)) {
-				$importer  = new sly_DB_Importer();
-				$sqlretval = $importer->import($sqlfilename);
-
-				if ($sqlretval['state']) {
-					$params['info'] .= $sqlretval['message'];
-				}
-				else {
-					$params['warning'] .= $sqlretval['message'];
-				}
-
-				unlink($sqlfilename);
-			}
+		if ($state === true) {
+			sly_Core::dispatcher()->notify('SLY_A1_AFTER_IMPORT', $filename);
 		}
 
 		$this->importView($params);
@@ -109,6 +91,8 @@ class sly_Controller_A1imex_Import extends sly_Controller_A1imex {
 		$this->init();
 
 		$filename = sly_request('file', 'string');
+		$filename = preg_replace('#[^\.a-z0-9_-]#', '', $filename);
+		$filename = basename($filename);
 
 		if (!empty($filename) && file_exists($this->baseDir.$filename)) {
 			while (ob_get_level()) ob_end_clean();

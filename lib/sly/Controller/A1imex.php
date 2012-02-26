@@ -49,16 +49,10 @@ class sly_Controller_A1imex extends sly_Controller_Backend implements sly_Contro
 
 	public function indexAction() {
 		$this->init();
-
-		$params['filename']      = 'sly_'.date('Ymd');
-		$params['systemexports'] = array();
-		$params['selectedDirs']  = array();
-		$params['download']      = array(0);
-
-		$this->exportView($params);
+		$this->exportView();
 	}
 
-	protected function exportView($params) {
+	protected function exportView($params = array()) {
 		$dirs = array(
 			'assets'  => t('im_export_explain_assets'),
 			'develop' => t('im_export_explain_develop'),
@@ -74,10 +68,14 @@ class sly_Controller_A1imex extends sly_Controller_Backend implements sly_Contro
 
 	public function exportAction() {
 		$this->init();
+		sly_A1_Util::cleanup();
 
 		$download      = sly_post('download', 'boolean', false);
-		$systemexports = sly_postArray('systemexports', 'string', array());
-		$exportfiles   = sly_postArray('directories', 'string', array());
+		$systemExports = sly_postArray('systemexports', 'string', array());
+		$directories   = sly_postArray('directories', 'string', array());
+		$extraFiles    = array();
+		$addComponents = sly_post('components', 'boolean');
+		$comment       = sly_post('comment', 'string');
 
 		$filename = sly_post('filename', 'string', 'sly_'.date('Ymd'));
 		$orig     = $filename;
@@ -86,83 +84,107 @@ class sly_Controller_A1imex extends sly_Controller_Backend implements sly_Contro
 		$params   = array('warning' => '', 'info' => '');
 		$success  = true;
 
-		if ($filename != $orig) {
-			$params['info'] .= t('im_export_filename_updated');
-			$success = false;
-		}
+		try {
+			// did we alter the filename?
 
-		if ($success === true) {
-			$filename     = sly_A1_Util::getIteratedFilename($filename, '.zip');
-			$addonservice = sly_Service_Factory::getAddOnService();
-			$addonList    = implode("\n", $addonservice->getAvailableAddons());
-
-			if (in_array('configuration', $systemexports)) {
-				$configfilename = sly_Core::config()->getProjectConfigFile();
-				$exportfiles[]  = substr($configfilename, strlen(SLY_BASE)+1);
+			if ($filename != $orig) {
+				throw new Exception(t('im_export_filename_updated'), 1);
 			}
 
-			if (in_array('sql', $systemexports)) {
-				$sqltempdir   = $addonservice->internalFolder('import_export');
-				$sqlfilename  = $sqltempdir.DIRECTORY_SEPARATOR.$filename.'.sql';
-				$exporter     = new sly_A1_Export_Database();
-				$success      = $exporter->export($sqlfilename);
+			// collect additional export files
 
-				if ($success) {
-					$exportfiles[] = substr($sqlfilename, strlen(SLY_BASE)+1);
-				}
-				else {
-					$params['warning'] .= t('im_export_sql_dump_could_not_be_generated');
-				}
+			if (in_array('configuration', $systemExports)) {
+				$extraFiles[] = sly_Core::config()->getProjectConfigFile();
 			}
-		}
 
-		if ($success === true && empty($exportfiles)) {
-			$params['warning'] .= t('im_export_please_choose_files');
-			$success = false;
-		}
+			if (in_array('sql', $systemExports)) {
+				$dumpFile = $this->getTempFileName('sql');
+				$exporter = new sly_A1_Export_Database();
+				$success  = $exporter->export($dumpFile);
 
-		if ($success === true) {
-			if (class_exists('ZipArchive')) {
-				$exporter = new sly_A1_Export_Files_ZipArchive();
+				if (!$success) {
+					throw new Exception(t('im_export_sql_dump_could_not_be_generated'));
+				}
+
+				$extraFiles[] = $dumpFile;
+			}
+
+			// nothing to do?
+
+			if (empty($directories) && empty($extraFiles)) {
+				throw new Exception(t('im_export_please_choose_files'));
+			}
+
+			// create appropriate archive wrapper
+
+			$filename = sly_A1_Util::getIteratedFilename($filename, '.zip').'.zip';
+			$fullname = sly_A1_Util::getDataDir().DIRECTORY_SEPARATOR.$filename;
+			$tmpFile  = $this->getTempFileName('zip');
+			$archive  = sly_A1_Util::getArchive($tmpFile);
+
+			try {
+				$archive->open();
+			}
+			catch (Exception $e) {
+				throw new Exception(t('im_export_file_could_not_be_generated').' '.t('im_export_you_have_no_write_permission_in', dirname($filename)));
+			}
+
+			// set metadata
+
+			if ($addComponents) {
+				$archive->setComponents($this->collectComponents());
+			}
+
+			$archive->setComment($comment); // for later
+			$archive->setVersion(sly_Core::getVersion('X.Y'));
+			$archive->writeInfo();
+
+			// do the actual work
+
+			foreach ($directories as $dir) {
+				$archive->addDirectoryRecursive(SLY_BASE.DIRECTORY_SEPARATOR.$dir);
+			}
+
+			foreach ($extraFiles as $file) {
+				$archive->addFile($file);
+			}
+
+			// cleanup
+
+			$archive->close();
+
+			if (isset($dumpFile)) {
+				unlink($dumpFile);
+			}
+
+			// stream the file if requested
+
+			if ($download) {
+				while (ob_get_level()) ob_end_clean();
+				header('Content-Type: application/zip');
+				header('Content-Disposition: attachment; filename='.$filename);
+				readfile($tmpFile);
+				unlink($tmpFile);
+				exit;
+			}
+
+			// move the final archive to the permanent location
+
+			rename($tmpFile, $fullname);
+			chmod($fullname, sly_Core::getFilePerm());
+
+			// fresh form data
+
+			$params['info'] = t('im_export_file_generated_in').' '.strtr($filename, '\\', '/');
+		}
+		catch (Exception $e) {
+			if ($e->getCode() === 1) {
+				$params['info']     = $e->getMessage();
+				$params['filename'] = $filename;
 			}
 			else {
-				$exporter = new sly_A1_Export_Files_PclZip();
+				$params['warning'] = $e->getMessage();
 			}
-
-			$filename = $filename.'.zip';
-			$success  = $exporter->export($this->baseDir.$filename, $exportfiles, $addonList);
-
-			if (in_array('sql', $systemexports)) {
-				unlink($sqlfilename);
-			}
-			if ($success) {
-				if ($download) {
-					while (ob_get_level()) ob_end_clean();
-					header('Content-Type: application/zip');
-					header('Content-Disposition: attachment; filename='.$filename);
-					readfile($this->baseDir.$filename);
-					unlink($this->baseDir.$filename);
-					exit;
-				}
-				chmod($this->baseDir.$filename, sly_Core::getFilePerm());
-			}
-			else {
-				$params['warning'] .= t('im_export_file_could_not_be_generated').' '.t('im_export_you_have_no_write_permission_in', $exportPath);
-			}
-		}
-
-		if ($success === true) {
-			$params['info']          = t('im_export_file_generated_in').' '.strtr($filename, '\\', '/');
-			$params['filename']      = 'sly_'.date('Ymd');
-			$params['systemexports'] = array();
-			$params['selectedDirs']  = array();
-			$params['download']      = array(0);
-		}
-		else {
-			$params['filename']      = $filename;
-			$params['selectedDirs']  = $exportfiles;
-			$params['systemexports'] = $systemexports;
-			$params['download']      = array(intval($download));
 		}
 
 		$this->exportView($params);
@@ -175,5 +197,25 @@ class sly_Controller_A1imex extends sly_Controller_Backend implements sly_Contro
 
 	protected function getViewFolder() {
 		return SLY_ADDONFOLDER.'/import_export/views/';
+	}
+
+	protected function getTempFileName($ext = 'tmp') {
+		return sly_A1_Util::getTempDir().DIRECTORY_SEPARATOR.'a'.uniqid().'.'.$ext;
+	}
+
+	protected function collectComponents() {
+		$addonService  = sly_Service_Factory::getAddOnService();
+		$pluginService = sly_Service_Factory::getPluginService();
+		$components    = array();
+
+		foreach ($addonService->getAvailableAddons() as $addon) {
+			$components[] = $addon;
+
+			foreach ($pluginService->getAvailablePlugins($addon) as $plugin) {
+				$components[] = array($addon, $plugin);
+			}
+		}
+
+		return $components;
 	}
 }

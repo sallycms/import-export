@@ -52,3 +52,6 @@ im_export_sql_dump_could_not_be_generated: Der SQL Dump konnte nicht erstellt we
 im_export_selected_file_not_exists: Die ausgewählte Datei existiert nicht.
 im_export_file_could_not_be_deleted: Die ausgewählte Datei konnte nicht gelöscht werden.
 im_export_no_backups_available: Es sind keine Backups vorhanden.
+im_export_include_addons: AddOns/Plugins
+im_export_include_addons_help: Setze die aktuell installierten AddOns und Plugins beim Importieren voraus.
+im_export_comment: Kommentar

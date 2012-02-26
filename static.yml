@@ -5,4 +5,4 @@ extperm: ['import_export[export]', 'import_export[import]']
 author: webvariants GbR
 supportpage: http://www.sallycms.de/
 sally: ['0.6']
-version: '2.8'
+version: '3.0'
