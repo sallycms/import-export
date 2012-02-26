@@ -142,7 +142,14 @@ class sly_Controller_A1imex extends sly_Controller_Backend implements sly_Contro
 			// do the actual work
 
 			foreach ($directories as $dir) {
-				$archive->addDirectoryRecursive(SLY_BASE.DIRECTORY_SEPARATOR.$dir);
+				$dir = SLY_BASE.DIRECTORY_SEPARATOR.$dir;
+
+				if (is_dir($dir)) {
+					$archive->addDirectoryRecursive($dir);
+				}
+				elseif (is_file($dir)) {
+					$archive->addFile($dir);
+				}
 			}
 
 			foreach ($extraFiles as $file) {
