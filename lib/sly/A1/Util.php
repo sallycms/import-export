@@ -176,8 +176,8 @@ class sly_A1_Util {
 		throw new Exception(t('im_export_no_import_file_chosen'));
 	}
 
-	private static function getMissingComponents(array $components) {
-		if (empty($components)) return array();
+	private static function getMissingComponents($components) {
+		if (!is_array($components) || empty($components)) return array();
 
 		$addonService  = sly_Service_Factory::getAddOnService();
 		$pluginService = sly_Service_Factory::getPlugInService();

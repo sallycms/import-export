@@ -25,10 +25,16 @@ abstract class sly_A1_Archive_Base {
 
 		$data = json_decode($comment, true);
 
-		$this->components = isset($data['components']) ? $data['components']      : null;
-		$this->version    = isset($data['version'])    ? $data['version']         : null;
-		$this->comment    = isset($data['comment'])    ? $data['comment']         : null;
-		$this->date       = isset($data['date'])       ? strtotime($data['date']) : null;
+		// old school addon list: "addon1\naddon2\naddon3"
+		if (mb_strlen($comment) > 0 && $data === null) {
+			$this->components = array_filter(explode("\n", $comment));
+		}
+		else {
+			$this->components = isset($data['components']) ? $data['components']      : null;
+			$this->version    = isset($data['version'])    ? $data['version']         : null;
+			$this->comment    = isset($data['comment'])    ? $data['comment']         : null;
+			$this->date       = isset($data['date'])       ? strtotime($data['date']) : null;
+		}
 
 		return true;
 	}
