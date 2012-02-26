@@ -57,6 +57,25 @@ class sly_Controller_A1imex_Import extends sly_Controller_A1imex {
 				unlink($file);
 			}
 
+			// try the old-fashioned way
+
+			if (count($files) === 0) {
+				$dir = sly_Service_Factory::getAddOnService()->internalFolder('import_export');
+				$file = $dir.'/'.str_replace('.zip', '.sql', $filename);
+
+				if (file_exists($file)) {
+					$importer  = new sly_DB_Importer();
+					$sqlretval = $importer->import($file);
+
+					if ($sqlretval['state']) {
+						$params['info'] .= $sqlretval['message'];
+					}
+					else {
+						throw new Exception($sqlretval['message']);
+					}
+				}
+			}
+
 			$state = true;
 		}
 		catch (Exception $e) {
