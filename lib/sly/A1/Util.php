@@ -52,9 +52,26 @@ class sly_A1_Util {
 		return $dir;
 	}
 
+	public static function getTempDir() {
+		$service = sly_Service_Factory::getAddOnService();
+		return $service->internalFolder('import_export').DIRECTORY_SEPARATOR.'tmp';
+	}
+
+	public static function cleanup() {
+		$dirObj = new sly_Util_Directory(self::getTempDir(), true);
+		$dirObj->deleteFiles();
+	}
+
 	public static function getArchiveInfo($filename) {
-		$result = array(
-			'name' => substr($filename, 0, strpos($filename, '.'))
+		$basename = basename($filename);
+		$result   = array(
+			'name'       => substr($basename, 0, strpos($basename, '.')),
+			'date'       => filemtime($filename),
+			'components' => array(),
+			'missing'    => array(),
+			'comment'    => '',
+			'version'    => '',
+			'compatible' => true
 		);
 
 		// Entspricht der Dateiname einem bekannten Muster?
@@ -65,6 +82,27 @@ class sly_A1_Util {
 		elseif (preg_match('#^(sly_\d{8})_(.*?)$#i', $result['name'], $matches)) {
 			$result['name']        = $matches[1];
 			$result['description'] = str_replace('_', ' ', $matches[2]);
+		}
+
+		// check zip file comment
+
+		if (self::guessFileType($filename) === self::TYPE_ZIP) {
+			$archive = self::getArchive($filename);
+
+			$archive->readInfo();
+
+			$result['comment']    = (string) $archive->getComment();
+			$result['components'] = sly_makeArray($archive->getComponents());
+			$result['missing']    = self::getMissingComponents($result['components']);
+			$result['version']    = (string) $archive->getVersion();
+			$result['date']       = $archive->getExportDate();
+			$result['compatible'] = self::isCompatible($result['version']);
+
+			if (empty($result['comment'])) {
+				$result['comment'] = $basename;
+			}
+
+			$archive->close();
 		}
 
 		return $result;
@@ -82,9 +120,10 @@ class sly_A1_Util {
 			throw new Exception(t('im_export_selected_file_not_exists'));
 		}
 
+		$cwd = getcwd();
 		chdir(SLY_BASE);
 
-		if ($type == self::TYPE_TAR) {
+		if ($type === self::TYPE_TAR) {
 			$archive = new sly_A1_Archive_Tar($filename);
 
 			// Extensions auslösen
@@ -96,75 +135,78 @@ class sly_A1_Util {
 				throw new Exception(t('im_export_problem_when_extracting'));
 			}
 		}
-		elseif($type == self::TYPE_ZIP) {
-			if (class_exists('ZipArchive')) {
-				$archive = new ZipArchive();
+		elseif ($type === self::TYPE_ZIP) {
+			$archive = self::getArchive($filename);
+			$archive = sly_Core::dispatcher()->filter('SLY_A1_BEFORE_FILE_IMPORT', $archive);
 
-				// Extensions auslösen
-				$archive = sly_Core::dispatcher()->filter('SLY_A1_BEFORE_FILE_IMPORT', $archive);
-				$success = $archive->open($filename);
+			$archive->readInfo();
 
-				if ($success) {
-					$addons = $archive->getArchiveComment();
-					self::checkAddOns($addons);
-					$success = $archive->extractTo('./');
-				}
+			// check file
 
-				if ($success) {
-					$archive->close();
-				}
-				else {
-					chdir('sally/backend');
-					throw new Exception(t('im_export_problem_when_extracting'));
-				}
+			$missing = self::getMissingComponents($archive->getComponents());
+
+			if (!empty($missing)) {
+				throw new Exception(t('im_export_missing_addons_for_db_import').': '.implode(', ', $missing));
 			}
-			else {
-				$archive = new PclZip($filename);
 
-				// Extensions auslösen
-				$archive = sly_Core::dispatcher()->filter('SLY_A1_BEFORE_FILE_IMPORT', $archive);
+			if (!self::isCompatible($archive->getVersion())) {
+				throw new Exception(t('im_export_incomatible_file'));
+			}
 
-				$props = $archive->properties();
+			// extract
 
-				if (isset($props['comment'])) {
-					self::checkAddOns($props['comment']);
-				}
+			$success = $archive->extract();
+			$archive->close();
 
-				$archive->extract();
-				$success = $archive->errorCode() === PCLZIP_ERR_NO_ERROR;
-
-				if (!$success) {
-					chdir('sally/backend');
-					throw new Exception(t('im_export_problem_when_extracting'));
-				}
+			if (!$success) {
+				throw new Exception(t('im_export_problem_when_extracting'));
 			}
 		}
 
 		// Extensions auslösen
-		$archive = sly_Core::dispatcher()->filter('SLY_A1_AFTER_FILE_IMPORT', $archive);
-		chdir('sally/backend');
+		sly_Core::dispatcher()->notify('SLY_A1_AFTER_FILE_IMPORT', $archive);
+		chdir($cwd);
 	}
 
 	private static function guessFileType($filename) {
+		if (substr($filename, -4) == '.tar') return self::TYPE_TAR;
 		if (substr($filename, -7) == '.tar.gz') return self::TYPE_TAR;
 		if (substr($filename, -4) == '.zip') return self::TYPE_ZIP;
+
 		throw new Exception(t('im_export_no_import_file_chosen'));
 	}
 
-	private static function checkAddOns($requiredAddOns) {
-		if ($requiredAddOns === false) return true; // no comment was found inside ZIP
+	private static function getMissingComponents(array $components) {
+		if (empty($components)) return array();
 
-		$required = array_filter(explode("\n", $requiredAddOns));
-		if (empty($required)) return true;
+		$addonService  = sly_Service_Factory::getAddOnService();
+		$pluginService = sly_Service_Factory::getPlugInService();
+		$missing       = array();
 
-		$addonservice = sly_Service_Factory::getAddOnService();
-		$available    = $addonservice->getAvailableAddons();
-		$missing      = array_diff($required, array_intersect($required, $available));
-
-		if (!empty($missing)) {
-			throw new Exception(t('im_export_missing_addons_for_db_import').': '.implode(', ', $missing));
+		foreach ($components as $comp) {
+			if (is_string($comp)) {
+				if (!$addonService->isAvailable($comp)) $missing[] = $comp;
+			}
+			elseif (!$pluginService->isAvailable($comp)) {
+				$missing[] = implode('/', $comp);
+			}
 		}
 
-		return true;
+		return $missing;
+	}
+
+	private static function isCompatible($version) {
+		return empty($version) || sly_Service_Factory::getAddOnService()->checkVersion($version);
+	}
+
+	public static function getArchive($filename) {
+		if (class_exists('ZipArchive', false)) {
+			$archive = new sly_A1_Archive_ZipArchive($filename);
+		}
+		else {
+			$archive = new sly_A1_Archive_PclZip($filename);
+		}
+
+		return $archive;
 	}
 }

@@ -8,14 +8,14 @@
  * http://www.opensource.org/licenses/mit-license.php
  */
 
-class sly_A1_Archive_Tar extends sly_A1_Archive_Base {
+class sly_A1_Archive_PclZip extends sly_A1_Archive_Base {
 	protected $isOpen  = false;
 	protected $archive = null;
 
 	public function open() {
 		if ($this->isOpen) return;
 
-		$this->archive = new Archive_Tar($this->getFilename());
+		$this->archive = new PclZip($this->getFilename());
 		$this->isOpen  = true;
 	}
 
@@ -25,21 +25,24 @@ class sly_A1_Archive_Tar extends sly_A1_Archive_Base {
 
 	public function addFile($filename) {
 		$this->open();
+		return $this->archive->add($filename, PCLZIP_OPT_REMOVE_PATH, SLY_BASE) === 0;
+	}
 
-		$cwd = getcwd();
-		chdir(SLY_BASE);
-
-		$ok = $this->archive->add(array(sly_Util_Directory::getRelative($filename))) === true;
-
-		chdir($cwd);
-		return $ok;
+	public function extract() {
+		$this->open(false);
+		$this->archive->extract();
+		return $this->archive->errorCode() === PCLZIP_ERR_NO_ERROR;
 	}
 
 	protected function readComment() {
-		return null;
+		$this->open();
+
+		$props = $this->archive->properties();
+		return isset($props['comment']) && is_string($props['comment']) && mb_strlen($props['comment']) > 0 ? $props['comment'] : null;
 	}
 
 	protected function writeComment($comment) {
-		return false;
+		$this->open();
+		return $this->archive->add(array(), PCLZIP_OPT_COMMENT, $comment) === 0;
 	}
 }

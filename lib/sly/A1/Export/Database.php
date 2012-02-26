@@ -1,15 +1,13 @@
 <?php
 /*
- * Copyright (C) 2009 REDAXO
+ * Copyright (c) 2012, webvariants GbR, http://www.webvariants.de
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License Version 2 as published by the
- * Free Software Foundation.
+ * This file is released under the terms of the MIT license. You can find the
+ * complete text in the attached LICENSE file or online at:
+ *
+ * http://www.opensource.org/licenses/mit-license.php
  */
 
-/**
- * @package redaxo4
- */
 class sly_A1_Export_Database {
 	protected $filename;
 
@@ -40,8 +38,13 @@ class sly_A1_Export_Database {
 
 		// Versionsstempel hinzufügen
 
-		fwrite($fp, '## Sally Database Dump Version '.sly_Core::getVersion('X.Y').$nl);
-		fwrite($fp, '## Prefix '.$prefix.$nl);
+		if (version_compare(sly_Core::getVersion('X.Y.Z'), '0.6.2', '>=')) {
+			sly_DB_Dump::writeHeader($fp);
+		}
+		else {
+			fwrite($fp, sprintf("-- Sally Database Dump Version %s\n", sly_Core::getVersion('X.Y')));
+			fwrite($fp, sprintf("-- Prefix %s\n", sly_Core::getTablePrefix()));
+		}
 
 		// make sure already existing '0' values for auto_increment columns don't
 		// create new incremented values when importing

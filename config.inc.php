@@ -12,5 +12,6 @@ if (sly_Core::isBackend()) {
 	$base = dirname(__FILE__);
 
 	sly_Core::getI18N()->appendFile($base.'/lang');
+	sly_Loader::addLoadPath($base.'/lib/vendor');
 	sly_Loader::addLoadPath($base.'/lib');
 }

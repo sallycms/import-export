@@ -1,16 +1,22 @@
 #sly-page-a1imex,
 #sly-page-a1imex-import {
-	a.import {
+	.import {
 		background: url(../images/import.png) left center no-repeat;
 		padding-left: 20px;
 		color: green;
 	}
 
-	a.delete {
+	.delete {
 		background: url(../images/delete.png) left center no-repeat;
 		padding-left: 20px;
 		margin-left: 10px;
 		color: red;
+	}
+
+	.sly-strike {
+		background: url(../images/no-import.png) left center no-repeat;
+		cursor: not-allowed;
+		color: #8D8686;
 	}
 
 	.sly-col-funcs { width: 180px; }
