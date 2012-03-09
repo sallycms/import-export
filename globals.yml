@@ -1,6 +1,0 @@
-authorisation:
-  import_export:
-    title: Import Export
-    token:
-      import: importieren
-      export: exportieren
