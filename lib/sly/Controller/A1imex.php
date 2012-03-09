@@ -27,11 +27,11 @@ class sly_Controller_A1imex extends sly_Controller_Backend implements sly_Contro
 		$isAdmin  = $user->isAdmin();
 		$is06     = version_compare(sly_Core::getVersion(), '0.6', '>=');
 
-		if ($isAdmin || $user->hasRight('import_export[export]')) {
+		if ($isAdmin || $user->hasRight('import_export', 'export')) {
 			$subpages[] = array($is06 ? 'a1imex' : '', t('im_export_export'));
 		}
 
-		if ($isAdmin || $user->hasRight('import_export[import]')) {
+		if ($isAdmin || $user->hasRight('import_export', 'import')) {
 			$subpages[] = array($is06 ? 'a1imex_import' : 'import', t('im_export_import'));
 		}
 
