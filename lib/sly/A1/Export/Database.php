@@ -15,7 +15,7 @@ class sly_A1_Export_Database {
 		$this->filename = '';
 	}
 
-	public function export($filename) {
+	public function export($filename, $diffFriendly = false) {
 		$prefix = sly_Core::getTablePrefix();
 
 		$this->filename = $filename;
@@ -68,10 +68,27 @@ class sly_A1_Export_Database {
 			$fields = $this->getFields($sql, $table);
 			$start  = 0;
 			$max    = $insertSize;
+			$sort   = null;
+
+			try {
+				$sql->query('SHOW KEYS FROM `'.$table.'` WHERE Key_name = "PRIMARY"');
+
+				$sort = array();
+
+				foreach ($sql->all() as $row) {
+					$sort[] = '`'.$row['Column_name'].'`';
+				}
+
+				$sort = empty($sort) ? null : implode(',', $sort);
+			}
+			catch (Exception $e) {
+				// it's not a big deal if we can't do the fancy auto-sorting
+				$sort = null;
+			}
 
 			do {
 				// don't forget to remove the table prefix
-				$sql->select(substr($table, strlen($prefix)), '*', null, null, null, $start, $max);
+				$sql->select(substr($table, strlen($prefix)), '*', null, null, $sort, $start, $max);
 
 				$rowNum = 0;
 				$values = array();
@@ -87,8 +104,8 @@ class sly_A1_Export_Database {
 				}
 
 				if (!empty($values)) {
-					$values = implode(',', $values);
-					fwrite($fp, "\nINSERT INTO `$table` VALUES $values;");
+					$values = implode($diffFriendly ? ",\n" : ',', $values);
+					fwrite($fp, "\nINSERT INTO `$table` VALUES".($diffFriendly ? "\n" : ' ')."$values;");
 					unset($values);
 				}
 

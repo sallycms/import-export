@@ -74,8 +74,15 @@ class sly_Controller_A1imex extends sly_Controller_Backend implements sly_Contro
 		$systemExports = sly_postArray('systemexports', 'string', array());
 		$directories   = sly_postArray('directories', 'string', array());
 		$extraFiles    = array();
-		$addComponents = sly_post('components', 'boolean');
+		$addComponents = sly_post('components', 'boolean', false);
+		$diffFriendly  = sly_post('diff_friendly', 'boolean', false);
 		$comment       = sly_post('comment', 'string');
+
+		// the plain SQL export cannot contain files
+		if ($diffFriendly) {
+			$systemExports = array('sql');
+			$directories   = array();
+		}
 
 		$filename = sly_post('filename', 'string', 'sly_'.date('Ymd'));
 		$orig     = $filename;
@@ -100,7 +107,7 @@ class sly_Controller_A1imex extends sly_Controller_Backend implements sly_Contro
 			if (in_array('sql', $systemExports)) {
 				$dumpFile = $this->getTempFileName('sql');
 				$exporter = new sly_A1_Export_Database();
-				$success  = $exporter->export($dumpFile);
+				$success  = $exporter->export($dumpFile, $diffFriendly);
 
 				if (!$success) {
 					throw new Exception(t('im_export_sql_dump_could_not_be_generated'));
@@ -117,10 +124,11 @@ class sly_Controller_A1imex extends sly_Controller_Backend implements sly_Contro
 
 			// create appropriate archive wrapper
 
-			$filename = sly_A1_Util::getIteratedFilename($filename, '.zip').'.zip';
+			$ext      = $diffFriendly ? 'sql' : 'zip';
+			$filename = sly_A1_Util::getIteratedFilename($filename, '.'.$ext).'.'.$ext;
 			$fullname = sly_A1_Util::getDataDir().DIRECTORY_SEPARATOR.$filename;
-			$tmpFile  = $this->getTempFileName('zip');
-			$archive  = sly_A1_Util::getArchive($tmpFile);
+			$tmpFile  = $this->getTempFileName($ext);
+			$archive  = sly_A1_Util::getArchive($tmpFile, $ext);
 
 			try {
 				$archive->open();
