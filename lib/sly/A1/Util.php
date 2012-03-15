@@ -11,6 +11,7 @@
 class sly_A1_Util {
 	const TYPE_TAR = 1;
 	const TYPE_ZIP = 2;
+	const TYPE_SQL = 3;
 
 	public static function getIteratedFilename($filename, $ext) {
 		$directory = self::getDataDir().DIRECTORY_SEPARATOR;
@@ -42,6 +43,7 @@ class sly_A1_Util {
 	public static function getArchives($dir) {
 		$files = self::getArchivesBySuffix('.zip');
 		$files = array_merge($files, self::getArchivesBySuffix('.tar.gz'));
+		$files = array_merge($files, self::getArchivesBySuffix('.sql'));
 		return $files;
 	}
 
@@ -86,7 +88,7 @@ class sly_A1_Util {
 
 		// check zip file comment
 
-		if (self::guessFileType($filename) === self::TYPE_ZIP) {
+		if (in_array(self::guessFileType($filename), array(self::TYPE_ZIP, self::TYPE_SQL))) {
 			$archive = self::getArchive($filename);
 
 			$archive->readInfo();
@@ -135,7 +137,7 @@ class sly_A1_Util {
 				throw new Exception(t('im_export_problem_when_extracting'));
 			}
 		}
-		elseif ($type === self::TYPE_ZIP) {
+		elseif ($type === self::TYPE_ZIP || $type === self::TYPE_SQL) {
 			$archive = self::getArchive($filename);
 			$archive = sly_Core::dispatcher()->filter('SLY_A1_BEFORE_FILE_IMPORT', $archive);
 
@@ -172,6 +174,7 @@ class sly_A1_Util {
 		if (substr($filename, -4) == '.tar') return self::TYPE_TAR;
 		if (substr($filename, -7) == '.tar.gz') return self::TYPE_TAR;
 		if (substr($filename, -4) == '.zip') return self::TYPE_ZIP;
+		if (substr($filename, -4) == '.sql') return self::TYPE_SQL;
 
 		throw new Exception(t('im_export_no_import_file_chosen'));
 	}
@@ -199,8 +202,11 @@ class sly_A1_Util {
 		return empty($version) || sly_Service_Factory::getAddOnService()->checkVersion($version);
 	}
 
-	public static function getArchive($filename) {
-		if (class_exists('ZipArchive', false)) {
+	public static function getArchive($filename, $type = 'zip') {
+		if ($type === 'sql' || substr($filename, -4) === '.sql') {
+			$archive = new sly_A1_Archive_Plain($filename);
+		}
+		elseif (class_exists('ZipArchive', false)) {
 			$archive = new sly_A1_Archive_ZipArchive($filename);
 		}
 		else {

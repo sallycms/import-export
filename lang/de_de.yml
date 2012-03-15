@@ -55,3 +55,5 @@ im_export_no_backups_available: Es sind keine Backups vorhanden.
 im_export_include_addons: AddOns/Plugins
 im_export_include_addons_help: Setze die aktuell installierten AddOns und Plugins beim Importieren voraus.
 im_export_comment: Kommentar
+im_export_diff_friendly: Diff-freundlich
+im_export_diff_friendly_help: Export nicht zippen und pro Datensatz eine Zeile verwenden.
