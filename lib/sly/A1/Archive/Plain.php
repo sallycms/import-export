@@ -56,7 +56,7 @@ class sly_A1_Archive_Plain extends sly_A1_Archive_Base {
 		fseek($this->fp, 0);
 		$line = fgets($this->fp, 8192);
 
-		if (!mb_strpos($line, '-- importexport-comment:')) {
+		if (mb_strpos($line, '-- importexport-comment:') === false) {
 			return null;
 		}
 

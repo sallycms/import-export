@@ -93,11 +93,13 @@ class sly_A1_Util {
 
 			$archive->readInfo();
 
+			$date = $archive->getExportDate();
+
 			$result['comment']    = (string) $archive->getComment();
 			$result['components'] = sly_makeArray($archive->getComponents());
 			$result['missing']    = self::getMissingComponents($result['components']);
 			$result['version']    = (string) $archive->getVersion();
-			$result['date']       = $archive->getExportDate();
+			$result['date']       = $date ? $date : $result['date'];
 			$result['compatible'] = self::isCompatible($result['version']);
 
 			if (empty($result['comment'])) {
