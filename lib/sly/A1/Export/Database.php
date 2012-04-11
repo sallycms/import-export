@@ -46,10 +46,19 @@ class sly_A1_Export_Database {
 			fwrite($fp, sprintf("-- Prefix %s\n", sly_Core::getTablePrefix()));
 		}
 
-		// make sure already existing '0' values for auto_increment columns don't
-		// create new incremented values when importing
+		// basically everything mysqldump 10.13 does too
 
-		fwrite($fp, 'SET SQL_MODE=\'NO_AUTO_VALUE_ON_ZERO\';'.$nl.$nl);
+		fwrite($fp, $nl);
+		fwrite($fp, 'SET @OLD_CHARACTER_SET_CLIENT = @@CHARACTER_SET_CLIENT;'.$nl);
+		fwrite($fp, 'SET @OLD_CHARACTER_SET_RESULTS = @@CHARACTER_SET_RESULTS;'.$nl);
+		fwrite($fp, 'SET @OLD_COLLATION_CONNECTION = @@COLLATION_CONNECTION;'.$nl);
+		fwrite($fp, 'SET NAMES utf8;'.$nl);
+		fwrite($fp, 'SET @OLD_TIME_ZONE = @@TIME_ZONE;'.$nl);
+		fwrite($fp, 'SET TIME_ZONE = \'+00:00\';'.$nl);
+		fwrite($fp, 'SET @OLD_UNIQUE_CHECKS = @@UNIQUE_CHECKS, UNIQUE_CHECKS = 0;'.$nl);
+		fwrite($fp, 'SET @OLD_FOREIGN_KEY_CHECKS = @@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS = 0;'.$nl);
+		fwrite($fp, 'SET @OLD_SQL_MODE = @@SQL_MODE, SQL_MODE = \'NO_AUTO_VALUE_ON_ZERO\';'.$nl);
+		fwrite($fp, 'SET @OLD_SQL_NOTES = @@SQL_NOTES, SQL_NOTES = 0;'.$nl.$nl);
 
 		foreach ($tables as $table) {
 			if (!$this->includeTable($table)) {
@@ -61,7 +70,10 @@ class sly_A1_Export_Database {
 			foreach ($sql as $row) $create = $row['Create Table'];
 
 			fwrite($fp, "DROP TABLE IF EXISTS `$table`;\n");
-			fwrite($fp, "$create;\n");
+			fwrite($fp, 'SET @saved_cs_client     = @@character_set_client;'.$nl);
+			fwrite($fp, 'SET character_set_client = utf8;'.$nl);
+			fwrite($fp, $create.';'.$nl);
+			fwrite($fp, 'SET character_set_client = @saved_cs_client;'.$nl);
 
 			// Daten-Export vorbereiten
 
@@ -96,7 +108,7 @@ class sly_A1_Export_Database {
 				foreach ($sql as $row) {
 					// if it's the first row of this table, disable the keys
 					if ($rowNum === 0 && $start === 0) {
-						fwrite($fp, "\n/*!40000 ALTER TABLE `$table` DISABLE KEYS */;");
+						fwrite($fp, "\nALTER TABLE `$table` DISABLE KEYS;");
 					}
 
 					$values[] = $this->getRecord($row, $fields);
@@ -117,12 +129,23 @@ class sly_A1_Export_Database {
 
 			// if something has been exported, unlock the table again
 			if ($start > 0) {
-				fwrite($fp, "\n/*!40000 ALTER TABLE `$table` ENABLE KEYS */;\n\n");
+				fwrite($fp, "\nALTER TABLE `$table` ENABLE KEYS;\n\n");
 			}
 			else {
 				fwrite($fp, "\n");
 			}
 		}
+
+		// basically everything mysqldump 10.13 does too
+
+		fwrite($fp, 'SET TIME_ZONE = @OLD_TIME_ZONE;'.$nl);
+		fwrite($fp, 'SET SQL_MODE = @OLD_SQL_MODE;'.$nl);
+		fwrite($fp, 'SET FOREIGN_KEY_CHECKS = @OLD_FOREIGN_KEY_CHECKS;'.$nl);
+		fwrite($fp, 'SET UNIQUE_CHECKS = @OLD_UNIQUE_CHECKS;'.$nl);
+		fwrite($fp, 'SET CHARACTER_SET_CLIENT = @OLD_CHARACTER_SET_CLIENT;'.$nl);
+		fwrite($fp, 'SET CHARACTER_SET_RESULTS = @OLD_CHARACTER_SET_RESULTS;'.$nl);
+		fwrite($fp, 'SET COLLATION_CONNECTION = @OLD_COLLATION_CONNECTION;'.$nl);
+		fwrite($fp, 'SET SQL_NOTES = @OLD_SQL_NOTES;'.$nl);
 
 		// Den Dateiinhalt geben wir nur dann weiter, wenn es unbedingt notwendig ist.
 
