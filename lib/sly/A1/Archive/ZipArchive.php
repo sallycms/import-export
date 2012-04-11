@@ -42,7 +42,7 @@ class sly_A1_Archive_ZipArchive extends sly_A1_Archive_Base {
 		$relname = sly_Util_Directory::getRelative($filename);
 
 		if (DIRECTORY_SEPARATOR === '\\') {
-			$success = $this->archive->addFromString($relname, file_get_contents($filename));
+			$success = $this->archive->addFromString(str_replace('\\', '/', $relname), file_get_contents($filename));
 		}
 		else {
 			$success = $this->archive->addFile($filename, $relname);
