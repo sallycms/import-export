@@ -207,7 +207,7 @@ class sly_Controller_A1imex extends sly_Controller_Backend implements sly_Contro
 
 	public function checkPermission($action) {
 		$user = sly_Util_User::getCurrentUser();
-		return $user && ($user->isAdmin() || $user->hasRight('import_export[export]'));
+		return $user && ($user->isAdmin() || $user->hasRight('import_export', 'export'));
 	}
 
 	protected function getViewFolder() {
