@@ -36,7 +36,8 @@ class sly_Controller_A1imex extends sly_Controller_Backend implements sly_Contro
 		}
 
 		$nav  = sly_Core::getNavigation();
-		$page = $nav->find('import_export', 'addons');
+		$is06 = sly_Core::getVersion('X.Y') === '0.6';
+		$page = $nav->find($is06 ? 'import_export' : 'sallycms/import-export', 'addons');
 
 		if ($page) {
 			foreach ($subpages as $subpage) {
@@ -74,7 +75,7 @@ class sly_Controller_A1imex extends sly_Controller_Backend implements sly_Contro
 		$systemExports = sly_postArray('systemexports', 'string', array());
 		$directories   = sly_postArray('directories', 'string', array());
 		$extraFiles    = array();
-		$addComponents = sly_post('components', 'boolean', false);
+		$addAddOns     = sly_post('addons', 'boolean', false);
 		$diffFriendly  = sly_post('diff_friendly', 'boolean', false);
 		$comment       = sly_post('comment', 'string');
 
@@ -139,8 +140,8 @@ class sly_Controller_A1imex extends sly_Controller_Backend implements sly_Contro
 
 			// set metadata
 
-			if ($addComponents) {
-				$archive->setComponents($this->collectComponents());
+			if ($addAddOns) {
+				$archive->setAddOns($this->collectAddOns());
 			}
 
 			$archive->setComment($comment); // for later
@@ -211,26 +212,29 @@ class sly_Controller_A1imex extends sly_Controller_Backend implements sly_Contro
 	}
 
 	protected function getViewFolder() {
-		return SLY_ADDONFOLDER.'/import_export/views/';
+		return dirname(__FILE__).'/../../../views/';
 	}
 
 	protected function getTempFileName($ext = 'tmp') {
 		return sly_A1_Util::getTempDir().DIRECTORY_SEPARATOR.'a'.uniqid().'.'.$ext;
 	}
 
-	protected function collectComponents() {
+	protected function collectAddOns() {
+		$is06          = sly_Core::getVersion('X.Y') === '0.6';
 		$addonService  = sly_Service_Factory::getAddOnService();
-		$pluginService = sly_Service_Factory::getPluginService();
-		$components    = array();
+		$pluginService = $is06 ? sly_Service_Factory::getPlugInService() : null;
+		$addons        = array();
 
 		foreach ($addonService->getAvailableAddons() as $addon) {
-			$components[] = $addon;
+			$addons[] = $addon;
 
-			foreach ($pluginService->getAvailablePlugins($addon) as $plugin) {
-				$components[] = array($addon, $plugin);
+			if ($is06) {
+				foreach ($pluginService->getAvailablePlugins($addon) as $plugin) {
+					$addons[] = array($addon, $plugin);
+				}
 			}
 		}
 
-		return $components;
+		return $addons;
 	}
 }

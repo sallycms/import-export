@@ -60,7 +60,9 @@ class sly_Controller_A1imex_Import extends sly_Controller_A1imex {
 			// try the old-fashioned way
 
 			if (count($files) === 0) {
-				$dir = sly_Service_Factory::getAddOnService()->internalFolder('import_export');
+				$is06 = sly_Core::getVersion('X.Y') === '0.6';
+				$srv  = sly_Service_Factory::getAddOnService();
+				$dir  = $is06 ? $srv->internalFolder('import_export') : $srv->internalDirectory('sallycms/import-export');
 				$file = $dir.'/'.str_replace('.zip', '.sql', $filename);
 
 				if (file_exists($file)) {

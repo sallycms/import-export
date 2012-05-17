@@ -9,5 +9,9 @@
  */
 
 $layout = sly_Core::getLayout();
-$layout->addCSSFile('../data/dyn/public/import_export/css/backend.css');
+$is06   = sly_Core::getVersion('X.Y') === '0.6';
+$base   = $is06 ? '../data/dyn/public/import_export/' : sly_Util_AddOn::assetBaseUri('sallycms/import-export');
+$ext    = $is06 ? 'css' : 'less';
+
+$layout->addCSSFile($base.'css/backend.'.$ext);
 $layout->pageHeader(t('im_export_importexport'), $subpages);

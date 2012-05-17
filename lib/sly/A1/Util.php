@@ -48,15 +48,20 @@ class sly_A1_Util {
 	}
 
 	public static function getDataDir() {
-		$dir = SLY_DATAFOLDER.DIRECTORY_SEPARATOR.'import_export';
-		$ok = sly_Util_Directory::createHttpProtected($dir);
+		$dir = sly_Core::getVersion('X.Y') === '0.6' ? 'import_export' : 'import-export';
+		$dir = SLY_DATAFOLDER.DIRECTORY_SEPARATOR.$dir;
+		$ok  = sly_Util_Directory::createHttpProtected($dir);
+
 		if (!$ok) throw new Exception('Konnte Backup-Verzeichnis '.$dir.' nicht anlegen.');
+
 		return $dir;
 	}
 
 	public static function getTempDir() {
 		$service = sly_Service_Factory::getAddOnService();
-		return $service->internalFolder('import_export').DIRECTORY_SEPARATOR.'tmp';
+		$dir     = sly_Core::getVersion('X.Y') === '0.6' ? $service->internalFolder('import_export').DIRECTORY_SEPARATOR : $service->internalDirectory('sallycms/import-export');
+
+		return $dir.'tmp';
 	}
 
 	public static function cleanup() {
@@ -69,7 +74,7 @@ class sly_A1_Util {
 		$result   = array(
 			'name'       => substr($basename, 0, strpos($basename, '.')),
 			'date'       => filemtime($filename),
-			'components' => array(),
+			'addons'     => array(),
 			'missing'    => array(),
 			'comment'    => '',
 			'version'    => '',
@@ -96,8 +101,8 @@ class sly_A1_Util {
 			$date = $archive->getExportDate();
 
 			$result['comment']    = (string) $archive->getComment();
-			$result['components'] = sly_makeArray($archive->getComponents());
-			$result['missing']    = self::getMissingComponents($result['components']);
+			$result['addons']     = sly_makeArray($archive->getAddOns());
+			$result['missing']    = self::getMissingAddOns($result['addons']);
 			$result['version']    = (string) $archive->getVersion();
 			$result['date']       = $date ? $date : $result['date'];
 			$result['compatible'] = self::isCompatible($result['version']);
@@ -147,7 +152,7 @@ class sly_A1_Util {
 
 			// check file
 
-			$missing = self::getMissingComponents($archive->getComponents());
+			$missing = self::getMissingAddOns($archive->getAddOns());
 
 			if (!empty($missing)) {
 				throw new Exception(t('im_export_missing_addons_for_db_import').': '.implode(', ', $missing));
@@ -181,19 +186,20 @@ class sly_A1_Util {
 		throw new Exception(t('im_export_no_import_file_chosen'));
 	}
 
-	private static function getMissingComponents($components) {
-		if (!is_array($components) || empty($components)) return array();
+	private static function getMissingAddOns($addons) {
+		if (!is_array($addons) || empty($addons)) return array();
 
+		$is06          = sly_Core::getVersion('X.Y') === '0.6';
 		$addonService  = sly_Service_Factory::getAddOnService();
-		$pluginService = sly_Service_Factory::getPlugInService();
+		$pluginService = $is06 ? sly_Service_Factory::getPlugInService() : null;
 		$missing       = array();
 
-		foreach ($components as $comp) {
-			if (is_string($comp)) {
-				if (!$addonService->isAvailable($comp)) $missing[] = $comp;
+		foreach ($addons as $addon) {
+			if (is_string($addon)) {
+				if (!$addonService->isAvailable($addon)) $missing[] = $addon;
 			}
-			elseif (!$pluginService->isAvailable($comp)) {
-				$missing[] = implode('/', $comp);
+			elseif (!$pluginService->isAvailable($addon)) { // won't happen in 0.7
+				$missing[] = implode('/', $addon);
 			}
 		}
 

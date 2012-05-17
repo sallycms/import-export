@@ -10,10 +10,10 @@
 
 abstract class sly_A1_Archive_Base {
 	protected $filename;
-	protected $components = null; // list of required addOns and plugins
-	protected $version    = null; // Sally version/branch
-	protected $comment    = null; // additional comment (not the archive's internal comment!)
-	protected $date       = null; // export date
+	protected $addons  = null; // list of required addOns
+	protected $version = null; // Sally version/branch
+	protected $comment = null; // additional comment (not the archive's internal comment!)
+	protected $date    = null; // export date
 
 	public function __construct($filename = null) {
 		$this->filename = $filename;
@@ -27,13 +27,13 @@ abstract class sly_A1_Archive_Base {
 
 		// old school addon list: "addon1\naddon2\naddon3"
 		if (mb_strlen($comment) > 0 && $data === null) {
-			$this->components = array_filter(explode("\n", $comment));
+			$this->addons = array_filter(explode("\n", $comment));
 		}
 		else {
-			$this->components = isset($data['components']) ? $data['components']      : null;
-			$this->version    = isset($data['version'])    ? $data['version']         : null;
-			$this->comment    = isset($data['comment'])    ? $data['comment']         : null;
-			$this->date       = isset($data['date'])       ? strtotime($data['date']) : null;
+			$this->addons  = isset($data['addons'])  ? $data['addons']          : (isset($data['components']) ? $data['components'] : null);
+			$this->version = isset($data['version']) ? $data['version']         : null;
+			$this->comment = isset($data['comment']) ? $data['comment']         : null;
+			$this->date    = isset($data['date'])    ? strtotime($data['date']) : null;
 		}
 
 		return true;
@@ -42,7 +42,7 @@ abstract class sly_A1_Archive_Base {
 	public function writeInfo() {
 		$data = array('date' => date('r'));
 
-		if ($this->components !== false && $this->components !== null) $data['components'] = $this->components;
+		if ($this->addons !== false && $this->addons !== null) $data['addons'] = $this->addons;
 		if ($this->version !== false && $this->version !== null) $data['version'] = $this->version;
 		if ($this->comment !== false && $this->comment !== null) $data['comment'] = $this->comment;
 
@@ -53,8 +53,8 @@ abstract class sly_A1_Archive_Base {
 		return $this->filename;
 	}
 
-	public function getComponents() {
-		return $this->components;
+	public function getAddOns() {
+		return $this->addons;
 	}
 
 	public function getVersion() {
@@ -69,8 +69,8 @@ abstract class sly_A1_Archive_Base {
 		return $this->date;
 	}
 
-	public function setComponents($components) {
-		return $this->components = $components;
+	public function setAddOns($addons) {
+		return $this->addons = $addons;
 	}
 
 	public function setVersion($version) {
