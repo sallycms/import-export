@@ -1,0 +1,75 @@
+<?php
+/*
+ * Copyright (c) 2012, webvariants GbR, http://www.webvariants.de
+ *
+ * This file is released under the terms of the MIT license. You can find the
+ * complete text in the attached LICENSE file or online at:
+ *
+ * http://www.opensource.org/licenses/mit-license.php
+ */
+?>
+<div class="sly-content">
+	<?
+
+	// Meldungen ausgeben
+
+	if (!empty($info))    print sly_Helper_Message::info($info);
+	if (!empty($warning)) print sly_Helper_Message::warn($warning);
+
+	// Intro-Text
+
+	print '<p>'.t('im_export_intro_import').'</p>';
+
+	// Formular erzeugen
+
+	$is06 = sly_Core::getVersion('X.Y') === '0.6';
+	$base = $is06 ? '../data/dyn/public/import_export/' : sly_Util_AddOn::assetBaseUri('sallycms/import-export');
+
+	$table = new sly_Table('exports');
+	$table->addColumn(new sly_Table_Column('<img src="'.$base.'images/backup.png" alt="" />', '', '', array('class' => 'sly-col-icon sly-icon')));
+	$table->addColumn(new sly_Table_Column('Datei', '', '', array('class' => 'sly-col-file')));
+	$table->addColumn(new sly_Table_Column('Optionen', '', '', array('class' => 'sly-col-funcs')));
+	$table->addColumn(new sly_Table_Column('Datum', '', '', array('class' => 'sly-col-date')));
+	$table->addColumn(new sly_Table_Column('Größe', '', '', array('class' => 'sly-col-size')));
+	$table->setIsEmpty(empty($files));
+	$table->setEmptyNotice(t('im_export_no_backups_available'));
+
+	$table->openBuffer();
+
+	foreach ($files as $file) {
+		$filename = $this->baseDir.$file;
+		if (!file_exists($filename)) continue;
+
+		$info    = sly_A1_Util::getArchiveInfo($filename);
+		$baseURL = 'index.php?page=a1imex_import&amp;file='.urlencode($file).'&amp;func=';
+
+		?>
+		<tr>
+			<td class="sly-col-icon sly-icon"><img src="<?php print $base ?>images/backup.png" alt="" /></td>
+			<td class="sly-col-file">
+				<a href="<?= $baseURL ?>download" title="<?= sly_html($info['comment']) ?>"><?= sly_html($info['name']) ?></a>
+				<? if (!empty($info['description'])): ?>
+				<span>(<?= sly_html($info['description']) ?>)</span>
+				<? endif ?>
+			</td>
+			<td class="sly-col-funcs">
+				<?php if (!empty($info['missing'])): ?>
+				<span class="sly-strike import" title="<?php print t('requires').' '.sly_Util_String::humanImplode($info['missing']) ?>"><?= t('im_export_import_file') ?></span>
+				<?php elseif (!empty($info['missing']) || !$info['compatible']): ?>
+				<span class="sly-strike import" title="<?php print t(($is06 ? 'component' : 'addon').'_incompatible_with_this_version') ?>"><?= t('im_export_import_file') ?></span>
+				<?php else: ?>
+				<a href="<?= $baseURL ?>import" class="import"><?= t('im_export_import_file') ?></a>
+				<?php endif ?>
+				<a href="<?= $baseURL ?>delete" class="delete sly-delete"><?= t('im_export_delete_file') ?></a>
+			</td>
+			<td class="sly-col-date"><?= sly_Util_String::formatDatetime($info['date']) ?></td>
+			<td class="sly-col-size"><?= sly_Util_String::formatFilesize(filesize($filename)) ?></td>
+		</tr>
+		<?
+	}
+
+	$table->closeBuffer();
+	print $table->render();
+
+	?>
+</div>
