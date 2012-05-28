@@ -3,19 +3,19 @@
 	"description": "AddOn for SallyCMS, providing file and database backup and restore capabilities",
 	"authors": [{"name": "webvariants GbR"}],
 	"homepage": "http://www.sallycms.de/",
-	"version": "3.1-dev",
 	"license": "MIT",
 	"type": "sallycms-addon",
 	"require": {
 		"php": ">=5.2.0",
 		"sallycms/composer-installer": "*",
-		"sallycms/sallycms": "0.6,0.7"
+		"sallycms/sallycms": "0.7.*"
 	},
 	"autoload": {
 		"psr-0": {"": "lib/"}
 	},
 	"extra": {
 		"sallycms": {
+			"version": "3.1-dev",
 			"page": "a1imex",
 			"name": "translate:im_export_importexport",
 			"perm": "import_export[]",
