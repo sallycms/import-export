@@ -213,12 +213,20 @@ class sly_A1_Util {
 	}
 
 	public static function isCompatible($dumpVersion, $throw = false) {
-		$thisVersion = sly_Core::getVersion('X.Y');
-		$ok = !empty($dumpVersion) && $dumpVersion !== false || $dumpVersion === $thisVersion;
-		if (!$ok && $throw) {
+		if (mb_strlen($dumpVersion) === 0) return true;
+
+		if (sly_Core::getVersion('X.Y') === '0.6') {
+			$compatible = sly_Service_Factory::getAddOnService()->checkVersion($dumpVersion);
+		}
+		else {
+			$compatible = sly_Util_Versions::isCompatible($dumpVersion);
+		}
+
+		if (!$compatible && $throw) {
 			throw new sly_Exception(t('im_export_no_import_file_chosen_or_wrong_version'));
 		}
-		return $ok;
+
+		return $compatible;
 	}
 
 	public static function getArchive($filename, $type = 'zip') {
