@@ -27,13 +27,36 @@ class sly_Controller_A1imex extends sly_Controller_Backend implements sly_Contro
 		$isAdmin  = $user->isAdmin();
 		$is06     = version_compare(sly_Core::getVersion(), '0.6', '>=');
 
-		if ($isAdmin || $user->hasRight('import_export', 'export')) {
-			$subpages[] = array($is06 ? 'a1imex' : '', t('im_export_export'));
+		// check permissions
+
+		$canExport   = $isAdmin || $user->hasRight('import_export', 'export');
+		$canImport   = $isAdmin || $user->hasRight('import_export', 'import');
+		$canDownload = $isAdmin || $user->hasRight('import_export', 'download');
+		$curPage     = sly_Core::getCurrentPage();
+
+		// redirect the user to the corrent subpage, if needed
+
+		if (!$canExport && $curPage === 'a1imex') {
+			sly_Util_HTTP::redirect(sly_Util_HTTP::getBaseUrl(true).'/backend/index.php?page=a1imex_import', array(), '', 302);
 		}
 
-		if ($isAdmin || $user->hasRight('import_export', 'import')) {
-			$subpages[] = array($is06 ? 'a1imex_import' : 'import', t('im_export_import'));
+		if (!$canImport && !$canDownload && $curPage === 'a1imex_import') {
+			sly_Util_HTTP::redirect(sly_Util_HTTP::getBaseUrl(true).'/backend/index.php?page=a1imex', array(), '', 302);
 		}
+
+		// init subpages
+
+		if ($canExport && ($canImport || $canDownload)) {
+			if ($canExport) {
+				$subpages[] = array($is06 ? 'a1imex' : '', t('im_export_export'));
+			}
+
+			if ($canImport || $canDownload) {
+				$subpages[] = array($is06 ? 'a1imex_import' : 'import', t('im_export_import'));
+			}
+		}
+
+		// update navigation
 
 		$nav  = sly_Core::getNavigation();
 		$is06 = sly_Core::getVersion('X.Y') === '0.6';
@@ -43,6 +66,14 @@ class sly_Controller_A1imex extends sly_Controller_Backend implements sly_Contro
 			foreach ($subpages as $subpage) {
 				$page->addSubpage($subpage[0], $subpage[1]);
 			}
+		}
+
+		// In case we have only one choice of subpages and that subpage is the import
+		// page, change the lin of the main navigation point to 'a1imex_import'.
+
+		if ($page && count($subpages) <= 1 && $curPage === 'a1imex_import') {
+			$page->setName('a1imex_import');
+			$page->setPageParam('a1imex_import');
 		}
 
 		print $this->render('head.phtml', compact('subpages'));
@@ -208,7 +239,19 @@ class sly_Controller_A1imex extends sly_Controller_Backend implements sly_Contro
 
 	public function checkPermission($action) {
 		$user = sly_Util_User::getCurrentUser();
-		return $user && ($user->isAdmin() || $user->hasRight('import_export', 'export'));
+
+		if (!$user) return false;
+		if ($user->isAdmin()) return true;
+
+		// We *dont* check if someone can export data, but whether *anything* is
+		// granted. Inside init() we will redirect accordingly.
+
+		$hasPageAccess = $user->hasRight('pages', 'a1imex');
+		$canExport     = $user->hasRight('import_export', 'export');
+		$canImport     = $user->hasRight('import_export', 'import');
+		$canDownload   = $user->hasRight('import_export', 'download');
+
+		return $hasPageAccess && ($canExport || $canImport || $canDownload);
 	}
 
 	protected function getViewFolder() {

@@ -7,60 +7,59 @@
  *
  * http://www.opensource.org/licenses/mit-license.php
  */
+
+// check permissions
+$user        = sly_Util_User::getCurrentUser();
+$canDownload = $user->isAdmin() || $user->hasRight('import_export', 'download');
+
+// create fresh form
+$form = new sly_Form('index.php', 'POST', t('im_export_export'), '', 'export');
+$form->addHiddenValue('page', 'a1imex');
+$form->addHiddenValue('func', 'export');
+
+$options = array(
+	'sql'           => t('im_export_database_export'),
+	'configuration' => t('im_export_configuration_export')
+);
+
+// prevent the filename input field from using the POSTed value
+if (isset($filename)) unset($_POST['filename']);
+
+$contents = new sly_Form_Select_Checkbox('systemexports', 'Export-Typ', array('sql', 'configuration'), $options);
+$filename = new sly_Form_Input_Text('filename', t('im_export_filename'), isset($filename) ? $filename : 'sly_'.date('Ymd'));
+$filename->setHelpText(t('im_export_hint_filename'));
+
+// store or download?
+$root   = new sly_Form_Select_Checkbox('directories', t('im_export_additional_folders'), null, $dirs);
+$format = new sly_Form_Select_Radio('download', 'Download', array(0), array(
+	0 => t('im_export_save_on_server'),
+	1 => t('im_export_download_as_file')
+));
+
+// more options
+$addons       = new sly_Form_Input_Checkbox('addons', t('im_export_include_addons'), 1, t('im_export_include_addons_help'), null, true);
+$users        = new sly_Form_Input_Checkbox('users', t('im_export_include_users'), 1, t('im_export_include_users_help'), null, true);
+$comment      = new sly_Form_Input_Text('comment', t('im_export_comment'), '');
+$diffFriendly = new sly_Form_Input_Checkbox('diff_friendly', t('im_export_diff_friendly'), 1, t('im_export_diff_friendly_help'));
+
+$users->setHelpText(t('im_export_include_users_helptext'));
+
+// last touches
+$form->addElements(array($contents, $root, $users, $addons, $comment, $diffFriendly));
+$form->beginFieldset('Downloadoptionen');
+$form->addElements($canDownload ? array($format, $filename) : array($filename));
+$form->getSubmitButton()->setAttribute('value', t('im_export_db_export'));
+$form->setResetButton(null);
+
 ?>
 <div class="sly-content">
 	<?
-
-	// Meldungen ausgeben
-
+	// print messages
 	if (!empty($info))    print sly_Helper_Message::info($info);
 	if (!empty($warning)) print sly_Helper_Message::warn($warning);
 
-	// Intro-Text
-
+	// print text and form
 	print '<p>'.t('im_export_intro_export').'</p>';
-
-	// Formular erzeugen
-
-	$form = new sly_Form('index.php', 'POST', t('im_export_export'), '', 'export');
-	$form->setEncType('multipart/form-data');
-	$form->addHiddenValue('page', 'a1imex');
-	$form->addHiddenValue('func', 'export');
-
-	$options = array(
-		'sql'           => t('im_export_database_export'),
-		'configuration' => t('im_export_configuration_export')
-	);
-
-	// prevent the filename input field from using the POSTed value
-	if (isset($filename)) unset($_POST['filename']);
-
-	$contents = new sly_Form_Select_Checkbox('systemexports', 'Export-Typ', array('sql', 'configuration'), $options);
-	$filename = new sly_Form_Input_Text('filename', t('im_export_filename'), isset($filename) ? $filename : 'sly_'.date('Ymd'));
-	$filename->setHelpText(t('im_export_hint_filename'));
-
-	// Verzeichnis-Auswahl erzeugen
-
-	$root   = new sly_Form_Select_Checkbox('directories', t('im_export_additional_folders'), null, $dirs);
-	$format = new sly_Form_Select_Radio('download', 'Download', array(0), array(
-		0 => t('im_export_save_on_server'),
-		1 => t('im_export_download_as_file')
-	));
-
-	// more options
-
-	$addons       = new sly_Form_Input_Checkbox('addons', t('im_export_include_addons'), 1, t('im_export_include_addons_help'), null, true);
-	$comment      = new sly_Form_Input_Text('comment', t('im_export_comment'), '');
-	$diffFriendly = new sly_Form_Input_Checkbox('diff_friendly', t('im_export_diff_friendly'), 1, t('im_export_diff_friendly_help'));
-
-	// Formular fertigstellen und ausgeben
-
-	$form->addElements(array($contents, $root, $addons, $comment, $diffFriendly));
-	$form->beginFieldset('Downloadoptionen');
-	$form->addElements(array($format, $filename));
-	$form->getSubmitButton()->setAttribute('value', t('im_export_db_export'));
-	$form->setResetButton(null);
 	print $form->render();
-
 	?>
 </div>

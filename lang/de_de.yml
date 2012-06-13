@@ -1,50 +1,39 @@
 im_export_importexport: Im-/Export
 im_export_file_deleted: Datei wurde gelöscht
-im_export_no_import_file_chosen_or_wrong_version: Keine Importdatei ausgewählt oder Version falsch
-im_export_no_valid_import_file: Das ist keine korrekte Datenbank Importdatei
-im_export_no_valid_charset: Kein passender Zeichensatz.
-im_export_file_could_not_be_uploaded: Datei konnte nicht hochgeladen werden.
-im_export_you_have_no_write_permission_in: Sie haben keine Schreibrechte auf diesen Ordner {0}.
+im_export_no_import_file_chosen_or_wrong_version: Keine Importdatei ausgewählt oder Version falsch.
+im_export_no_valid_import_file: Das ist keine korrekte Datenbank-Importdatei.
+im_export_you_have_no_write_permission_in: 'Sie haben keine Schreibrechte auf das Verzeichnis "{0}".'
 im_export_no_import_file_chosen: Keine Importdatei ausgewählt.
 im_export_problem_when_extracting: Es gab Probleme beim Extrahieren der Datei.
-im_export_create_dirs_manually: Erstellen Sie bitte folgende Ordner manuell und setzen Sie die Schreibrechte auf diese Ordner(&uuml;ber ftp).
 im_export_file_imported: Die Datei wurde erfolgreich importiert.
-im_export_missing_addons_for_db_import: Fehlende Addons für den DB-Import
+im_export_missing_addons_for_db_import: 'Sie müssen alle AddOns, die beim Erstellen des Backups aktiv war, aktivieren, bevor Sie das Backup einspielen können.'
 im_export_import: Import
 im_export_export: Export
-im_export_db_import: Import
 im_export_db_export: Export
 im_export_filename_updated: 'Der Dateiname wurde angepasst, da er ungültige Zeichen enthielt. Sofern dieser stimmig ist, bitte nochmal auf Export klicken.'
 im_export_please_choose_files: Bitte wählen Sie Typen und/oder Verzeichnisse aus die exportiert werden sollen!
-im_export_intro_import: Bitte bedenken Sie das beim Importieren einer Datenbank <b>die alte Datenbank gelöscht</b> wird. Bitte sichern/exportieren Sie diese vorher wenn Sie sich unsicher sind.
+im_export_intro_import: 'Bitte bedenken Sie das beim Importieren einer Datenbank <strong>die alte Datenbank gelöscht</strong> wird. Bitte sichern/exportieren Sie diese vorher wenn Sie sich unsicher sind.'
 im_export_database: Datenbankimport
 im_export_filename: Dateiname
 im_export_filesize: Dateigröße
 im_export_delete: Löschen
-im_export_files: Dateienimport
-im_export_intro_export: Hier können Sie Ihre jetzigen Eingaben und Dateien von <b>Sally</b> sichern. Um eine vollständige Sicherung zu erhalten müssen Sie <b>die Datenbank, die Konfiguration UND die Dateien exportieren</b>. Wenn Sie die Sicherung wiederverwenden wollen, dann kann es Sinn machen diese direkt auf dem Server abzulegen und bei Bedarf direkt wieder zu importieren.
+im_export_intro_export: 'Hier können Sie Ihre jetzigen Eingaben und Dateien von <strong>Sally</strong> sichern. Um eine vollständige Sicherung zu erhalten müssen Sie <strong>die Datenbank, die Konfiguration UND die Dateien exportieren</strong>. Wenn Sie die Sicherung wiederverwenden wollen, dann kann es Sinn machen diese direkt auf dem Server abzulegen und bei Bedarf direkt wieder zu importieren.'
 im_export_database_export: Datenbankexport
 im_export_configuration_export: Konfigurationsexport
 im_export_save_on_server: Auf dem Server speichern
 im_export_download_as_file: Als Datei herunterladen
 im_export_createdate: Erstellt am
-
 im_export_import_file: importieren
-im_export_delete_file: l&ouml;schen
-
+im_export_delete_file: löschen
 im_export_file_could_not_be_generated: Datei konnte nicht erstellt werden.
 im_export_file_generated_in: Daten wurden gesichert in
-
-im_export_proceed_db_import: Bestehende Daten (Artikel, Templates, Module,...) gehen verloren. Fortfahren?
+im_export_proceed_db_import: 'Bestehende Daten (Artikel, Templates, Module, ...) gehen verloren. Fortfahren?'
 im_export_proceed_file_import: Bestehende Dateien werden gelöscht. Fortfahren ?
-
 im_export_export_db_summary: Tabelle der verfügbaren Datenbankexporte
 im_export_export_file_summary: Tabelle der verfügbaren Dateiexporte
-
 im_export_function: Funktion
-
 im_export_explain_assets: assets (Designelemente wie CSS- oder JS-Code für das Frontend)
-im_export_explain_develop: develop (Ordner mit Templates, Modulen, Actions usw.)
+im_export_explain_develop: 'develop (Ordner mit Templates, Modulen, Actions usw.)'
 im_export_explain_mediapool: data/mediapool (Ordner mit Dateien des Medienpools)
 im_export_additional_folders: weitere Verzeichnisse
 im_export_hint_filename: Geben Sie den Dateinamen ohne Endung (.zip) an.
@@ -57,3 +46,6 @@ im_export_include_addons_help: Setze die aktuell installierten AddOns und Plugin
 im_export_comment: Kommentar
 im_export_diff_friendly: Diff-freundlich
 im_export_diff_friendly_help: Export nicht zippen und pro Datensatz eine Zeile verwenden.
+im_export_include_users: Benutzerkonten
+im_export_include_users_help: Die Benutzerkonnten sollten ebenfalls mit exportiert werden.
+im_export_include_users_helptext: 'Achtung: Je nach Serverkonfiguration kann es sein, dass die verwendeten Passwörter auf anderen Servern nicht funktionieren!'
