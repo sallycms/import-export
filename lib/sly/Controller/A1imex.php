@@ -102,13 +102,17 @@ class sly_Controller_A1imex extends sly_Controller_Backend implements sly_Contro
 		$this->init();
 		sly_A1_Util::cleanup();
 
-		$download      = sly_post('download', 'boolean', false);
-		$systemExports = sly_postArray('systemexports', 'string', array());
-		$directories   = sly_postArray('directories', 'string', array());
-		$extraFiles    = array();
-		$addAddOns     = sly_post('addons', 'boolean', false);
-		$diffFriendly  = sly_post('diff_friendly', 'boolean', false);
-		$comment       = sly_post('comment', 'string');
+		$user           = sly_Util_User::getCurrentUser();
+		$canDownload    = $user->isAdmin() || $user->hasRight('import_export', 'download');
+		$canAccessUsers = $user->isAdmin() || $user->hasRight('pages', 'user');
+		$download       = $canDownload ? sly_post('download', 'boolean', false) : false;
+		$systemExports  = sly_postArray('systemexports', 'string', array());
+		$directories    = sly_postArray('directories', 'string', array());
+		$extraFiles     = array();
+		$addAddOns      = sly_post('addons', 'boolean', false);
+		$addUsers       = $canAccessUsers ? sly_post('users', 'boolean', false) : false;
+		$diffFriendly   = sly_post('diff_friendly', 'boolean', false);
+		$comment        = sly_post('comment', 'string');
 
 		// the plain SQL export cannot contain files
 		if ($diffFriendly) {
@@ -139,7 +143,7 @@ class sly_Controller_A1imex extends sly_Controller_Backend implements sly_Contro
 			if (in_array('sql', $systemExports)) {
 				$dumpFile = $this->getTempFileName('sql');
 				$exporter = new sly_A1_Export_Database();
-				$success  = $exporter->export($dumpFile, $diffFriendly);
+				$success  = $exporter->export($dumpFile, $diffFriendly, $addUsers);
 
 				if (!$success) {
 					throw new Exception(t('im_export_sql_dump_could_not_be_generated'));

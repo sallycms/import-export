@@ -134,9 +134,20 @@ class sly_Controller_A1imex_Import extends sly_Controller_A1imex {
 		if ($user->isAdmin()) return true;
 
 		$hasPageAccess = $user->hasRight('pages', 'a1imex');
-		$canImport     = $user->hasRight('import_export', 'import');
-		$canDownload   = $user->hasRight('import_export', 'download');
 
-		return $hasPageAccess && ($canImport || $canDownload);
+		if (!$hasPageAccess || !in_array($action, array('index', 'download', 'delete', 'import'))) {
+			return false;
+		}
+
+		$canExport   = $user->hasRight('import_export', 'export');
+		$canImport   = $user->hasRight('import_export', 'import');
+		$canDownload = $user->hasRight('import_export', 'download');
+
+		switch ($action) {
+			case 'index':    return ($canImport || $canDownload || $canExport);
+			case 'download': return $canDownload;
+			case 'delete':   return $canExport;
+			case 'import':   return $canImport;
+		}
 	}
 }
