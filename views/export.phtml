@@ -9,8 +9,9 @@
  */
 
 // check permissions
-$user        = sly_Util_User::getCurrentUser();
-$canDownload = $user->isAdmin() || $user->hasRight('import_export', 'download');
+$user           = sly_Util_User::getCurrentUser();
+$canDownload    = $user->isAdmin() || $user->hasRight('import_export', 'download');
+$canAccessUsers = $user->isAdmin() || $user->hasRight('pages', 'user');
 
 // create fresh form
 $form = new sly_Form('index.php', 'POST', t('im_export_export'), '', 'export');
@@ -45,7 +46,7 @@ $diffFriendly = new sly_Form_Input_Checkbox('diff_friendly', t('im_export_diff_f
 $users->setHelpText(t('im_export_include_users_helptext'));
 
 // last touches
-$form->addElements(array($contents, $root, $users, $addons, $comment, $diffFriendly));
+$form->addElements(array($contents, $root, $canAccessUsers ? $users : null, $addons, $comment, $diffFriendly));
 $form->beginFieldset('Downloadoptionen');
 $form->addElements($canDownload ? array($format, $filename) : array($filename));
 $form->getSubmitButton()->setAttribute('value', t('im_export_db_export'));

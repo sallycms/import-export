@@ -15,7 +15,7 @@ class sly_A1_Export_Database {
 		$this->filename = '';
 	}
 
-	public function export($filename, $diffFriendly = false) {
+	public function export($filename, $diffFriendly = false, $includeUsers = false) {
 		$prefix = sly_Core::getTablePrefix();
 
 		$this->filename = $filename;
@@ -61,7 +61,7 @@ class sly_A1_Export_Database {
 		fwrite($fp, 'SET @OLD_SQL_NOTES = @@SQL_NOTES, SQL_NOTES = 0;'.$nl.$nl);
 
 		foreach ($tables as $table) {
-			if (!$this->includeTable($table)) {
+			if (!$this->includeTable($table, $includeUsers)) {
 				continue;
 			}
 
@@ -159,12 +159,12 @@ class sly_A1_Export_Database {
 	  return $hasContent;
 	}
 
-	protected function includeTable($table) {
+	protected function includeTable($table, $includeUsers) {
 		$prefix = sly_Core::getTablePrefix();
 
 		return
-			strstr($table, $prefix) == $table && // Nur Tabellen mit dem aktuellen Präfix
-			$table != $prefix.'user';            // User-Tabelle nicht exportieren
+			strstr($table, $prefix) === $table &&          // Nur Tabellen mit dem aktuellen Präfix
+			($includeUsers || $table !== $prefix.'user');  // User-Tabelle nicht exportieren
 	}
 
 	protected function getFields($sql, $table) {
