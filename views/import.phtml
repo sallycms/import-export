@@ -86,11 +86,11 @@ $table->setEmptyNotice(t('im_export_no_backups_available'));
 				<?php elseif ($canIm && !empty($info['missing']) || !$info['compatible']): ?>
 				<span class="sly-strike import" title="<?php print t(($is06 ? 'component' : 'addon').'_incompatible_with_this_version') ?>"><?php print t('im_export_import_file') ?></span>
 				<?php elseif ($canIm): ?>
-				<a href="<?php print $baseURL ?>import" class="import"><?php print t('im_export_import_file') ?></a>
+				<a href="<?php print $baseURL ?>import" class="import sly-confirm-me"><?php print t('im_export_import_file') ?></a>
 				<?php endif ?>
 
 				<?php if ($canEx): ?>
-				<a href="<?php print $baseURL ?>delete" class="delete sly-delete"><?php print t('im_export_delete_file') ?></a>
+				<a href="<?php print $baseURL ?>delete" class="delete sly-delete sly-confirm-me"><?php print t('im_export_delete_file') ?></a>
 				<?php endif ?>
 			</td>
 			<?php endif ?>
