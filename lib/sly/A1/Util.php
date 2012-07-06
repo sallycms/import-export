@@ -117,6 +117,13 @@ class sly_A1_Util {
 		return $result;
 	}
 
+	public static function compareArchiveDate(array $a1, array $a2) {
+		$date1 = $a1['date'];
+		$date2 = $a2['date'];
+
+		return $date1 === $date2 ? 0 : ($date1 < $date2 ? -1 : 1);
+	}
+
 	public static function import($filename) {
 		if (empty($filename)) {
 			throw new Exception(t('im_export_no_import_file_chosen'));

@@ -31,7 +31,7 @@ $table->setEmptyNotice(t('im_export_no_backups_available'));
 
 ?>
 <div class="sly-content">
-	<?
+	<?php
 	// print messages
 	if (!empty($info))    print sly_Helper_Message::info($info);
 	if (!empty($warning)) print sly_Helper_Message::warn($warning);
@@ -39,14 +39,29 @@ $table->setEmptyNotice(t('im_export_no_backups_available'));
 	// intro text
 	print '<p>'.t('im_export_intro_import').'</p>';
 
+	// sort archives by date
+	foreach ($files as $idx => $file) {
+		$filename = $this->baseDir.$file;
+
+		if (!file_exists($filename)) {
+			unset($files[$idx]);
+			continue;
+		}
+
+		$info = sly_A1_Util::getArchiveInfo($filename);
+		$info['filename'] = $file;
+
+		$files[$idx] = $info;
+	}
+
+	usort($files, array('sly_A1_Util', 'compareArchiveDate'));
+	$files = array_reverse($files);
+
 	// print table
 	$table->openBuffer();
 
-	foreach ($files as $file) {
-		$filename = $this->baseDir.$file;
-		if (!file_exists($filename)) continue;
-
-		$info    = sly_A1_Util::getArchiveInfo($filename);
+	foreach ($files as $info) {
+		$file    = $info['filename'];
 		$baseURL = 'index.php?page=a1imex_import&amp;file='.urlencode($file).'&amp;func=';
 
 		?>
@@ -54,40 +69,42 @@ $table->setEmptyNotice(t('im_export_no_backups_available'));
 			<td class="sly-col-icon sly-icon"><img src="<?php print $base ?>images/backup.png" alt="" /></td>
 			<td class="sly-col-file">
 				<?php if ($canDL): ?>
-				<a href="<?= $baseURL ?>download" title="<?= sly_html($info['comment']) ?>"><?= sly_html($info['name']) ?></a>
+				<a href="<?php print $baseURL ?>download" title="<?php print sly_html($info['comment']) ?>"><?php print sly_html($info['name']) ?></a>
 				<?php else: ?>
-				<span title="<?= sly_html($info['comment']) ?>"><?= sly_html($info['name']) ?></span>
+				<span title="<?php print sly_html($info['comment']) ?>"><?php print sly_html($info['name']) ?></span>
 				<?php endif ?>
 
 				<?php if (!empty($info['description'])): ?>
-				<span class="desc">(<?= sly_html($info['description']) ?>)</span>
+				<span class="desc">(<?php print sly_html($info['description']) ?>)</span>
 				<?php endif ?>
 			</td>
 
 			<?php if ($canIm || $canEx): ?>
 			<td class="sly-col-funcs">
 				<?php if ($canIm && !empty($info['missing'])): ?>
-				<span class="sly-strike import" title="<?php print t('requires').' '.sly_Util_String::humanImplode($info['missing']) ?>"><?= t('im_export_import_file') ?></span>
+				<span class="sly-strike import" title="<?php print t('requires').' '.sly_Util_String::humanImplode($info['missing']) ?>"><?php print t('im_export_import_file') ?></span>
 				<?php elseif ($canIm && !empty($info['missing']) || !$info['compatible']): ?>
-				<span class="sly-strike import" title="<?php print t(($is06 ? 'component' : 'addon').'_incompatible_with_this_version') ?>"><?= t('im_export_import_file') ?></span>
+				<span class="sly-strike import" title="<?php print t(($is06 ? 'component' : 'addon').'_incompatible_with_this_version') ?>"><?php print t('im_export_import_file') ?></span>
 				<?php elseif ($canIm): ?>
-				<a href="<?= $baseURL ?>import" class="import"><?= t('im_export_import_file') ?></a>
+				<a href="<?php print $baseURL ?>import" class="import"><?php print t('im_export_import_file') ?></a>
 				<?php endif ?>
 
 				<?php if ($canEx): ?>
-				<a href="<?= $baseURL ?>delete" class="delete sly-delete"><?= t('im_export_delete_file') ?></a>
+				<a href="<?php print $baseURL ?>delete" class="delete sly-delete"><?php print t('im_export_delete_file') ?></a>
 				<?php endif ?>
 			</td>
 			<?php endif ?>
 
-			<td class="sly-col-date"><?= sly_Util_String::formatDatetime($info['date']) ?></td>
-			<td class="sly-col-size"><?= sly_Util_String::formatFilesize(filesize($filename)) ?></td>
+			<td class="sly-col-date"><abbr class="a1-timeago" title="<?php print date('Y-m-d\TG:i:sP', $info['date']) ?>"><?php print sly_Util_String::formatDatetime($info['date']) ?></abbr></td>
+			<td class="sly-col-size"><?php print sly_Util_String::formatFilesize(filesize($this->baseDir.$file)) ?></td>
 		</tr>
 		<?
 	}
 
 	$table->closeBuffer();
 	print $table->render();
+
+	sly_Core::getLayout()->addJavaScript('jQuery(function($){$(".a1-timeago").timeago();});')
 
 	?>
 </div>
