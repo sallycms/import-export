@@ -30,6 +30,8 @@ class sly_Controller_A1imex_Import extends sly_Controller_A1imex {
 		$params   = array('warning' => '', 'info' => '');
 		$filename = sly_request('file', 'string');
 
+		@set_time_limit(0);
+
 		try {
 			sly_A1_Util::cleanup();
 			sly_A1_Util::import($filename);
