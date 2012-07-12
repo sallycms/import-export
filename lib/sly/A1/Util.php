@@ -216,7 +216,7 @@ class sly_A1_Util {
 		$thisVersion = sly_Core::getVersion('X.Y');
 		$ok = !empty($dumpVersion) && $dumpVersion !== false || $dumpVersion === $thisVersion;
 		if (!$ok && $throw) {
-			throw new sly_Exception(t('importer_no_valid_import_file_version', $dumpVersion, $thisVersion));
+			throw new sly_Exception(t('im_export_no_import_file_chosen_or_wrong_version'));
 		}
 		return $ok;
 	}
