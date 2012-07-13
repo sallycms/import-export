@@ -59,8 +59,7 @@ class sly_Controller_A1imex extends sly_Controller_Backend implements sly_Contro
 		// update navigation
 
 		$nav  = sly_Core::getNavigation();
-		$is06 = sly_Core::getVersion('X.Y') === '0.6';
-		$page = $nav->find($is06 ? 'import_export' : 'sallycms/import-export', 'addons');
+		$page = $nav->find('a1imex');
 
 		if ($page) {
 			foreach ($subpages as $subpage) {
