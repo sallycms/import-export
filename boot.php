@@ -14,4 +14,5 @@ if (sly_Core::isBackend()) {
 	sly_Core::getI18N()->appendFile($base.'/lang');
 	sly_Loader::addLoadPath($base.'/lib/vendor');
 	sly_Loader::addLoadPath($base.'/lib');
+	sly_Core::dispatcher()->register('SLY_ADDONS_LOADED', array('sly_A1_Util', 'backendNavigation'));
 }

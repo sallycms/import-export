@@ -165,9 +165,8 @@ class sly_A1_Util {
 				throw new Exception(t('im_export_missing_addons_for_db_import').': '.implode(', ', $missing));
 			}
 
-			if (!self::isCompatible($archive->getVersion())) {
-				throw new Exception(t('im_export_incomatible_file'));
-			}
+			//throw an exception if verion does not match
+			self::isCompatible($archive->getVersion(), true);
 
 			// extract
 
@@ -213,8 +212,13 @@ class sly_A1_Util {
 		return $missing;
 	}
 
-	private static function isCompatible($version) {
-		return empty($version) || sly_Service_Factory::getAddOnService()->checkVersion($version);
+	public static function isCompatible($dumpVersion, $throw = false) {
+		$thisVersion = sly_Core::getVersion('X.Y');
+		$ok = !empty($dumpVersion) && $dumpVersion !== false || $dumpVersion === $thisVersion;
+		if (!$ok && $throw) {
+			throw new sly_Exception(t('im_export_no_import_file_chosen_or_wrong_version'));
+		}
+		return $ok;
 	}
 
 	public static function getArchive($filename, $type = 'zip') {
@@ -229,5 +233,15 @@ class sly_A1_Util {
 		}
 
 		return $archive;
+	}
+
+	public static function backendNavigation(array $params) {
+		$user = sly_Util_User::getCurrentUser();
+		if($user !== null && ($user->isAdmin() || $user->hasRight('pages', 'a1imex'))) {
+			$nav   = sly_Core::getNavigation();
+			$group = $nav->getGroup('addons');
+			$nav->addPage($group, 'a1imex', t('im_export_importexport'));
+		}
+		return $params['subject'];
 	}
 }
