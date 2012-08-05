@@ -1,0 +1,54 @@
+im_export_importexport: Import/Export
+im_export_file_deleted: File has been deleted
+im_export_no_import_file_chosen_or_wrong_version: No omportfile chosen or version is wrong
+im_export_no_valid_import_file: Not valid import file.
+im_export_you_have_no_write_permission_in: 'No permissions to directory "{0}".'
+im_export_no_import_file_chosen: Please choose an import file.
+im_export_problem_when_extracting: Problems occured during extracting.
+im_export_file_imported: File has been imported.
+im_export_missing_addons_for_db_import: Missing addons for db import
+im_export_import: Import
+im_export_export: Export
+im_export_db_import: Import
+im_export_db_export: Export
+im_export_filename_updated: Filname updated because of unallowed characters. Please click again on export
+im_export_please_choose_folder: Please choose the folders to be exported
+im_export_intro_import: 'Please take care when you import a database. <strong>The current database will be deleted</strong>.'
+im_export_database: Databaseimport
+im_export_filename: Filename
+im_export_filesize: Filesizee
+im_export_delete: Delete
+im_export_files: Fileimport
+im_export_intro_export: To backup the whole website please backup database AND files.
+im_export_database_export: export database
+im_export_configuration_export: export configuration
+im_export_save_on_server: Save on server
+im_export_download_as_file: Download as file
+im_export_createdate: Create date
+im_export_import_file: Import file
+im_export_delete_file: Delete file
+im_export_download_file: Download file
+im_export_file_could_not_be_generated: File could not be generated.
+im_export_file_generated_in: File has been generated in
+im_export_proceed_db_import: 'Current data (articles, templates, modules,...) will be deleted. Are you sure?'
+im_export_proceed_file_import: Current files will be deleted. Are you sure ?
+im_export_export_db_summary: Table of all database exports
+im_export_export_file_summary: Table of all file exports
+im_export_function: Function
+im_export_explain_assets: assets (designelements like CSS- oder JS-Code for the frontend)
+im_export_explain_develop: 'develop (folder with templates, modules etc.)'
+im_export_explain_mediapool: data/mediapool (folder with files of mediapools)
+im_export_additional_folders: additional folders
+im_export_hint_filename: please provide a filename without extension (.zip).
+im_export_sql_dump_could_not_be_generated: the SQL dump could not be created.
+im_export_selected_file_not_exists: The selected file does not exists.
+im_export_file_could_not_be_deleted: The selected file could not be deleted.
+im_export_no_backups_available: No Backups available.
+im_export_include_addons: AddOns/Plugins
+im_export_include_addons_help: Require the currently installed addOns and plugins when importing.
+im_export_comment: Comment
+im_export_diff_friendly: Diff-friendly
+im_export_diff_friendly_help: Don't compress the export and use one line per database row.
+im_export_include_users: User accounts
+im_export_include_users_help: Include user accounts when exporting the database.
+im_export_include_users_helptext: 'Note: Depending on your server configuration it is possible that the used passwords will not work on other servers!'

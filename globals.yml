@@ -1,0 +1,10 @@
+authorisation:
+  import_export:
+    title: Import Export
+    token:
+      import: Backups einspielen (Wiederherstellung)
+      export: Backups erstellen
+      download: Backups runterladen
+  pages:
+    token:
+      a1imex: Import Export

@@ -1,0 +1,21 @@
+<?php
+/*
+ * Copyright (c) 2012, webvariants GbR, http://www.webvariants.de
+ *
+ * This file is released under the terms of the MIT license. You can find the
+ * complete text in the attached LICENSE file or online at:
+ *
+ * http://www.opensource.org/licenses/mit-license.php
+ */
+
+$locale = substr(sly_Core::getI18N()->getLocale(), 0, 2);
+$layout = sly_Core::getLayout();
+$is06   = sly_Core::getVersion('X.Y') === '0.6';
+$base   = $is06 ? '../data/dyn/public/import_export/' : sly_Util_AddOn::assetBaseUri('sallycms/import-export');
+$ext    = $is06 ? 'css' : 'less';
+
+$layout->addCSSFile($base.'css/backend.'.$ext);
+$layout->addJavaScriptFile($base.'js/jquery.timeago.js');
+$layout->addJavaScriptFile($base.'js/jquery.timeago.'.$locale.'.js');
+
+$layout->pageHeader(t('im_export_importexport'), $subpages);
