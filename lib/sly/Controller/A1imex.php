@@ -179,7 +179,7 @@ class sly_Controller_A1imex extends sly_Controller_Backend implements sly_Contro
 			}
 
 			$archive->setComment($comment); // for later
-			$archive->setVersion(sly_Core::getVersion('X.Y'));
+			$archive->setVersion(sly_Core::getVersion('X.Y.*'));
 			$archive->writeInfo();
 
 			// do the actual work
