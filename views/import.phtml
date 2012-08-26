@@ -33,8 +33,7 @@ $table->setEmptyNotice(t('im_export_no_backups_available'));
 <div class="sly-content">
 	<?php
 	// print messages
-	if (!empty($info))    print sly_Helper_Message::info($info);
-	if (!empty($warning)) print sly_Helper_Message::warn($warning);
+	print sly_Helper_Message::renderFlashMessage();
 
 	// intro text
 	print '<p>'.t('im_export_intro_import').'</p>';
