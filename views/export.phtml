@@ -56,8 +56,7 @@ $form->setResetButton(null);
 <div class="sly-content">
 	<?
 	// print messages
-	if (!empty($info))    print sly_Helper_Message::info($info);
-	if (!empty($warning)) print sly_Helper_Message::warn($warning);
+	print sly_Helper_Message::renderFlashMessage();
 
 	// print text and form
 	print '<p>'.t('im_export_intro_export').'</p>';
