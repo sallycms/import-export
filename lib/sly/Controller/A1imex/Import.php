@@ -16,10 +16,6 @@
 class sly_Controller_A1imex_Import extends sly_Controller_A1imex {
 	public function indexAction() {
 		$this->init();
-		$this->importView();
-	}
-
-	protected function importView($params = array()) {
 		$params['files'] = sly_A1_Util::getArchives($this->baseDir);
 		$this->render('import.phtml', $params, false);
 	}
@@ -71,7 +67,7 @@ class sly_Controller_A1imex_Import extends sly_Controller_A1imex {
 			$flash->appendWarning($e->getMessage());
 		}
 
-		$this->importView();
+		$this->redirect();
 	}
 
 	public function deleteAction() {
@@ -87,7 +83,7 @@ class sly_Controller_A1imex_Import extends sly_Controller_A1imex {
 			$flash->addWarning(t('im_export_file_could_not_be_deleted'));
 		}
 
-		$this->importView();
+		$this->redirect();
 	}
 
 	public function downloadAction() {
@@ -107,7 +103,7 @@ class sly_Controller_A1imex_Import extends sly_Controller_A1imex {
 
 		$flash = sly_Core::getFlashMessage();
 		$flash->addWarning(t('im_export_selected_file_not_exists'));
-		$this->importView();
+		$this->redirect();
 	}
 
 	public function checkPermission($action) {

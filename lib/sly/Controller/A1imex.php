@@ -37,11 +37,11 @@ class sly_Controller_A1imex extends sly_Controller_Backend implements sly_Contro
 		// redirect the user to the corrent subpage, if needed
 
 		if (!$canExport && $curPage === 'a1imex') {
-			sly_Util_HTTP::redirect(sly_Util_HTTP::getBaseUrl(true).'/backend/index.php?page=a1imex_import', array(), '', 302);
+			$this->redirect('', 'a1imex_import');
 		}
 
 		if (!$canImport && !$canDownload && $curPage === 'a1imex_import') {
-			sly_Util_HTTP::redirect(sly_Util_HTTP::getBaseUrl(true).'/backend/index.php?page=a1imex', array(), '', 302);
+			$this->redirect('', 'a1imex');
 		}
 
 		// init subpages
@@ -75,7 +75,7 @@ class sly_Controller_A1imex extends sly_Controller_Backend implements sly_Contro
 			$page->setPageParam('a1imex_import');
 		}
 
-		print $this->render('head.phtml', compact('subpages'));
+		$this->render('head.phtml', compact('subpages'), false);
 	}
 
 	public function indexAction() {
@@ -90,11 +90,11 @@ class sly_Controller_A1imex extends sly_Controller_Backend implements sly_Contro
 			substr(SLY_MEDIAFOLDER, strlen(SLY_BASE)+1) => t('im_export_explain_mediapool')
 		);
 
-		$dispatcher     = sly_Core::dispatcher();
-		$dirs           = $dispatcher->filter('SLY_A1_EXPORT_FILENAMES', $dirs);
-		$params['dirs'] = $dirs;
+		$dispatcher = sly_Core::dispatcher();
+		$dirs       = $dispatcher->filter('SLY_A1_EXPORT_FILENAMES', $dirs);
 
-		print $this->render('export.phtml', $params);
+		$params['dirs'] = $dirs;
+		$this->render('export.phtml', $params, false);
 	}
 
 	public function exportAction() {
@@ -123,8 +123,8 @@ class sly_Controller_A1imex extends sly_Controller_Backend implements sly_Contro
 		$orig     = $filename;
 		$filename = strtolower($filename);
 		$filename = preg_replace('#[^\.a-z0-9_-]#', '', $filename);
-		$params   = array('warning' => '', 'info' => '');
-		$success  = true;
+		$params   = array();
+		$flash    = sly_Core::getFlashMessage();
 
 		try {
 			// did we alter the filename?
@@ -225,15 +225,16 @@ class sly_Controller_A1imex extends sly_Controller_Backend implements sly_Contro
 
 			// fresh form data
 
-			$params['info'] = t('im_export_file_generated_in').' '.strtr($filename, '\\', '/');
+			$flash->addInfo(t('im_export_file_generated_in').' '.strtr($filename, '\\', '/'));
+			$this->redirect();
 		}
 		catch (Exception $e) {
 			if ($e->getCode() === 1) {
-				$params['info']     = $e->getMessage();
+				$flash->addInfo($e->getMessage());
 				$params['filename'] = $filename;
 			}
 			else {
-				$params['warning'] = $e->getMessage();
+				$flash->addWarning($e->getMessage());
 			}
 		}
 
