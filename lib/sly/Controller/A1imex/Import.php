@@ -67,7 +67,7 @@ class sly_Controller_A1imex_Import extends sly_Controller_A1imex {
 			$flash->appendWarning($e->getMessage());
 		}
 
-		$this->redirect();
+		return $this->redirectResponse();
 	}
 
 	public function deleteAction() {
@@ -83,7 +83,7 @@ class sly_Controller_A1imex_Import extends sly_Controller_A1imex {
 			$flash->addWarning(t('im_export_file_could_not_be_deleted'));
 		}
 
-		$this->redirect();
+		return $this->redirectResponse();
 	}
 
 	public function downloadAction() {
@@ -103,7 +103,7 @@ class sly_Controller_A1imex_Import extends sly_Controller_A1imex {
 
 		$flash = sly_Core::getFlashMessage();
 		$flash->addWarning(t('im_export_selected_file_not_exists'));
-		$this->redirect();
+		return $this->redirectResponse();
 	}
 
 	public function checkPermission($action) {
