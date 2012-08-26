@@ -21,22 +21,20 @@ class sly_Controller_A1imex_Import extends sly_Controller_A1imex {
 
 	protected function importView($params = array()) {
 		$params['files'] = sly_A1_Util::getArchives($this->baseDir);
-		print $this->render('import.phtml', $params);
+		$this->render('import.phtml', $params, false);
 	}
 
 	public function importAction() {
 		$this->init();
 
-		$params   = array('warning' => '', 'info' => '');
 		$filename = sly_request('file', 'string');
+		$flash    = sly_Core::getFlashMessage();
 
 		@set_time_limit(0);
 
 		try {
 			sly_A1_Util::cleanup();
 			sly_A1_Util::import($filename);
-
-			$params['info'] = t('im_export_file_imported').'<br />';
 
 			// import all dumps we can find
 
@@ -45,15 +43,8 @@ class sly_Controller_A1imex_Import extends sly_Controller_A1imex {
 
 			foreach ($files as $file) {
 				if (substr($file, -4) === '.sql') {
-					$importer  = new sly_DB_Importer();
-					$sqlretval = $importer->import($file);
-
-					if ($sqlretval['state']) {
-						$params['info'] .= $sqlretval['message'];
-					}
-					else {
-						throw new Exception($sqlretval['message']);
-					}
+					$importer = new sly_DB_Importer();
+					$importer->import($file);
 				}
 
 				unlink($file);
@@ -68,46 +59,35 @@ class sly_Controller_A1imex_Import extends sly_Controller_A1imex {
 				$file = $dir.'/'.str_replace('.zip', '.sql', $filename);
 
 				if (file_exists($file)) {
-					$importer  = new sly_DB_Importer();
-					$sqlretval = $importer->import($file);
-
-					if ($sqlretval['state']) {
-						$params['info'] .= $sqlretval['message'];
-					}
-					else {
-						throw new Exception($sqlretval['message']);
-					}
+					$importer = new sly_DB_Importer();
+					$importer->import($file);
 				}
 			}
 
-			$state = true;
-		}
-		catch (Exception $e) {
-			$params['warning'] .= $e->getMessage();
-			$state = false;
-		}
-
-		if ($state === true) {
+			$flash->prependInfo(t('im_export_file_imported'), false);
 			sly_Core::dispatcher()->notify('SLY_A1_AFTER_IMPORT', $filename);
 		}
+		catch (Exception $e) {
+			$flash->appendWarning($e->getMessage());
+		}
 
-		$this->importView($params);
+		$this->importView();
 	}
 
 	public function deleteAction() {
 		$this->init();
 
 		$filename = sly_request('file', 'string');
-		$params   = array();
+		$flash    = sly_Core::getFlashMessage();
 
 		if (unlink($this->baseDir.$filename)) {
-			$params['info'] = t('im_export_file_deleted');
+			$flash->addInfo(t('im_export_file_deleted'));
 		}
 		else {
-			$params['warning'] = t('im_export_file_could_not_be_deleted');
+			$flash->addWarning(t('im_export_file_could_not_be_deleted'));
 		}
 
-		$this->importView($params);
+		$this->importView();
 	}
 
 	public function downloadAction() {
@@ -125,8 +105,9 @@ class sly_Controller_A1imex_Import extends sly_Controller_A1imex {
 			exit;
 		}
 
-		$params = array('warning' => t('im_export_selected_file_not_exists'));
-		$this->importView($params);
+		$flash = sly_Core::getFlashMessage();
+		$flash->addWarning(t('im_export_selected_file_not_exists'));
+		$this->importView();
 	}
 
 	public function checkPermission($action) {
