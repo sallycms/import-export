@@ -226,7 +226,7 @@ class sly_Controller_A1imex extends sly_Controller_Backend implements sly_Contro
 			// fresh form data
 
 			$flash->addInfo(t('im_export_file_generated_in').' '.strtr($filename, '\\', '/'));
-			$this->redirect();
+			return $this->redirectResponse();
 		}
 		catch (Exception $e) {
 			if ($e->getCode() === 1) {
