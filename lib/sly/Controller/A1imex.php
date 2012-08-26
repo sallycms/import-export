@@ -267,18 +267,14 @@ class sly_Controller_A1imex extends sly_Controller_Backend implements sly_Contro
 	}
 
 	protected function collectAddOns() {
-		$is06          = sly_Core::getVersion('X.Y') === '0.6';
-		$addonService  = sly_Service_Factory::getAddOnService();
-		$pluginService = $is06 ? sly_Service_Factory::getPlugInService() : null;
-		$addons        = array();
+		$service = sly_Service_Factory::getAddOnService();
+		$addons  = array();
 
-		foreach ($addonService->getAvailableAddons() as $addon) {
-			$addons[] = $addon;
+		foreach ($service->getAvailableAddons() as $addon) {
+			$ignore = $service->getComposerKey($addon, 'imex-ignore', false);
 
-			if ($is06) {
-				foreach ($pluginService->getAvailablePlugins($addon) as $plugin) {
-					$addons[] = array($addon, $plugin);
-				}
+			if ($ignore !== true && $ignore !== 'true') {
+				$addons[] = $addon;
 			}
 		}
 
