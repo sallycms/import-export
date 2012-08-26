@@ -223,7 +223,7 @@ class sly_A1_Util {
 		}
 
 		if (!$compatible && $throw) {
-			throw new sly_Exception(t('im_export_no_import_file_chosen_or_wrong_version'));
+			throw new sly_Exception(t('im_export_incompatible_dump', $dumpVersion, sly_Core::getVersion('X.Y.Z')));
 		}
 
 		return $compatible;

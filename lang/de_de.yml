@@ -1,11 +1,10 @@
 im_export_importexport: Im-/Export
-im_export_file_deleted: Datei wurde gelöscht
-im_export_no_import_file_chosen_or_wrong_version: Keine Importdatei ausgewählt oder Version falsch.
-im_export_no_valid_import_file: Das ist keine korrekte Datenbank-Importdatei.
+im_export_file_deleted: Datei wurde gelöscht.
+im_export_incompatible_dump: 'Das ausgewählte Backup ist nicht mit dieser Version von SallyCMS ({1}) kompatibel (Constraint: {0}).'
 im_export_you_have_no_write_permission_in: 'Sie haben keine Schreibrechte auf das Verzeichnis "{0}".'
 im_export_no_import_file_chosen: Keine Importdatei ausgewählt.
 im_export_problem_when_extracting: Es gab Probleme beim Extrahieren der Datei.
-im_export_file_imported: Die Datei wurde erfolgreich importiert.
+im_export_file_imported: Das Backup wurde erfolgreich importiert.
 im_export_missing_addons_for_db_import: 'Sie müssen alle AddOns, die beim Erstellen des Backups aktiv war, aktivieren, bevor Sie das Backup einspielen können.'
 im_export_import: Import
 im_export_export: Export
