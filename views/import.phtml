@@ -97,7 +97,7 @@ $table->setEmptyNotice(t('im_export_no_backups_available'));
 			<td class="sly-col-date"><abbr class="a1-timeago" title="<?php print date('Y-m-d\TG:i:sP', $info['date']) ?>"><?php print sly_Util_String::formatDatetime($info['date']) ?></abbr></td>
 			<td class="sly-col-size"><?php print sly_Util_String::formatFilesize(filesize($this->baseDir.$file)) ?></td>
 		</tr>
-		<?
+		<?php
 	}
 
 	$table->closeBuffer();
