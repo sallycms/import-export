@@ -245,7 +245,7 @@ class sly_A1_Util {
 
 	public static function backendNavigation(array $params) {
 		$user = sly_Util_User::getCurrentUser();
-		if($user !== null && ($user->isAdmin() || $user->hasRight('pages', 'a1imex'))) {
+		if ($user !== null && ($user->isAdmin() || $user->hasRight('pages', 'a1imex'))) {
 			$nav   = sly_Core::getNavigation();
 			$group = $nav->getGroup('addons');
 			$nav->addPage($group, 'a1imex', t('im_export_importexport'));
