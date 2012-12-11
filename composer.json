@@ -21,7 +21,7 @@
     },
     "extra": {
         "sallycms": {
-            "version": "3.x-dev"
+            "version": "3.3.0"
         },
         "branch-alias": {
             "dev-default": "3.x-dev"
