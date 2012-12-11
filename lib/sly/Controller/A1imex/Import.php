@@ -49,9 +49,8 @@ class sly_Controller_A1imex_Import extends sly_Controller_A1imex {
 			// try the old-fashioned way
 
 			if (count($files) === 0) {
-				$is06 = sly_Core::getVersion('X.Y') === '0.6';
 				$srv  = sly_Service_Factory::getAddOnService();
-				$dir  = $is06 ? $srv->internalFolder('import_export') : $srv->internalDirectory('sallycms/import-export');
+				$dir  = $srv->internalDirectory('sallycms/import-export');
 				$file = $dir.'/'.str_replace('.zip', '.sql', $filename);
 
 				if (file_exists($file)) {
@@ -108,8 +107,12 @@ class sly_Controller_A1imex_Import extends sly_Controller_A1imex {
 
 	public function checkPermission($action) {
 		$user = sly_Util_User::getCurrentUser();
-
 		if (!$user) return false;
+
+		if (class_exists('sly_Util_Csrf') && in_array($action, array('delete', 'import'))) {
+			sly_Util_Csrf::checkToken();
+		}
+
 		if ($user->isAdmin()) return true;
 
 		$hasPageAccess = $user->hasRight('pages', 'a1imex');
