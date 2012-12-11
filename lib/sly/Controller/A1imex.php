@@ -25,14 +25,13 @@ class sly_Controller_A1imex extends sly_Controller_Backend implements sly_Contro
 		$user     = sly_Util_User::getCurrentUser();
 		$subpages = array();
 		$isAdmin  = $user->isAdmin();
-		$is06     = version_compare(sly_Core::getVersion(), '0.6', '>=');
 
 		// check permissions
 
 		$canExport   = $isAdmin || $user->hasRight('import_export', 'export');
 		$canImport   = $isAdmin || $user->hasRight('import_export', 'import');
 		$canDownload = $isAdmin || $user->hasRight('import_export', 'download');
-		$curPage     = sly_Core::getCurrentPage();
+		$curPage     = sly_Core::getCurrentControllerName();
 
 		// redirect the user to the corrent subpage, if needed
 
@@ -48,17 +47,17 @@ class sly_Controller_A1imex extends sly_Controller_Backend implements sly_Contro
 
 		if ($canExport && ($canImport || $canDownload)) {
 			if ($canExport) {
-				$subpages[] = array($is06 ? 'a1imex' : '', t('im_export_export'));
+				$subpages[] = array('a1imex', t('im_export_export'));
 			}
 
 			if ($canImport || $canDownload) {
-				$subpages[] = array($is06 ? 'a1imex_import' : 'import', t('im_export_import'));
+				$subpages[] = array('a1imex_import', t('im_export_import'));
 			}
 		}
 
 		// update navigation
 
-		$nav  = sly_Core::getNavigation();
+		$nav  = sly_Core::getLayout()->getNavigation();
 		$page = $nav->find('a1imex');
 
 		if ($page) {
@@ -75,7 +74,7 @@ class sly_Controller_A1imex extends sly_Controller_Backend implements sly_Contro
 			$page->setPageParam('a1imex_import');
 		}
 
-		$this->render('head.phtml', compact('subpages'), false);
+		$this->render('head.phtml', array(), false);
 	}
 
 	public function indexAction() {
@@ -243,8 +242,12 @@ class sly_Controller_A1imex extends sly_Controller_Backend implements sly_Contro
 
 	public function checkPermission($action) {
 		$user = sly_Util_User::getCurrentUser();
-
 		if (!$user) return false;
+
+		if (class_exists('sly_Util_Csrf') && $action === 'export') {
+			sly_Util_Csrf::checkToken();
+		}
+
 		if ($user->isAdmin()) return true;
 
 		// We *dont* check if someone can export data, but whether *anything* is

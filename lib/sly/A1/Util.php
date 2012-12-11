@@ -48,8 +48,7 @@ class sly_A1_Util {
 	}
 
 	public static function getDataDir() {
-		$dir = sly_Core::getVersion('X.Y') === '0.6' ? 'import_export' : 'import-export';
-		$dir = SLY_DATAFOLDER.DIRECTORY_SEPARATOR.$dir;
+		$dir = SLY_DATAFOLDER.DIRECTORY_SEPARATOR.'import-export';
 		$ok  = sly_Util_Directory::createHttpProtected($dir);
 
 		if (!$ok) throw new Exception('Konnte Backup-Verzeichnis '.$dir.' nicht anlegen.');
@@ -59,9 +58,9 @@ class sly_A1_Util {
 
 	public static function getTempDir() {
 		$service = sly_Service_Factory::getAddOnService();
-		$dir     = sly_Core::getVersion('X.Y') === '0.6' ? $service->internalFolder('import_export').DIRECTORY_SEPARATOR : $service->internalDirectory('sallycms/import-export');
+		$dir     = $service->internalDirectory('sallycms/import-export');
 
-		return $dir.'tmp';
+		return $dir.DIRECTORY_SEPARATOR.'tmp';
 	}
 
 	public static function cleanup() {
@@ -195,17 +194,15 @@ class sly_A1_Util {
 	private static function getMissingAddOns($addons) {
 		if (!is_array($addons) || empty($addons)) return array();
 
-		$is06          = sly_Core::getVersion('X.Y') === '0.6';
-		$addonService  = sly_Service_Factory::getAddOnService();
-		$pluginService = $is06 ? sly_Service_Factory::getPlugInService() : null;
-		$missing       = array();
+		$service = sly_Service_Factory::getAddOnService();
+		$missing = array();
 
 		foreach ($addons as $addon) {
 			if (is_string($addon)) {
-				if (!$addonService->isAvailable($addon)) $missing[] = $addon;
+				if (!$service->isAvailable($addon)) $missing[] = $addon;
 			}
-			elseif (!$pluginService->isAvailable($addon)) { // won't happen in 0.7
-				$missing[] = implode('/', $addon);
+			else {
+				$missing[] = implode(',', $addon);
 			}
 		}
 
@@ -215,12 +212,7 @@ class sly_A1_Util {
 	public static function isCompatible($dumpVersion, $throw = false) {
 		if (mb_strlen($dumpVersion) === 0) return true;
 
-		if (sly_Core::getVersion('X.Y') === '0.6') {
-			$compatible = sly_Service_Factory::getAddOnService()->checkVersion($dumpVersion);
-		}
-		else {
-			$compatible = sly_Util_Versions::isCompatible($dumpVersion);
-		}
+		$compatible = sly_Util_Versions::isCompatible($dumpVersion);
 
 		if (!$compatible && $throw) {
 			throw new sly_Exception(t('im_export_incompatible_dump', $dumpVersion, sly_Core::getVersion('X.Y.Z')));
@@ -245,11 +237,14 @@ class sly_A1_Util {
 
 	public static function backendNavigation(array $params) {
 		$user = sly_Util_User::getCurrentUser();
+
 		if ($user !== null && ($user->isAdmin() || $user->hasRight('pages', 'a1imex'))) {
-			$nav   = sly_Core::getNavigation();
+			$nav   = sly_Core::getLayout()->getNavigation();
 			$group = $nav->getGroup('addons');
+
 			$nav->addPage($group, 'a1imex', t('im_export_importexport'));
 		}
+
 		return $params['subject'];
 	}
 }

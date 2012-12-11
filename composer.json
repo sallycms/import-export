@@ -12,7 +12,7 @@
     "require": {
         "php": ">=5.2.0",
         "sallycms/composer-installer": "~1.1",
-        "sallycms/sallycms": "0.7.*"
+        "sallycms/sallycms": ">=0.7,<0.9"
     },
     "autoload": {
         "psr-0": {
@@ -21,14 +21,7 @@
     },
     "extra": {
         "sallycms": {
-            "version": "3.2.x-dev",
-            "page": "a1imex",
-            "name": "translate:im_export_importexport",
-            "perm": "import_export[]",
-            "extperm": [
-                "import_export[export]",
-                "import_export[import]"
-            ]
+            "version": "3.x-dev"
         },
         "branch-alias": {
             "dev-default": "3.x-dev"

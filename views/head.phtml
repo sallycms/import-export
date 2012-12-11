@@ -10,12 +10,10 @@
 
 $locale = substr(sly_Core::getI18N()->getLocale(), 0, 2);
 $layout = sly_Core::getLayout();
-$is06   = sly_Core::getVersion('X.Y') === '0.6';
-$base   = $is06 ? '../data/dyn/public/import_export/' : sly_Util_AddOn::assetBaseUri('sallycms/import-export');
-$ext    = $is06 ? 'css' : 'less';
+$base   = sly_Util_AddOn::assetBaseUri('sallycms/import-export');
 
-$layout->addCSSFile($base.'css/backend.'.$ext);
+$layout->addCSSFile($base.'css/backend.less');
 $layout->addJavaScriptFile($base.'js/jquery.timeago.js');
 $layout->addJavaScriptFile($base.'js/jquery.timeago.'.$locale.'.js');
 
-$layout->pageHeader(t('im_export_importexport'), $subpages);
+$layout->pageHeader(t('im_export_importexport'));
