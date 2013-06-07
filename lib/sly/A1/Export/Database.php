@@ -160,11 +160,28 @@ class sly_A1_Export_Database {
 	}
 
 	protected function includeTable($table, $includeUsers) {
-		$prefix = sly_Core::getTablePrefix();
+		$prefix   = sly_Core::getTablePrefix();
+		$prefixes = sly_Core::config()->get('sly_import_export/ignored_table_prefixes', array());
 
-		return
-			strstr($table, $prefix) === $table &&          // Nur Tabellen mit dem aktuellen Präfix
-			($includeUsers || $table !== $prefix.'user');  // User-Tabelle nicht exportieren
+		// no 'sly_' prefix
+		if (strstr($table, $prefix) !== $table) {
+			return false;
+		}
+
+		// do not export the user table
+		if (!$includeUsers && $table === $prefix.'user') {
+			return false;
+		}
+
+		foreach ($prefixes as $p) {
+			$fullPrefix = $prefix.$p;
+
+			if (strpos($table, $fullPrefix) === 0) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	protected function getFields($sql, $table) {
