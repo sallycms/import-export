@@ -8,7 +8,11 @@
  * http://www.opensource.org/licenses/mit-license.php
  */
 
-class sly_A1_Archive_ZipArchive extends sly_A1_Archive_Base {
+namespace sly\ImportExport\Archive;
+
+use sly\ImportExport\Exception;
+
+class ZipArchive extends Base {
 	protected $isOpen  = false;
 	protected $archive = null;
 
@@ -19,11 +23,11 @@ class sly_A1_Archive_ZipArchive extends sly_A1_Archive_Base {
 	public function open($writeMode = true) {
 		if ($this->isOpen) return;
 
-		$archive = new ZipArchive();
-		$state   = $archive->open($this->getFilename(), $writeMode ? ZipArchive::OVERWRITE : null);
+		$archive = new \ZipArchive();
+		$state   = $archive->open($this->getFilename(), $writeMode ? \ZipArchive::OVERWRITE : null);
 
 		if ($state !== true) {
-			throw new sly_Exception('Could not open archive file, code '.$state);
+			throw new Exception('Could not open archive file, code '.$state);
 		}
 
 		$this->archive = $archive;
