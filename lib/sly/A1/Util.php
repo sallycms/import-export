@@ -9,9 +9,8 @@
  */
 
 class sly_A1_Util {
-	const TYPE_TAR = 1;
-	const TYPE_ZIP = 2;
-	const TYPE_SQL = 3;
+	const TYPE_ZIP = 1;
+	const TYPE_SQL = 2;
 
 	public static function getIteratedFilename($filename, $ext) {
 		$directory = self::getDataDir().DIRECTORY_SEPARATOR;
@@ -42,7 +41,6 @@ class sly_A1_Util {
 
 	public static function getArchives($dir) {
 		$files = self::getArchivesBySuffix('.zip');
-		$files = array_merge($files, self::getArchivesBySuffix('.tar.gz'));
 		$files = array_merge($files, self::getArchivesBySuffix('.sql'));
 		return $files;
 	}
@@ -138,19 +136,7 @@ class sly_A1_Util {
 		$cwd = getcwd();
 		chdir(SLY_BASE);
 
-		if ($type === self::TYPE_TAR) {
-			$archive = new sly_A1_Archive_Tar($filename);
-
-			// Extensions auslösen
-			$archive = sly_Core::dispatcher()->filter('SLY_A1_BEFORE_FILE_IMPORT', $archive);
-
-			// Tar auspacken
-			if (!$archive->extract()) {
-				chdir('sally/backend');
-				throw new Exception(t('im_export_problem_when_extracting'));
-			}
-		}
-		elseif ($type === self::TYPE_ZIP || $type === self::TYPE_SQL) {
+		if ($type === self::TYPE_ZIP || $type === self::TYPE_SQL) {
 			$archive = self::getArchive($filename);
 			$archive = sly_Core::dispatcher()->filter('SLY_A1_BEFORE_FILE_IMPORT', $archive);
 
@@ -183,8 +169,6 @@ class sly_A1_Util {
 	}
 
 	private static function guessFileType($filename) {
-		if (substr($filename, -4) == '.tar') return self::TYPE_TAR;
-		if (substr($filename, -7) == '.tar.gz') return self::TYPE_TAR;
 		if (substr($filename, -4) == '.zip') return self::TYPE_ZIP;
 		if (substr($filename, -4) == '.sql') return self::TYPE_SQL;
 
