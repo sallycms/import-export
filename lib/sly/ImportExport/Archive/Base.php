@@ -8,7 +8,11 @@
  * http://www.opensource.org/licenses/mit-license.php
  */
 
-abstract class sly_A1_Archive_Base {
+namespace sly\ImportExport\Archive;
+
+use sly_Util_Directory;
+
+abstract class Base {
 	protected $filename;
 	protected $addons  = null; // list of required addOns
 	protected $version = null; // Sally version/branch

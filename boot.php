@@ -8,11 +8,12 @@
  * http://www.opensource.org/licenses/mit-license.php
  */
 
-if (sly_Core::isBackend()) {
-	$base = dirname(__FILE__);
+$container['sly-i18n']->appendFile(__DIR__.'/lang');
 
-	sly_Core::getI18N()->appendFile($base.'/lang');
-	sly_Loader::addLoadPath($base.'/lib/vendor');
-	sly_Loader::addLoadPath($base.'/lib');
-	sly_Core::dispatcher()->register('SLY_ADDONS_LOADED', array('sly_A1_Util', 'backendNavigation'));
-}
+$container['sly-dispatcher']->addListener('SLY_BACKEND_NAVIGATION_INIT', function($nav, $params) {
+	$user = $params['user'];
+
+	if ($user && ($user->isAdmin() || $user->hasPermission('pages', 'sly_import_export'))) {
+		$nav->addPage('addon', 'importexport', t('im_export_importexport'));
+	}
+});

@@ -8,23 +8,41 @@
  * http://www.opensource.org/licenses/mit-license.php
  */
 
-class sly_A1_Util {
+namespace sly\ImportExport;
+
+use sly_Util_Directory;
+
+class Service {
 	const TYPE_ZIP = 1;
 	const TYPE_SQL = 2;
 
-	public static function getIteratedFilename($filename, $ext) {
-		$directory = self::getDataDir().DIRECTORY_SEPARATOR;
+	protected $container;
 
-		if (file_exists($directory.$filename.$ext)) {
-			$i = 1;
-			while (file_exists($directory.$filename.'_'.$i.$ext)) $i++;
-			$filename = $filename.'_'.$i;
-		}
+	public function __construct() {
 
-		return $filename;
 	}
 
-	private static function getArchivesBySuffix($suffix) {
+	public function getArchives() {
+		return array_merge(
+			$this->getArchivesBySuffix('.zip'),
+			$this->getArchivesBySuffix('.sql')
+		);
+	}
+
+	public function getStorageFilesystem() {
+		return $this->filesystem;
+	}
+
+	public function getTempDir() {
+		return $this->tempDir;
+	}
+
+	public function cleanup() {
+		$dirObj = new sly_Util_Directory($this->getTempDir(), true);
+		$dirObj->deleteFiles();
+	}
+
+	protected function getArchivesBySuffix($suffix) {
 		$dir    = new sly_Util_Directory(self::getDataDir());
 		$folder = $dir->listPlain(true, false, false, false, 'sort');
 
@@ -37,33 +55,6 @@ class sly_A1_Util {
 		}
 
 		return $filtered;
-	}
-
-	public static function getArchives($dir) {
-		$files = self::getArchivesBySuffix('.zip');
-		$files = array_merge($files, self::getArchivesBySuffix('.sql'));
-		return $files;
-	}
-
-	public static function getDataDir() {
-		$dir = SLY_DATAFOLDER.DIRECTORY_SEPARATOR.'import-export';
-		$ok  = sly_Util_Directory::createHttpProtected($dir);
-
-		if (!$ok) throw new Exception('Konnte Backup-Verzeichnis '.$dir.' nicht anlegen.');
-
-		return $dir;
-	}
-
-	public static function getTempDir() {
-		$service = sly_Service_Factory::getAddOnService();
-		$dir     = $service->internalDirectory('sallycms/import-export');
-
-		return $dir.DIRECTORY_SEPARATOR.'tmp';
-	}
-
-	public static function cleanup() {
-		$dirObj = new sly_Util_Directory(self::getTempDir(), true);
-		$dirObj->deleteFiles();
 	}
 
 	public static function getArchiveInfo($filename) {
@@ -114,13 +105,6 @@ class sly_A1_Util {
 		return $result;
 	}
 
-	public static function compareArchiveDate(array $a1, array $a2) {
-		$date1 = $a1['date'];
-		$date2 = $a2['date'];
-
-		return $date1 === $date2 ? 0 : ($date1 < $date2 ? -1 : 1);
-	}
-
 	public static function import($filename) {
 		if (empty($filename)) {
 			throw new Exception(t('im_export_no_import_file_chosen'));
@@ -168,14 +152,14 @@ class sly_A1_Util {
 		chdir($cwd);
 	}
 
-	private static function guessFileType($filename) {
+	protected function guessFileType($filename) {
 		if (substr($filename, -4) == '.zip') return self::TYPE_ZIP;
 		if (substr($filename, -4) == '.sql') return self::TYPE_SQL;
 
 		throw new Exception(t('im_export_no_import_file_chosen'));
 	}
 
-	private static function getMissingAddOns($addons) {
+	protected function getMissingAddOns($addons) {
 		if (!is_array($addons) || empty($addons)) return array();
 
 		$service = sly_Service_Factory::getAddOnService();
@@ -191,44 +175,5 @@ class sly_A1_Util {
 		}
 
 		return $missing;
-	}
-
-	public static function isCompatible($dumpVersion, $throw = false) {
-		if (mb_strlen($dumpVersion) === 0) return true;
-
-		$compatible = sly_Util_Versions::isCompatible($dumpVersion);
-
-		if (!$compatible && $throw) {
-			throw new sly_Exception(t('im_export_incompatible_dump', $dumpVersion, sly_Core::getVersion('X.Y.Z')));
-		}
-
-		return $compatible;
-	}
-
-	public static function getArchive($filename, $type = 'zip') {
-		if ($type === 'sql' || substr($filename, -4) === '.sql') {
-			$archive = new sly_A1_Archive_Plain($filename);
-		}
-		elseif (class_exists('ZipArchive', false)) {
-			$archive = new sly_A1_Archive_ZipArchive($filename);
-		}
-		else {
-			$archive = new sly_A1_Archive_PclZip($filename);
-		}
-
-		return $archive;
-	}
-
-	public static function backendNavigation(array $params) {
-		$user = sly_Util_User::getCurrentUser();
-
-		if ($user !== null && ($user->isAdmin() || $user->hasRight('pages', 'a1imex'))) {
-			$nav   = sly_Core::getLayout()->getNavigation();
-			$group = $nav->getGroup('addons');
-
-			$nav->addPage($group, 'a1imex', t('im_export_importexport'));
-		}
-
-		return $params['subject'];
 	}
 }

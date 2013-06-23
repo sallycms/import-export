@@ -8,7 +8,9 @@
  * http://www.opensource.org/licenses/mit-license.php
  */
 
-class sly_A1_Export_Database {
+namespace sly\ImportExport\Exporter;
+
+class Database {
 	protected $filename;
 
 	public function __construct() {

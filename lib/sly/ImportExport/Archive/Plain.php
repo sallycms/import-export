@@ -8,7 +8,11 @@
  * http://www.opensource.org/licenses/mit-license.php
  */
 
-class sly_A1_Archive_Plain extends sly_A1_Archive_Base {
+namespace sly\ImportExport\Archive;
+
+use sly\ImportExport\Exception;
+
+class Plain extends Base {
 	protected $isOpen = false;
 	protected $fp     = null;
 
@@ -22,7 +26,7 @@ class sly_A1_Archive_Plain extends sly_A1_Archive_Base {
 		$fp = @fopen($this->getFilename(), ($writeMode ? 'w' : 'r').'b');
 
 		if (!$fp) {
-			throw new sly_Exception('Could not open archive file.');
+			throw new Exception('Could not open archive file.');
 		}
 
 		$this->fp     = $fp;
