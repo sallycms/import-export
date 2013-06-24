@@ -11,6 +11,7 @@
 namespace sly\ImportExport\Archive;
 
 use sly\ImportExport\Exception;
+use sly_Util_Directory;
 
 class ZipArchive extends Base {
 	protected $isOpen  = false;

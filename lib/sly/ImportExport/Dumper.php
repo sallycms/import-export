@@ -46,11 +46,11 @@ class Dumper {
 		$this->writeHeader($fp);
 		$this->writeSetupSQL($fp);
 
-		$prefix = $this->db->getTablePrefix();
-		$tables = $this->getTables();
+		$prefix = $this->db->getPrefix();
+		$tables = $this->getTables($includeUsers);
 
 		foreach ($tables as $table) {
-			$this->exportCreateStatement($fb, $table);
+			$this->exportCreateStatement($fp, $table);
 			$this->exportTableData($fp, $table, $diffFriendly, $prefix);
 		}
 
@@ -60,7 +60,7 @@ class Dumper {
 	}
 
 	protected function getTables($includeUsers) {
-		$prefix = $this->db->getTablePrefix();
+		$prefix = $this->db->getPrefix();
 		$tables = $this->db->listTables();
 
 		foreach ($tables as $idx => $table) {

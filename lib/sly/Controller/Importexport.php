@@ -114,19 +114,15 @@ class sly_Controller_Importexport extends sly_Controller_Backend implements sly_
 
 			$exporter
 				->includeDump(in_array('sql', $systemExports))
-				->includeAddOnState($addons)
+				->includeAddOnState($addAddOns)
 				->includeUsers($addUsers)
 				->setDiffFriendly($diffFriendly)
 				->setComment($comment)
-				->setName($name)
+				->setName($filename)
 			;
 
 			foreach ($directories as $dir) {
 				$exporter->addDirectory($dir);
-			}
-
-			foreach ($files as $file) {
-				$exporter->addFile($file);
 			}
 
 			$service->cleanup();
