@@ -8,49 +8,47 @@
  * http://www.opensource.org/licenses/mit-license.php
  */
 
-// check permissions
-$user           = sly_Util_User::getCurrentUser();
-$canDownload    = $user->isAdmin() || $user->hasRight('import_export', 'download');
-$canAccessUsers = $user->isAdmin() || $user->hasRight('pages', 'user');
-
+////////////////////////////////////////////////////////////////////////////////
 // create fresh form
-$form = new sly_Form('index.php', 'POST', t('im_export_export'), '', 'export');
-$form->addHiddenValue('page', 'importexport');
-$form->addHiddenValue('func', 'export');
 
-$options = array(
-	'sql'           => t('im_export_database_export'),
-	'configuration' => t('im_export_configuration_export')
-);
+$form = new sly_Form($_router->getUrl(null, 'export'), 'POST', t('im_export_export'), '', 'export');
 
-// prevent the filename input field from using the POSTed value
-if (isset($filename)) unset($_POST['filename']);
+$form->getSubmitButton()->setValue(t('im_export_db_export'));
+$form->setResetButton(null);
 
-$contents = new sly_Form_Select_Checkbox('systemexports', 'Export-Typ', array('sql', 'configuration'), $options);
-$filename = new sly_Form_Input_Text('filename', t('im_export_filename'), isset($filename) ? $filename : 'sly_'.date('Ymd'));
-$filename->setHelpText(t('im_export_hint_filename'));
+////////////////////////////////////////////////////////////////////////////////
+// main options
 
+$dump         = new sly_Form_Input_Checkbox('dump', t('im_export_dump'), 1, t('im_export_include_dump'), null, true);
+$comment      = new sly_Form_Input_Text('comment', t('im_export_comment'), '');
+$users        = new sly_Form_Input_Checkbox('users', t('im_export_include_users'), 1, t('im_export_include_users_help'), null, true);
+$addons       = new sly_Form_Input_Checkbox('addons', t('im_export_include_addons'), 1, t('im_export_include_addons_help'), null, true);
+$diffFriendly = new sly_Form_Input_Checkbox('diff_friendly', t('im_export_diff_friendly'), 1, t('im_export_diff_friendly_help'));
+
+$users->setHelpText(t('im_export_include_users_helptext'));
+$form->addElements(array($dump, $comment, $canAccessUsers ? $users : null, $addons, $diffFriendly));
+
+////////////////////////////////////////////////////////////////////////////////
+// optionally add more directories to the dump
+
+$form->add(new sly_Form_Select_Checkbox('directories', t('im_export_additional_folders'), null, $dirs));
+
+////////////////////////////////////////////////////////////////////////////////
 // store or download?
-$root   = new sly_Form_Select_Checkbox('directories', t('im_export_additional_folders'), null, $dirs);
-$format = new sly_Form_Select_Radio('download', 'Download', array(0), array(
+
+$download = new sly_Form_Select_Radio('download', 'Download', array(0), array(
 	0 => t('im_export_save_on_server'),
 	1 => t('im_export_download_as_file')
 ));
 
-// more options
-$addons       = new sly_Form_Input_Checkbox('addons', t('im_export_include_addons'), 1, t('im_export_include_addons_help'), null, true);
-$users        = new sly_Form_Input_Checkbox('users', t('im_export_include_users'), 1, t('im_export_include_users_help'), null, true);
-$comment      = new sly_Form_Input_Text('comment', t('im_export_comment'), '');
-$diffFriendly = new sly_Form_Input_Checkbox('diff_friendly', t('im_export_diff_friendly'), 1, t('im_export_diff_friendly_help'));
+$filename = new sly_Form_Input_Text('filename', t('im_export_filename'), isset($filename) ? $filename : 'sly_'.date('Ymd'));
+$filename->setHelpText(t('im_export_hint_filename'));
 
-$users->setHelpText(t('im_export_include_users_helptext'));
-
-// last touches
-$form->addElements(array($contents, $root, $canAccessUsers ? $users : null, $addons, $comment, $diffFriendly));
 $form->beginFieldset('Downloadoptionen');
-$form->addElements($canDownload ? array($format, $filename) : array($filename));
-$form->getSubmitButton()->setAttribute('value', t('im_export_db_export'));
-$form->setResetButton(null);
+$form->addElements($canDownload ? array($download, $filename) : array($filename));
+
+////////////////////////////////////////////////////////////////////////////////
+// and print it
 
 ?>
 <div class="sly-content">
