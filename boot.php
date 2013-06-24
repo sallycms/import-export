@@ -47,8 +47,33 @@ $container['sly-i18n']->appendFile(__DIR__.'/lang');
 
 $container['sly-dispatcher']->addListener('SLY_BACKEND_NAVIGATION_INIT', function($nav, $params) {
 	$user = $params['user'];
+	if (!$user) return;
 
-	if ($user && ($user->isAdmin() || $user->hasPermission('pages', 'import_export'))) {
-		$nav->addPage('addon', 'importexport', t('im_export_importexport'));
+	// check permissions
+
+	$isAdmin  = $user->isAdmin();
+	$pagePerm = $isAdmin || $user->hasPermission('pages', 'import_export');
+
+	if ($pagePerm) {
+		$canExport   = $isAdmin || $user->hasPermission('import_export', 'export');
+		$canImport   = $isAdmin || $user->hasPermission('import_export', 'import');
+		$canDownload = $isAdmin || $user->hasPermission('import_export', 'download');
+
+		// add main page
+
+		$page = (!$canExport && ($canImport || $canDownload)) ? 'importexport_import' : 'importexport';
+		$page = $nav->addPage('addon', $page, t('im_export_importexport'));
+
+		// init subpages
+
+		if ($canExport && ($canImport || $canDownload)) {
+			if ($canExport) {
+				$page->addSubpage('importexport', t('im_export_export'));
+			}
+
+			if ($canImport || $canDownload) {
+				$page->addSubpage('importexport_import', t('im_export_import'));
+			}
+		}
 	}
 });
