@@ -13,6 +13,9 @@ namespace sly\ImportExport\Archive;
 use sly_Util_Directory;
 
 abstract class Base {
+	const TYPE_ZIP = 1;
+	const TYPE_SQL = 2;
+
 	protected $filename;
 	protected $addons  = null; // list of required addOns
 	protected $version = null; // Sally version/branch
