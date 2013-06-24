@@ -51,17 +51,15 @@ $container['sly-dispatcher']->addListener('SLY_BACKEND_NAVIGATION_INIT', functio
 
 	// check permissions
 
-	$isAdmin  = $user->isAdmin();
-	$pagePerm = $isAdmin || $user->hasPermission('pages', 'import_export');
+	$isAdmin     = $user->isAdmin();
+	$canExport   = $isAdmin || $user->hasPermission('import_export', 'export');
+	$canImport   = $isAdmin || $user->hasPermission('import_export', 'import');
+	$canDownload = $isAdmin || $user->hasPermission('import_export', 'download');
 
-	if ($pagePerm) {
-		$canExport   = $isAdmin || $user->hasPermission('import_export', 'export');
-		$canImport   = $isAdmin || $user->hasPermission('import_export', 'import');
-		$canDownload = $isAdmin || $user->hasPermission('import_export', 'download');
-
+	if ($canExport || $canImport || $canDownload) {
 		// add main page
 
-		$page = (!$canExport && ($canImport || $canDownload)) ? 'importexport_import' : 'importexport';
+		$page = !$canExport ? 'importexport_import' : 'importexport';
 		$page = $nav->addPage('addon', $page, t('im_export_importexport'));
 
 		// init subpages

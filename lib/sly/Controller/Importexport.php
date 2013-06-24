@@ -14,31 +14,34 @@
  * @author zozi
  */
 class sly_Controller_Importexport extends sly_Controller_Backend implements sly_Controller_Interface {
-	protected function init() {
-		$this->render('head.phtml', array(), false);
-	}
-
 	public function indexAction() {
-		$this->init();
 		$this->exportView();
 	}
 
-	protected function exportView($params = array()) {
+	protected function exportView() {
+		$user = $this->getCurrentUser();
 		$dirs = array(
 			'assets'  => t('im_export_explain_assets'),
 			'develop' => t('im_export_explain_develop')
 		);
 
-		$dispatcher = sly_Core::dispatcher();
-		$dirs       = $dispatcher->filter('SLY_A1_EXPORT_FILENAMES', $dirs);
+		$dirs = $this->container['sly-dispatcher']->filter('SLY_IMPORTEXPORT_EXPORT_DIRECTORIES', $dirs, array(
+			'user' => $user
+		));
 
-		$params['dirs'] = $dirs;
-		$this->render('export.phtml', $params, false);
+		// check permissions
+		$canDownload    = $user->isAdmin() || $user->hasPermission('import_export', 'download');
+		$canAccessUsers = $user->isAdmin() || $user->hasPermission('pages', 'user');
+
+		$this->render('head.phtml', array(), false);
+		$this->render('export.phtml', array(
+			'dirs'           => $dirs,
+			'canDownload'    => $canDownload,
+			'canAccessUsers' => $canAccessUsers
+		), false);
 	}
 
 	public function exportAction() {
-		$this->init();
-
 		$user           = $this->getCurrentUser();
 		$canDownload    = $user->isAdmin() || $user->hasPermission('import_export', 'download');
 		$canAccessUsers = $user->isAdmin() || $user->hasPermission('pages', 'user');
@@ -46,12 +49,12 @@ class sly_Controller_Importexport extends sly_Controller_Backend implements sly_
 		$request       = $this->getRequest();
 		$download      = $canDownload    ? $request->post('download', 'boolean', false) : false;
 		$addUsers      = $canAccessUsers ? $request->post('users',    'boolean', false) : false;
-		$systemExports = $request->postArray('systemexports', 'string', array());
-		$directories   = $request->postArray('directories', 'string', array());
+		$includeDump   = $request->post('dump', 'boolean', false);
 		$addAddOns     = $request->post('addons', 'boolean', false);
 		$diffFriendly  = $request->post('diff_friendly', 'boolean', false);
 		$comment       = $request->post('comment', 'string');
 		$filename      = $request->post('filename', 'string', 'sly_'.date('Ymd'));
+		$directories   = $request->postArray('directories', 'string', array());
 
 		$flash    = $this->container['sly-flash-message'];
 		$service  = $this->container['sly-importexport-service'];
@@ -61,7 +64,7 @@ class sly_Controller_Importexport extends sly_Controller_Backend implements sly_
 			// setup the exporter
 
 			$exporter
-				->includeDump(in_array('sql', $systemExports))
+				->includeDump($includeDump)
 				->includeAddOnState($addAddOns)
 				->includeUsers($addUsers)
 				->setDiffFriendly($diffFriendly)
@@ -72,6 +75,8 @@ class sly_Controller_Importexport extends sly_Controller_Backend implements sly_
 			foreach ($directories as $dir) {
 				$exporter->addDirectory($dir);
 			}
+
+			// kill all old temp files
 
 			$service->cleanup();
 
@@ -122,27 +127,17 @@ class sly_Controller_Importexport extends sly_Controller_Backend implements sly_
 	}
 
 	public function checkPermission($action) {
-		$user = sly_Util_User::getCurrentUser();
+		$user = $this->getCurrentUser();
 		if (!$user) return false;
 
 		if ($action === 'export') {
 			sly_Util_Csrf::checkToken();
 		}
 
-		if ($user->isAdmin()) return true;
-
-		// We *dont* check if someone can export data, but whether *anything* is
-		// granted. Inside init() we will redirect accordingly.
-
-		$hasPageAccess = $user->hasPermission('pages', 'a1imex');
-		$canExport     = $user->hasPermission('import_export', 'export');
-		$canImport     = $user->hasPermission('import_export', 'import');
-		$canDownload   = $user->hasPermission('import_export', 'download');
-
-		return $hasPageAccess && ($canExport || $canImport || $canDownload);
+		return $user->isAdmin() || ($user->hasPermission('import_export', 'export'));
 	}
 
 	protected function getViewFolder() {
-		return dirname(__FILE__).'/../../../views/';
+		return __DIR__.'/../../../views/';
 	}
 }
