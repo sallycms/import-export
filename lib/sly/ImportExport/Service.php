@@ -10,27 +10,58 @@
 
 namespace sly\ImportExport;
 
+use Gaufrette\Filesystem;
+use sly_DB_PDO_Persistence;
+use sly_Event_IDispatcher;
 use sly_Util_Directory;
+use sly_Util_String;
+use sly\ImportExport\Archive\Base;
 
 class Service {
-	const TYPE_ZIP = 1;
-	const TYPE_SQL = 2;
+	protected $db;
+	protected $dispatcher;
+	protected $tempDir;
+	protected $storageDir;
+	protected $addonService;
 
-	protected $container;
-
-	public function __construct() {
-
+	/**
+	 * Constructor
+	 *
+	 * @param sly_DB_PDO_Persistence $db
+	 * @param sly_Event_IDispatcher  $dispatcher
+	 * @param string                 $tempDir
+	 * @param string                 $storageDir
+	 * @param sly_Service_AddOn      $service
+	 */
+	public function __construct(sly_DB_PDO_Persistence $db, sly_Event_IDispatcher $dispatcher, $tempDir, $storageDir, sly_Service_AddOn $service) {
+		$this->db           = $db;
+		$this->dispatcher   = $dispatcher;
+		$this->tempDir      = $tempDir;
+		$this->storageDir   = $storageDir;
+		$this->addonService = $service;
 	}
 
 	public function getArchives() {
-		return array_merge(
-			$this->getArchivesBySuffix('.zip'),
-			$this->getArchivesBySuffix('.sql')
-		);
+		$dir    = new sly_Util_Directory($this->getStorageDir());
+		$folder = $dir->listPlain(true, false, false, false, 'sort');
+
+		if (!$folder) {
+			return array();
+		}
+
+		$filtered = array();
+
+		foreach ($folder as $file) {
+			if (sly_Util_String::endsWith($file, '.sql') || sly_Util_String::endsWith($file, '.zip')) {
+				$filtered[] = $file;
+			}
+		}
+
+		return $filtered;
 	}
 
-	public function getStorageFilesystem() {
-		return $this->filesystem;
+	public function getStorageDir() {
+		return $this->storageDir;
 	}
 
 	public function getTempDir() {
@@ -42,22 +73,7 @@ class Service {
 		$dirObj->deleteFiles();
 	}
 
-	protected function getArchivesBySuffix($suffix) {
-		$dir    = new sly_Util_Directory(self::getDataDir());
-		$folder = $dir->listPlain(true, false, false, false, 'sort');
-
-		if (!$folder) return array();
-
-		$filtered = array();
-
-		foreach ($folder as $file) {
-			if (sly_Util_String::endsWith($file, $suffix)) $filtered[] = $file;
-		}
-
-		return $filtered;
-	}
-
-	public static function getArchiveInfo($filename) {
+	public function getArchiveInfo($filename) {
 		$basename = basename($filename);
 		$result   = array(
 			'name'       => substr($basename, 0, strpos($basename, '.')),
@@ -81,8 +97,8 @@ class Service {
 
 		// check zip file comment
 
-		if (in_array(self::guessFileType($filename), array(self::TYPE_ZIP, self::TYPE_SQL))) {
-			$archive = self::getArchive($filename);
+		if (in_array(Util::guessFileType($filename), array(Base::TYPE_ZIP, Base::TYPE_SQL))) {
+			$archive = Util::getArchive($filename);
 
 			$archive->readInfo();
 
@@ -90,10 +106,10 @@ class Service {
 
 			$result['comment']    = (string) $archive->getComment();
 			$result['addons']     = sly_makeArray($archive->getAddOns());
-			$result['missing']    = self::getMissingAddOns($result['addons']);
+			$result['missing']    = $this->getMissingAddOns($result['addons']);
 			$result['version']    = (string) $archive->getVersion();
 			$result['date']       = $date ? $date : $result['date'];
-			$result['compatible'] = self::isCompatible($result['version']);
+			$result['compatible'] = Util::isCompatible($result['version']);
 
 			if (empty($result['comment'])) {
 				$result['comment'] = $basename;
@@ -105,70 +121,70 @@ class Service {
 		return $result;
 	}
 
-	public static function import($filename) {
+	public function extract($filename, $targetDir) {
 		if (empty($filename)) {
 			throw new Exception(t('im_export_no_import_file_chosen'));
 		}
 
-		$type     = self::guessFileType($filename);
-		$filename = self::getDataDir().DIRECTORY_SEPARATOR.$filename;
+		if (!is_dir($targetDir)) {
+			throw new Exception('Target directory "'.$targetDir.'" does not exist.');
+		}
 
-		if (!file_exists($filename)) {
+		$type     = Util::guessFileType($filename);
+		$filename = $this->getStorageDir().DIRECTORY_SEPARATOR.basename($filename);
+
+		if (!is_file($filename)) {
 			throw new Exception(t('im_export_selected_file_not_exists'));
 		}
 
-		$cwd = getcwd();
-		chdir(SLY_BASE);
+		$archive = Util::getArchive($filename);
+		$archive = $this->dispatcher->filter('SLY_IMPORTEXPORT_BEFORE_FILE_IMPORT', $archive);
+		$archive = $this->dispatcher->filter('SLY_A1_BEFORE_FILE_IMPORT', $archive); // deprecated
 
-		if ($type === self::TYPE_ZIP || $type === self::TYPE_SQL) {
-			$archive = self::getArchive($filename);
-			$archive = sly_Core::dispatcher()->filter('SLY_A1_BEFORE_FILE_IMPORT', $archive);
+		$archive->readInfo();
 
-			$archive->readInfo();
+		// check file
 
-			// check file
+		$missing = $this->getMissingAddOns($archive->getAddOns());
 
-			$missing = self::getMissingAddOns($archive->getAddOns());
-
-			if (!empty($missing)) {
-				throw new Exception(t('im_export_missing_addons_for_db_import').': '.implode(', ', $missing));
-			}
-
-			//throw an exception if verion does not match
-			self::isCompatible($archive->getVersion(), true);
-
-			// extract
-
-			$success = $archive->extract();
-			$archive->close();
-
-			if (!$success) {
-				throw new Exception(t('im_export_problem_when_extracting'));
-			}
+		if (!empty($missing)) {
+			throw new Exception(t('im_export_missing_addons_for_db_import').': '.implode(', ', $missing));
 		}
 
-		// Extensions auslösen
-		sly_Core::dispatcher()->notify('SLY_A1_AFTER_FILE_IMPORT', $archive);
+		// throw an exception if version does not match
+		Util::isCompatible($archive->getVersion(), true);
+
+		// extract
+
+		$cwd = getcwd();
+		chdir($targetDir);
+
+		$success = $archive->extract();
+		$archive->close();
+
 		chdir($cwd);
-	}
 
-	protected function guessFileType($filename) {
-		if (substr($filename, -4) == '.zip') return self::TYPE_ZIP;
-		if (substr($filename, -4) == '.sql') return self::TYPE_SQL;
+		if (!$success) {
+			throw new Exception(t('im_export_problem_when_extracting'));
+		}
 
-		throw new Exception(t('im_export_no_import_file_chosen'));
+		// notify system
+		$this->dispatcher->notify('SLY_IMPORTEXPORT_AFTER_FILE_IMPORT', $archive);
+		$this->dispatcher->notify('SLY_A1_AFTER_FILE_IMPORT', $archive); // deprecated
 	}
 
 	protected function getMissingAddOns($addons) {
-		if (!is_array($addons) || empty($addons)) return array();
+		if (!is_array($addons) || empty($addons)) {
+			return array();
+		}
 
-		$service = sly_Service_Factory::getAddOnService();
 		$missing = array();
 
 		foreach ($addons as $addon) {
 			if (is_string($addon)) {
-				if (!$service->isAvailable($addon)) $missing[] = $addon;
+				if (!$this->addonService->isAvailable($addon)) $missing[] = $addon;
 			}
+			// oldschool pre-0.7 plugin names
 			else {
 				$missing[] = implode(',', $addon);
 			}
