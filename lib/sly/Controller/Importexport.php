@@ -15,58 +15,6 @@
  */
 class sly_Controller_Importexport extends sly_Controller_Backend implements sly_Controller_Interface {
 	protected function init() {
-		$user     = $this->getCurrentUser();
-		$subpages = array();
-		$isAdmin  = $user->isAdmin();
-
-		// check permissions
-
-		$canExport   = $isAdmin || $user->hasPermission('import_export', 'export');
-		$canImport   = $isAdmin || $user->hasPermission('import_export', 'import');
-		$canDownload = $isAdmin || $user->hasPermission('import_export', 'download');
-		$curPage     = sly_Core::getCurrentControllerName();
-
-		// redirect the user to the corrent subpage, if needed
-
-		if (!$canExport && $curPage === 'importexport') {
-			$this->redirect('', 'importexport_import');
-		}
-
-		if (!$canImport && !$canDownload && $curPage === 'importexport_import') {
-			$this->redirect('', 'importexport');
-		}
-
-		// init subpages
-
-		if ($canExport && ($canImport || $canDownload)) {
-			if ($canExport) {
-				$subpages[] = array('importexport', t('im_export_export'));
-			}
-
-			if ($canImport || $canDownload) {
-				$subpages[] = array('importexport_import', t('im_export_import'));
-			}
-		}
-
-		// update navigation
-
-		$nav  = sly_Core::getLayout()->getNavigation();
-		$page = $nav->find('importexport');
-
-		if ($page) {
-			foreach ($subpages as $subpage) {
-				$page->addSubpage($subpage[0], $subpage[1]);
-			}
-		}
-
-		// In case we have only one choice of subpages and that subpage is the import
-		// page, change the lin of the main navigation point to 'a1imex_import'.
-
-		if ($page && count($subpages) <= 1 && $curPage === 'a1imex_import') {
-			$page->setName('a1imex_import');
-			$page->setPageParam('a1imex_import');
-		}
-
 		$this->render('head.phtml', array(), false);
 	}
 
