@@ -11,8 +11,13 @@
 namespace sly\ImportExport;
 
 use sly_Core;
+use sly_Service_AddOn;
+use sly_Util_File;
 
 class Exporter {
+	protected $service;
+	protected $dumper;
+	protected $addonService;
 	protected $includeDump;
 	protected $includeState;
 	protected $includeUsers;
@@ -22,32 +27,49 @@ class Exporter {
 	protected $comment;
 	protected $name;
 
-	public function __construct() {
+	public function __construct(Service $service, Dumper $dumper, sly_Service_AddOn $addonService) {
+		$this->service      = $service;
+		$this->dumper       = $dumper;
+		$this->addonService = $addonService;
 
+		$this->includeDump  = false;
+		$this->includeState = false;
+		$this->includeUsers = false;
+		$this->diffFriendly = false;
+		$this->files        = array();
+		$this->directories  = array();
+		$this->comment      = '';
+		$this->name         = '';
 	}
 
 	public function includeDump($includeDump) {
 		$this->includeDump = !!$includeDump;
+		return $this;
 	}
 
 	public function includeAddOnState($includeState) {
 		$this->includeState = !!$includeState;
+		return $this;
 	}
 
 	public function includeUsers($includeUsers) {
 		$this->includeUsers = !!$includeUsers;
+		return $this;
 	}
 
 	public function setDiffFriendly($diffFriendly) {
 		$this->diffFriendly = !!$diffFriendly;
+		return $this;
 	}
 
 	public function setComment($comment) {
 		$this->comment = $comment;
+		return $this;
 	}
 
 	public function setName($name) {
 		$this->name = preg_replace('#[^a-z0-9.,_-]#', '', strtolower($name));
+		return $this;
 	}
 
 	public function getName() {
@@ -56,10 +78,12 @@ class Exporter {
 
 	public function addFile($filename) {
 		$this->files[] = $filename;
+		return $this;
 	}
 
 	public function addDirectory($directory) {
 		$this->directories[] = $directory;
+		return $this;
 	}
 
 	public function export($target = null) {
@@ -154,7 +178,7 @@ class Exporter {
 	}
 
 	protected function dumpDatabase() {
-		$dumpFile = $this->getTempFileName('sql');
+		$dumpFile = $this->service->getTempDir().DIRECTORY_SEPARATOR.'database.sql';
 
 		$this->dumper->export($dumpFile, $this->diffFriendly, $this->includeUsers);
 		$this->addFile($dumpFile);
@@ -163,25 +187,25 @@ class Exporter {
 	protected function getTempFilename() {
 		$ext = $this->diffFriendly ? 'sql' : 'zip';
 
-		return sprintf('%s/export-%s.tmp.%s', $this->tempDir, uniqid(), $ext);
+		return sprintf('%s/export-%s.tmp.%s', $this->service->getTempDir(), uniqid(), $ext);
 	}
 
 	protected function getTargetFilename($target) {
 		if ($target === null) {
-			$ext      = $this->diffFriendly ? 'sql' : 'zip';
-			$filename = sly_Util_File::iterateLocalFilename($this->name, '.'.$ext).'.'.$ext;
-			$target   = $this->tempDir.DIRECTORY_SEPARATOR.$filename;
+			$ext    = $this->diffFriendly ? 'sql' : 'zip';
+			$dir    = $this->service->getStorageDir();
+			$file   = sly_Util_File::iterateLocalFilename($dir.'/'.$this->name, '.'.$ext).'.'.$ext;
+			$target = $dir.DIRECTORY_SEPARATOR.$file;
 		}
 
 		return $target;
 	}
 
 	protected function collectAddOns() {
-		$service = sly_Service_Factory::getAddOnService();
-		$addons  = array();
+		$addons = array();
 
-		foreach ($service->getAvailableAddons() as $addon) {
-			$ignore = $service->getComposerKey($addon, 'imex-ignore', false);
+		foreach ($this->addonService->getAvailableAddons() as $addon) {
+			$ignore = $this->addonService->getComposerKey($addon, 'imex-ignore', false);
 
 			if ($ignore !== true && $ignore !== 'true') {
 				$addons[] = $addon;

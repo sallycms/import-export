@@ -13,6 +13,7 @@ namespace sly\ImportExport;
 use Gaufrette\Filesystem;
 use sly_DB_PDO_Persistence;
 use sly_Event_IDispatcher;
+use sly_Service_AddOn;
 use sly_Util_Directory;
 use sly_Util_String;
 use sly\ImportExport\Archive\Base;

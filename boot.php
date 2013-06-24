@@ -25,6 +25,14 @@ $container['sly-importexport-service'] = $container->share(function($container) 
 	return new sly\ImportExport\Service($db, $dispatcher, $tempDir, $storageDir, $service);
 });
 
+$container['sly-importexport-exporter'] = $container->share(function($container) {
+	$service = $container['sly-importexport-service'];
+	$dumper  = $container['sly-importexport-dumper'];
+	$addons  = $container['sly-service-addon'];
+
+	return new sly\ImportExport\Exporter($service, $dumper, $addons);
+});
+
 $container['sly-importexport-dumper'] = $container->share(function($container) {
 	$db      = $container['sly-persistence'];
 	$ignores = $container['sly-config']->get('sly_import_export/ignored_table_prefixes', array());

@@ -15,7 +15,7 @@ $canAccessUsers = $user->isAdmin() || $user->hasRight('pages', 'user');
 
 // create fresh form
 $form = new sly_Form('index.php', 'POST', t('im_export_export'), '', 'export');
-$form->addHiddenValue('page', 'a1imex');
+$form->addHiddenValue('page', 'importexport');
 $form->addHiddenValue('func', 'export');
 
 $options = array(
