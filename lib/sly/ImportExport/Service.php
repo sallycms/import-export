@@ -124,58 +124,6 @@ class Service {
 		return $result;
 	}
 
-	public function extract($filename, $targetDir) {
-		if (empty($filename)) {
-			throw new Exception(t('im_export_no_import_file_chosen'));
-		}
-
-		if (!is_dir($targetDir)) {
-			throw new Exception('Target directory "'.$targetDir.'" does not exist.');
-		}
-
-		$type     = Util::guessFileType($filename);
-		$filename = $this->getStorageDir().DIRECTORY_SEPARATOR.basename($filename);
-
-		if (!is_file($filename)) {
-			throw new Exception(t('im_export_selected_file_not_exists'));
-		}
-
-		$archive = Util::getArchive($filename);
-		$archive = $this->dispatcher->filter('SLY_IMPORTEXPORT_BEFORE_FILE_IMPORT', $archive);
-		$archive = $this->dispatcher->filter('SLY_A1_BEFORE_FILE_IMPORT', $archive); // deprecated
-
-		$archive->readInfo();
-
-		// check file
-
-		$missing = $this->getMissingAddOns($archive->getAddOns());
-
-		if (!empty($missing)) {
-			throw new Exception(t('im_export_missing_addons_for_db_import').': '.implode(', ', $missing));
-		}
-
-		// throw an exception if version does not match
-		Util::isCompatible($archive->getVersion(), true);
-
-		// extract
-
-		$cwd = getcwd();
-		chdir($targetDir);
-
-		$success = $archive->extract();
-		$archive->close();
-
-		chdir($cwd);
-
-		if (!$success) {
-			throw new Exception(t('im_export_problem_when_extracting'));
-		}
-
-		// notify system
-		$this->dispatcher->notify('SLY_IMPORTEXPORT_AFTER_FILE_IMPORT', $archive);
-		$this->dispatcher->notify('SLY_A1_AFTER_FILE_IMPORT', $archive); // deprecated
-	}
-
 	protected function getMissingAddOns($addons) {
 		if (!is_array($addons) || empty($addons)) {
 			return array();
