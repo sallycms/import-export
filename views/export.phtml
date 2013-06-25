@@ -19,19 +19,23 @@ $form->setResetButton(null);
 ////////////////////////////////////////////////////////////////////////////////
 // main options
 
-$dump         = new sly_Form_Input_Checkbox('dump', t('im_export_dump'), 1, t('im_export_include_dump'), null, true);
-$comment      = new sly_Form_Input_Text('comment', t('im_export_comment'), '');
+$dump    = new sly_Form_Input_Checkbox('dump', t('im_export_dump'), 1, t('im_export_include_dump'), null, true);
+$comment = new sly_Form_Input_Text('comment', t('im_export_comment'), '');
+$addons  = new sly_Form_Input_Checkbox('addons', t('im_export_include_addons'), 1, t('im_export_include_addons_help'), null, true);
+$dirs    = new sly_Form_Select_Checkbox('directories', t('im_export_additional_folders'), null, $dirs);
+
+$form->addElements(array($dump, $comment, $addons, $dirs));
+
+////////////////////////////////////////////////////////////////////////////////
+// dump options
+
 $users        = new sly_Form_Input_Checkbox('users', t('im_export_include_users'), 1, t('im_export_include_users_help'), null, true);
-$addons       = new sly_Form_Input_Checkbox('addons', t('im_export_include_addons'), 1, t('im_export_include_addons_help'), null, true);
 $diffFriendly = new sly_Form_Input_Checkbox('diff_friendly', t('im_export_diff_friendly'), 1, t('im_export_diff_friendly_help'));
 
 $users->setHelpText(t('im_export_include_users_helptext'));
-$form->addElements(array($dump, $comment, $canAccessUsers ? $users : null, $addons, $diffFriendly));
 
-////////////////////////////////////////////////////////////////////////////////
-// optionally add more directories to the dump
-
-$form->add(new sly_Form_Select_Checkbox('directories', t('im_export_additional_folders'), null, $dirs));
+$form->beginFieldset('Datenbank-Export-Optionen');
+$form->addElements(array($canAccessUsers ? $users : null, $diffFriendly));
 
 ////////////////////////////////////////////////////////////////////////////////
 // store or download?
