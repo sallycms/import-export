@@ -10,6 +10,7 @@
 
 namespace sly\ImportExport\Archive;
 
+use sly_Core;
 use sly\ImportExport\Exception;
 
 class Plain extends Base {
@@ -48,7 +49,7 @@ class Plain extends Base {
 	}
 
 	public function extract() {
-		$dir = sly_A1_Util::getTempDir();
+		$dir = sly_Core::getContainer()->get('sly-importexport-service')->getTempDir();
 		$sql = $this->getFilename();
 
 		return copy($sql, $dir.'/'.basename($sql));

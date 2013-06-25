@@ -13,16 +13,19 @@ namespace sly\ImportExport;
 use sly_DB_Importer;
 use sly_Service_AddOn;
 use sly_Util_Directory;
+use sly_Event_IDispatcher;
 
 class Importer {
 	protected $service;
 	protected $addonService;
 	protected $importer;
+	protected $dispatcher;
 
-	public function __construct(Service $service, sly_Service_AddOn $addonService, sly_DB_Importer $importer) {
+	public function __construct(Service $service, sly_Service_AddOn $addonService, sly_DB_Importer $importer, sly_Event_IDispatcher $dispatcher) {
 		$this->service      = $service;
 		$this->addonService = $addonService;
 		$this->importer     = $importer;
+		$this->dispatcher   = $dispatcher;
 	}
 
 	public function import($filename, $targetDir) {
@@ -61,7 +64,7 @@ class Importer {
 
 		// check file
 
-		$missing = $this->getMissingAddOns($archive->getAddOns());
+		$missing = $this->service->getMissingAddOns($archive->getAddOns());
 
 		if (!empty($missing)) {
 			throw new Exception(t('im_export_missing_addons_for_db_import').': '.implode(', ', $missing));

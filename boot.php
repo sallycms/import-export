@@ -34,11 +34,12 @@ $container['sly-importexport-exporter'] = $container->share(function($container)
 });
 
 $container['sly-importexport-importer'] = $container->share(function($container) {
-	$service  = $container['sly-importexport-service'];
-	$addons   = $container['sly-service-addon'];
-	$importer = new sly_DB_Importer($container['sly-persistence'], $container['sly-dispatcher']);
+	$service    = $container['sly-importexport-service'];
+	$addons     = $container['sly-service-addon'];
+	$dispatcher = $container['sly-dispatcher'];
+	$importer   = new sly_DB_Importer($container['sly-persistence'], $dispatcher);
 
-	return new sly\ImportExport\Importer($service, $addons, $importer);
+	return new sly\ImportExport\Importer($service, $addons, $importer, $dispatcher);
 });
 
 $container['sly-importexport-dumper'] = $container->share(function($container) {
