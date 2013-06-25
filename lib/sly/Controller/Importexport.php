@@ -8,6 +8,8 @@
  * http://www.opensource.org/licenses/mit-license.php
  */
 
+use sly\Assets\Util;
+
 /**
  * Basic Controller for Import and Export Pages
  *
@@ -16,29 +18,6 @@
 class sly_Controller_Importexport extends sly_Controller_Backend implements sly_Controller_Interface {
 	public function indexAction() {
 		$this->exportView();
-	}
-
-	protected function exportView() {
-		$user = $this->getCurrentUser();
-		$dirs = array(
-			'assets'  => t('im_export_explain_assets'),
-			'develop' => t('im_export_explain_develop')
-		);
-
-		$dirs = $this->container['sly-dispatcher']->filter('SLY_IMPORTEXPORT_EXPORT_DIRECTORIES', $dirs, array(
-			'user' => $user
-		));
-
-		// check permissions
-		$canDownload    = $user->isAdmin() || $user->hasPermission('import_export', 'download');
-		$canAccessUsers = $user->isAdmin() || $user->hasPermission('pages', 'user');
-
-		$this->render('head.phtml', array(), false);
-		$this->render('export.phtml', array(
-			'dirs'           => $dirs,
-			'canDownload'    => $canDownload,
-			'canAccessUsers' => $canAccessUsers
-		), false);
 	}
 
 	public function exportAction() {
@@ -135,6 +114,42 @@ class sly_Controller_Importexport extends sly_Controller_Backend implements sly_
 		}
 
 		return $user->isAdmin() || ($user->hasPermission('import_export', 'export'));
+	}
+
+	protected function pageHeader() {
+		$locale = substr($this->container['sly-i18n']->getLocale(), 0, 2);
+		$layout = $this->container['sly-layout'];
+		$me     = 'sallycms/import-export';
+
+		$layout->addCSSFile(Util::addOnUri($me, 'css/backend.less'));
+		$layout->addJavaScriptFile(Util::addOnUri($me, 'js/backend.js'));
+		$layout->addJavaScriptFile(Util::addOnUri($me, 'js/jquery.timeago.js'));
+		$layout->addJavaScriptFile(Util::addOnUri($me, 'js/jquery.timeago.'.$locale.'.js'));
+
+		$layout->pageHeader(t('im_export_importexport'));
+	}
+
+	protected function exportView() {
+		$user = $this->getCurrentUser();
+		$dirs = array(
+			'assets'  => t('im_export_explain_assets'),
+			'develop' => t('im_export_explain_develop')
+		);
+
+		$dirs = $this->container['sly-dispatcher']->filter('SLY_IMPORTEXPORT_EXPORT_DIRECTORIES', $dirs, array(
+			'user' => $user
+		));
+
+		// check permissions
+		$canDownload    = $user->isAdmin() || $user->hasPermission('import_export', 'download');
+		$canAccessUsers = $user->isAdmin() || $user->hasPermission('pages', 'user');
+
+		$this->pageHeader();
+		$this->render('export.phtml', array(
+			'dirs'           => $dirs,
+			'canDownload'    => $canDownload,
+			'canAccessUsers' => $canAccessUsers
+		), false);
 	}
 
 	protected function getViewFolder() {

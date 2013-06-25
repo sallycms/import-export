@@ -75,10 +75,13 @@ class Service {
 	}
 
 	public function getArchiveInfo($filename) {
-		$basename = basename($filename);
+		$filename = basename($filename);
+		$fullPath = $this->storageDir.'/'.$filename;
 		$result   = array(
-			'name'       => substr($basename, 0, strpos($basename, '.')),
-			'date'       => filemtime($filename),
+			'filename'   => $filename,
+			'name'       => substr($filename, 0, strpos($filename, '.')),
+			'size'       => filesize($fullPath),
+			'date'       => filemtime($fullPath),
 			'addons'     => array(),
 			'missing'    => array(),
 			'comment'    => '',
@@ -99,7 +102,7 @@ class Service {
 		// check zip file comment
 
 		if (in_array(Util::guessFileType($filename), array(Base::TYPE_ZIP, Base::TYPE_SQL))) {
-			$archive = Util::getArchive($filename);
+			$archive = Util::getArchive($fullPath);
 
 			$archive->readInfo();
 
@@ -113,7 +116,7 @@ class Service {
 			$result['compatible'] = Util::isCompatible($result['version']);
 
 			if (empty($result['comment'])) {
-				$result['comment'] = $basename;
+				$result['comment'] = $filename;
 			}
 
 			$archive->close();
