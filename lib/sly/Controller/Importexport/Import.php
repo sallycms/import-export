@@ -9,6 +9,7 @@
  */
 
 use sly\ImportExport\Util;
+use sly\ImportExport\Archive\Base;
 
 /**
  * Basic Controller for Import and Export Pages
@@ -48,46 +49,13 @@ class sly_Controller_Importexport_Import extends sly_Controller_Importexport {
 	}
 
 	public function importAction() {
-		$this->init();
-
-		$filename = sly_request('file', 'string');
-		$flash    = sly_Core::getFlashMessage();
-
-		@set_time_limit(0);
+		$filename = $this->getSelectedFile(false);
+		$importer = $this->container['sly-importexport-importer'];
+		$flash    = $this->container['sly-flash-message'];
 
 		try {
-			sly_A1_Util::cleanup();
-			sly_A1_Util::import($filename);
-
-			// import all dumps we can find
-
-			$tmpDir = new sly_Util_Directory(sly_A1_Util::getTempDir(), false);
-			$files  = $tmpDir->listPlain(true, false, false, true);
-
-			foreach ($files as $file) {
-				if (substr($file, -4) === '.sql') {
-					$importer = new sly_DB_Importer();
-					$importer->import($file);
-				}
-
-				unlink($file);
-			}
-
-			// try the old-fashioned way
-
-			if (count($files) === 0) {
-				$srv  = sly_Service_Factory::getAddOnService();
-				$dir  = $srv->internalDirectory('sallycms/import-export');
-				$file = $dir.'/'.str_replace('.zip', '.sql', $filename);
-
-				if (file_exists($file)) {
-					$importer = new sly_DB_Importer();
-					$importer->import($file);
-				}
-			}
-
+			$service->import($filename, SLY_BASE);
 			$flash->prependInfo(t('im_export_file_imported'), false);
-			sly_Core::dispatcher()->notify('SLY_A1_AFTER_IMPORT', $filename);
 		}
 		catch (Exception $e) {
 			$flash->appendWarning($e->getMessage());
@@ -97,56 +65,53 @@ class sly_Controller_Importexport_Import extends sly_Controller_Importexport {
 	}
 
 	public function deleteAction() {
-		$this->init();
+		$flash    = $this->container['sly-flash-message'];
+		$filename = $this->getSelectedFile(true);
+		$basename = basename($filename);
 
-		$filename = sly_request('file', 'string');
-		$flash    = sly_Core::getFlashMessage();
-
-		if (unlink($this->baseDir.$filename)) {
-			$flash->addInfo(t('im_export_file_deleted'));
+		if (@unlink($filename)) {
+			$flash->addInfo(t('im_export_file_deleted', $basename));
 		}
 		else {
-			$flash->addWarning(t('im_export_file_could_not_be_deleted'));
+			$flash->addWarning(t('im_export_file_could_not_be_deleted', $basename));
 		}
 
 		return $this->redirectResponse();
 	}
 
 	public function downloadAction() {
-		$this->init();
+		$filename = $this->getSelectedFile(true);
 
-		$filename = sly_request('file', 'string');
-		$filename = preg_replace('#[^\.a-z0-9_-]#', '', $filename);
-		$filename = basename($filename);
+		if ($filename && file_exists($filename)) {
+			$response = new sly_Response_Stream($filename);
+			$type     = Util::guessFileType($filename);
 
-		if (!empty($filename) && file_exists($this->baseDir.$filename)) {
-			while (ob_get_level()) ob_end_clean();
-			header('Content-Type: tar/gzip');
-			header('Content-Disposition: attachment; filename='.$filename);
-			readfile($this->baseDir.$filename);
-			exit;
+			if ($type === Base::TYPE_SQL) {
+				$response->setContentType('text/sql', 'UTF-8');
+			}
+			else {
+				$response->setContentType('application/zip', null);
+			}
+
+			$response->setHeader('Content-Disposition', 'attachment; filename="'.basename($filename).'"');
+
+			return $response;
 		}
 
-		$flash = sly_Core::getFlashMessage();
-		$flash->addWarning(t('im_export_selected_file_not_exists'));
+		$this->container['sly-flash-message']->addWarning(t('im_export_selected_file_not_exists', basename($filename)));
+
 		return $this->redirectResponse();
 	}
 
 	public function checkPermission($action) {
-		$user = sly_Util_User::getCurrentUser();
+		$user = $this->getCurrentUser();
 		if (!$user) return false;
 
-		if (class_exists('sly_Util_Csrf') && in_array($action, array('delete', 'import'))) {
+		if (in_array($action, array('delete', 'import'))) {
 			sly_Util_Csrf::checkToken();
 		}
 
 		if ($user->isAdmin()) return true;
-
-		$hasPageAccess = $user->hasRight('pages', 'a1imex');
-
-		if (!$hasPageAccess || !in_array($action, array('index', 'download', 'delete', 'import'))) {
-			return false;
-		}
 
 		$canExport   = $user->hasRight('import_export', 'export');
 		$canImport   = $user->hasRight('import_export', 'import');
@@ -158,5 +123,16 @@ class sly_Controller_Importexport_Import extends sly_Controller_Importexport {
 			case 'delete':   return $canExport;
 			case 'import':   return $canImport;
 		}
+	}
+
+	protected function getSelectedFile($absolute) {
+		$request    = $this->getRequest();
+		$service    = $this->container['sly-importexport-service'];
+		$storageDir = $service->getStorageDir();
+		$filename   = $request->request('file', 'string');
+		$filename   = preg_replace('#[^a-z0-9,._-]#', '', $filename);
+		$filename   = basename($filename);
+
+		return $absolute ? ($storageDir.'/'.$filename) : $filename;
 	}
 }
