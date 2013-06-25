@@ -86,7 +86,8 @@ class Service {
 			'missing'    => array(),
 			'comment'    => '',
 			'version'    => '',
-			'compatible' => true
+			'compatible' => true,
+			'type'       => Util::guessFileType($filename)
 		);
 
 		// Entspricht der Dateiname einem bekannten Muster?
@@ -101,26 +102,24 @@ class Service {
 
 		// check zip file comment
 
-		if (in_array(Util::guessFileType($filename), array(Base::TYPE_ZIP, Base::TYPE_SQL))) {
-			$archive = Util::getArchive($fullPath);
+		$archive = Util::getArchive($fullPath);
 
-			$archive->readInfo();
+		$archive->readInfo();
 
-			$date = $archive->getExportDate();
+		$date = $archive->getExportDate();
 
-			$result['comment']    = (string) $archive->getComment();
-			$result['addons']     = sly_makeArray($archive->getAddOns());
-			$result['missing']    = $this->getMissingAddOns($result['addons']);
-			$result['version']    = (string) $archive->getVersion();
-			$result['date']       = $date ? $date : $result['date'];
-			$result['compatible'] = Util::isCompatible($result['version']);
+		$result['comment']    = (string) $archive->getComment();
+		$result['addons']     = sly_makeArray($archive->getAddOns());
+		$result['missing']    = $this->getMissingAddOns($result['addons']);
+		$result['version']    = (string) $archive->getVersion();
+		$result['date']       = $date ? $date : $result['date'];
+		$result['compatible'] = Util::isCompatible($result['version']);
 
-			if (empty($result['comment'])) {
-				$result['comment'] = $filename;
-			}
-
-			$archive->close();
+		if (empty($result['comment'])) {
+			$result['comment'] = $filename;
 		}
+
+		$archive->close();
 
 		return $result;
 	}

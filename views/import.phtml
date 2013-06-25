@@ -15,7 +15,7 @@ $me = 'sallycms/import-export';
 
 // prepare table
 $table = new sly_Table('exports');
-$table->addColumn(sly_Table_Column::icon(AssetUtil::addOnUri($me, 'images/backup.png')));
+$table->addColumn(sly_Table_Column::icon(AssetUtil::addOnUri($me, 'images/archive.png')));
 $table->addColumn(sly_Table_Column::factory('Datei', 'sly-col-file'));
 
 if ($canIm || $canEx) {
@@ -36,15 +36,17 @@ print '<p>'.t('im_export_intro_import').'</p>';
 // print table
 $table->openBuffer();
 
-$backupIcon = AssetUtil::addOnUri($me, 'images/backup.png');
+$archiveIcon = AssetUtil::addOnUri($me, 'images/archive.png');
+$dumpIcon    = AssetUtil::addOnUri($me, 'images/dump.png');
 
 foreach ($files as $info) {
 	$file      = $info['filename'];
 	$urlParams = array('file' => $file);
+	$icon      = $info['type'] === sly\ImportExport\Archive\Base::TYPE_SQL ? $dumpIcon : $archiveIcon;
 
 	?>
 	<tr>
-		<td class="sly-col-icon sly-icon"><img src="<?php print $backupIcon ?>" alt="" /></td>
+		<td class="sly-col-icon sly-icon"><img src="<?php print $icon ?>" alt="" /></td>
 		<td class="sly-col-file">
 			<?php if ($canDL): ?>
 			<a href="<?php print $_router->getUrl(null, 'download', $urlParams) ?>" title="<?php print sly_html($info['comment']) ?>"><?php print sly_html($info['name']) ?></a>
