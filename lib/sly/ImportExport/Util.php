@@ -15,13 +15,6 @@ use sly_Util_Versions;
 use sly\ImportExport\Archive\Base;
 
 abstract class Util {
-	public static function compareArchiveDate(array $a1, array $a2) {
-		$date1 = $a1['date'];
-		$date2 = $a2['date'];
-
-		return $date1 === $date2 ? 0 : ($date1 < $date2 ? -1 : 1);
-	}
-
 	public static function isCompatible($dumpVersion, $throw = false) {
 		if (mb_strlen($dumpVersion) === 0) return true;
 
