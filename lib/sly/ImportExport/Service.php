@@ -124,7 +124,7 @@ class Service {
 		return $result;
 	}
 
-	protected function getMissingAddOns($addons) {
+	public function getMissingAddOns($addons) {
 		if (!is_array($addons) || empty($addons)) {
 			return array();
 		}

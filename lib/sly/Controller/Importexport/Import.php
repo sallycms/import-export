@@ -54,7 +54,7 @@ class sly_Controller_Importexport_Import extends sly_Controller_Importexport {
 		$flash    = $this->container['sly-flash-message'];
 
 		try {
-			$service->import($filename, SLY_BASE);
+			$importer->import($filename, SLY_BASE);
 			$flash->prependInfo(t('im_export_file_imported'), false);
 		}
 		catch (Exception $e) {
