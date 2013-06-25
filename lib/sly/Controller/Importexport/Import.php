@@ -8,16 +8,43 @@
  * http://www.opensource.org/licenses/mit-license.php
  */
 
+use sly\ImportExport\Util;
+
 /**
  * Basic Controller for Import and Export Pages
  *
  * @author zozi
  */
-class sly_Controller_A1imex_Import extends sly_Controller_A1imex {
+class sly_Controller_Importexport_Import extends sly_Controller_Importexport {
 	public function indexAction() {
-		$this->init();
-		$params['files'] = sly_A1_Util::getArchives($this->baseDir);
-		$this->render('import.phtml', $params, false);
+		$service  = $this->container['sly-importexport-service'];
+		$user     = $this->getCurrentUser();
+		$canEx    = $user->isAdmin() || $user->hasPermission('import_export', 'export');
+		$canIm    = $user->isAdmin() || $user->hasPermission('import_export', 'import');
+		$canDL    = $user->isAdmin() || $user->hasPermission('import_export', 'download');
+		$archives = $service->getArchives();
+
+		// sort archives by date
+		foreach ($archives as $idx => $archive) {
+			$archives[$idx] = $service->getArchiveInfo($archive);
+		}
+
+		usort($archives, function($a1, $a2) {
+			$date1 = $a1['date'];
+			$date2 = $a2['date'];
+
+			return $date1 === $date2 ? 0 : ($date1 < $date2 ? -1 : 1);
+		});
+
+		$archives = array_reverse($archives);
+
+		$this->pageHeader();
+		$this->render('import.phtml', array(
+			'files' => $archives,
+			'canEx' => $canEx,
+			'canIm' => $canIm,
+			'canDL' => $canDL
+		), false);
 	}
 
 	public function importAction() {
