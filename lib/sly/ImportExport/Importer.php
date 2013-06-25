@@ -31,6 +31,7 @@ class Importer {
 	public function import($filename, $targetDir) {
 		$filename = basename($filename);
 		$fullPath = $this->service->getStorageDir().DIRECTORY_SEPARATOR.$filename;
+		$fullPath = $this->dispatcher->filter('SLY_IMPORTEXPORT_BEFORE_IMPORT', $fullPath);
 
 		if (!is_file($fullPath)) {
 			throw new Exception(t('im_export_selected_file_not_exists'));
@@ -58,8 +59,6 @@ class Importer {
 
 	protected function extract($filename, $targetDir) {
 		$archive = Util::getArchive($filename);
-		$archive = $this->dispatcher->filter('SLY_IMPORTEXPORT_BEFORE_IMPORT', $archive);
-
 		$archive->readInfo();
 
 		// check file
