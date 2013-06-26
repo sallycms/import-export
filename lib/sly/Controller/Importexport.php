@@ -113,7 +113,7 @@ class sly_Controller_Importexport extends sly_Controller_Backend implements sly_
 			sly_Util_Csrf::checkToken();
 		}
 
-		return $user->isAdmin() || ($user->hasPermission('import_export', 'export'));
+		return $user->isAdmin() || $user->hasPermission('import_export', 'export');
 	}
 
 	protected function pageHeader() {
