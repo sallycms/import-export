@@ -113,9 +113,9 @@ class sly_Controller_Importexport_Import extends sly_Controller_Importexport {
 
 		if ($user->isAdmin()) return true;
 
-		$canExport   = $user->hasRight('import_export', 'export');
-		$canImport   = $user->hasRight('import_export', 'import');
-		$canDownload = $user->hasRight('import_export', 'download');
+		$canExport   = $user->hasPermission('import_export', 'export');
+		$canImport   = $user->hasPermission('import_export', 'import');
+		$canDownload = $user->hasPermission('import_export', 'download');
 
 		switch ($action) {
 			case 'index':    return ($canImport || $canDownload || $canExport);

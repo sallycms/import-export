@@ -5,9 +5,6 @@ authorisation:
       import: Backups einspielen (Wiederherstellung)
       export: Backups erstellen
       download: Backups runterladen
-  pages:
-    token:
-      import_export: Import Export
 
 import_export:
   ignored_table_prefixes: ['tmp_', 'local_']
