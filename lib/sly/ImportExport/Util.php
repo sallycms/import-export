@@ -21,7 +21,7 @@ abstract class Util {
 		$compatible = sly_Util_Versions::isCompatible($dumpVersion);
 
 		if (!$compatible && $throw) {
-			throw new Exception(t('im_export_incompatible_dump', $dumpVersion, sly_Core::getVersion('X.Y.Z')));
+			throw new \Exception(t('im_export_incompatible_dump', $dumpVersion, sly_Core::getVersion('X.Y.Z')));
 		}
 
 		return $compatible;
@@ -45,6 +45,6 @@ abstract class Util {
 		if (substr($filename, -4) == '.zip') return Base::TYPE_ZIP;
 		if (substr($filename, -4) == '.sql') return Base::TYPE_SQL;
 
-		throw new Exception(t('im_export_no_import_file_chosen'));
+		throw new \Exception(t('im_export_no_import_file_chosen'));
 	}
 }
