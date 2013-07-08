@@ -27,7 +27,7 @@ class Plain extends Base {
 		$fp = @fopen($this->getFilename(), ($writeMode ? 'w' : 'r').'b');
 
 		if (!$fp) {
-			throw new Exception('Could not open archive file.');
+			throw new \Exception('Could not open archive file.');
 		}
 
 		$this->fp     = $fp;
