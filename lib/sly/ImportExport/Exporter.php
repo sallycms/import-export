@@ -107,7 +107,7 @@ class Exporter {
 			// nothing to do?
 
 			if (empty($this->directories) && empty($this->files)) {
-				throw new \Exception(t('im_export_please_choose_files'));
+				throw new Exception(t('im_export_please_choose_files'));
 			}
 
 			// open archive
@@ -118,8 +118,8 @@ class Exporter {
 			try {
 				$archive->open();
 			}
-			catch (Exception $e) {
-				throw new \Exception(t('im_export_file_could_not_be_generated').' '.t('im_export_you_have_no_write_permission_in', dirname($target)));
+			catch (\Exception $e) {
+				throw new Exception(t('im_export_file_could_not_be_generated').' '.t('im_export_you_have_no_write_permission_in', dirname($target)));
 			}
 
 			// set metadata

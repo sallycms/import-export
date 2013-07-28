@@ -40,7 +40,7 @@ class Dumper {
 		$fp = @fopen($filename, 'wb');
 
 		if (!$fp) {
-			throw new \Exception('Could not open "'.$filename.'" for writing.');
+			throw new Exception('Could not open "'.$filename.'" for writing.');
 		}
 
 		$this->writeHeader($fp);
