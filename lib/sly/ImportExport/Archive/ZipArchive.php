@@ -28,7 +28,7 @@ class ZipArchive extends Base {
 		$state   = $archive->open($this->getFilename(), $writeMode ? \ZipArchive::OVERWRITE : null);
 
 		if ($state !== true) {
-			throw new \Exception('Could not open archive file, code '.$state);
+			throw new Exception('Could not open archive file, code '.$state);
 		}
 
 		$this->archive = $archive;

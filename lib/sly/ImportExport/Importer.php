@@ -34,11 +34,11 @@ class Importer {
 		$fullPath = $this->dispatcher->filter('SLY_IMPORTEXPORT_BEFORE_IMPORT', $fullPath);
 
 		if (!is_file($fullPath)) {
-			throw new \Exception(t('im_export_selected_file_not_exists'));
+			throw new Exception(t('im_export_selected_file_not_exists'));
 		}
 
 		if (!is_dir($targetDir)) {
-			throw new \Exception('Target directory "'.$targetDir.'" does not exist.');
+			throw new Exception('Target directory "'.$targetDir.'" does not exist.');
 		}
 
 		@set_time_limit(0);
@@ -66,7 +66,7 @@ class Importer {
 		$missing = $this->service->getMissingAddOns($archive->getAddOns());
 
 		if (!empty($missing)) {
-			throw new \Exception(t('im_export_missing_addons_for_db_import').': '.implode(', ', $missing));
+			throw new Exception(t('im_export_missing_addons_for_db_import').': '.implode(', ', $missing));
 		}
 
 		// throw an exception if version does not match
@@ -83,7 +83,7 @@ class Importer {
 		chdir($cwd);
 
 		if (!$success) {
-			throw new \Exception(t('im_export_problem_when_extracting'));
+			throw new Exception(t('im_export_problem_when_extracting'));
 		}
 	}
 
