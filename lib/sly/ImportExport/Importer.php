@@ -53,8 +53,6 @@ class Importer {
 		$dumpsFound = $this->importDumps();
 
 		$this->dispatcher->notify('SLY_IMPORTEXPORT_AFTER_IMPORT', $fullPath, array('dumps_imported' => $dumpsFound));
-
-		return $target;
 	}
 
 	protected function extract($filename, $targetDir) {
