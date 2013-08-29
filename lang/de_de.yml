@@ -48,3 +48,6 @@ im_export_diff_friendly_help: Export nicht zippen und pro Datensatz eine Zeile v
 im_export_include_users: Benutzerkonten
 im_export_include_users_help: 'Auch die Benutzerkonten exportieren.'
 im_export_include_users_helptext: 'Achtung: Je nach Serverkonfiguration kann es sein, dass die verwendeten Passwörter auf anderen Servern nicht funktionieren!'
+im_export_import_backups: Backups einspielen (Wiederherstellung)
+im_export_create_backups: Backups erstellen
+im_export_download_backups: Backups runterladen
