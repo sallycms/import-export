@@ -2,9 +2,9 @@ authorisation:
   import_export:
     title: Import Export
     token:
-      import: Backups einspielen (Wiederherstellung)
-      export: Backups erstellen
-      download: Backups runterladen
+      import: translate:im_export_import_backups
+      export: translate:im_export_create_backups
+      download: translate:im_export_download_backups
   pages:
     token:
       a1imex: Import Export

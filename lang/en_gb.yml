@@ -51,3 +51,6 @@ im_export_diff_friendly_help: Don't compress the export and use one line per dat
 im_export_include_users: User accounts
 im_export_include_users_help: Include user accounts when exporting the database.
 im_export_include_users_helptext: 'Note: Depending on your server configuration it is possible that the used passwords will not work on other servers!'
+im_export_import_backups: import backups (recovery)
+im_export_create_backups: create backups
+im_export_download_backups: download backups
