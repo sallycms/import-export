@@ -6,5 +6,5 @@ authorisation:
       export: Backups erstellen
       download: Backups runterladen
 
-import_export:
+sly_import_export:
   ignored_table_prefixes: ['tmp_', 'local_']
