@@ -9,6 +9,8 @@
  */
 
 use sly\Assets\Util;
+use sly\ImportExport\Service;
+use sly\ImportExport\Exporter;
 
 /**
  * Basic Controller for Import and Export Pages
