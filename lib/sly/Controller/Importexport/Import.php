@@ -82,9 +82,11 @@ class sly_Controller_Importexport_Import extends sly_Controller_Importexport {
 
 	public function downloadAction() {
 		$filename = $this->getSelectedFile();
+		$service  = $this->container['sly-importexport-service'];
 
-		if ($filename && file_exists($filename)) {
-			$response = new sly_Response_Stream($filename);
+		if ($filename && $service->archiveExists($filename)) {
+			$fileURI  = $service->getArchiveURI($filename);
+			$response = new sly_Response_Stream($fileURI);
 			$type     = Util::guessFileType($filename);
 
 			if ($type === Base::TYPE_SQL) {
