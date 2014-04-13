@@ -12,34 +12,27 @@
 // declare services
 
 $container['sly-importexport-service'] = $container->share(function($container) {
-	$db         = $container['sly-persistence'];
 	$dispatcher = $container['sly-dispatcher'];
 	$service    = $container['sly-service-addon'];
 	$tempDir    = $service->getTempDirectory('sallycms/import-export');
-	$storageDir = SLY_DATAFOLDER.'/import-export';
+	$storage    = $service->getDynFilesystem('sallycms/import-export');
 
-	if (!is_dir($storageDir)) {
-		sly_Util_Directory::createHttpProtected($storageDir, true);
-	}
-
-	return new sly\ImportExport\Service($db, $dispatcher, $tempDir, $storageDir, $service);
+	return new sly\ImportExport\Service($dispatcher, $tempDir, $storage, $service);
 });
 
 $container['sly-importexport-exporter'] = $container->share(function($container) {
 	$service = $container['sly-importexport-service'];
 	$dumper  = $container['sly-importexport-dumper'];
-	$addons  = $container['sly-service-addon'];
 
-	return new sly\ImportExport\Exporter($service, $dumper, $addons);
+	return new sly\ImportExport\Exporter($service, $dumper);
 });
 
 $container['sly-importexport-importer'] = $container->share(function($container) {
 	$service    = $container['sly-importexport-service'];
-	$addons     = $container['sly-service-addon'];
 	$dispatcher = $container['sly-dispatcher'];
 	$importer   = new sly_DB_Importer($container['sly-persistence'], $dispatcher);
 
-	return new sly\ImportExport\Importer($service, $addons, $importer, $dispatcher);
+	return new sly\ImportExport\Importer($service, $importer, $dispatcher);
 });
 
 $container['sly-importexport-dumper'] = $container->share(function($container) {

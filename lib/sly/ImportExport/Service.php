@@ -10,49 +10,43 @@
 
 namespace sly\ImportExport;
 
-use Gaufrette\Filesystem;
-use sly_DB_PDO_Persistence;
+use sly_Filesystem_Interface;
+use sly_Filesystem_Service;
 use sly_Event_IDispatcher;
 use sly_Service_AddOn;
 use sly_Util_Directory;
 use sly_Util_String;
-use sly\ImportExport\Archive\Base;
+use sly_Core;
 
 class Service {
 	protected $db;
 	protected $dispatcher;
 	protected $tempDir;
-	protected $storageDir;
+	protected $storage;
 	protected $addonService;
 
 	/**
 	 * Constructor
 	 *
-	 * @param sly_DB_PDO_Persistence $db
-	 * @param sly_Event_IDispatcher  $dispatcher
-	 * @param string                 $tempDir
-	 * @param string                 $storageDir
-	 * @param sly_Service_AddOn      $service
+	 * @param sly_DB_PDO_Persistence   $db
+	 * @param sly_Event_IDispatcher    $dispatcher
+	 * @param string                   $tempDir
+	 * @param sly_Filesystem_Interface $storage
+	 * @param sly_Service_AddOn        $service
 	 */
-	public function __construct(sly_DB_PDO_Persistence $db, sly_Event_IDispatcher $dispatcher, $tempDir, $storageDir, sly_Service_AddOn $service) {
-		$this->db           = $db;
+	public function __construct(sly_Event_IDispatcher $dispatcher, $tempDir, sly_Filesystem_Interface $storage, sly_Service_AddOn $service) {
 		$this->dispatcher   = $dispatcher;
 		$this->tempDir      = $tempDir;
-		$this->storageDir   = $storageDir;
+		$this->storage      = $storage;
 		$this->addonService = $service;
 	}
 
 	public function getArchives() {
-		$dir    = new sly_Util_Directory($this->getStorageDir());
-		$folder = $dir->listPlain(true, false, false, false, 'sort');
-
-		if (!$folder) {
-			return array();
-		}
+		$files = $this->storage->keys();
 
 		$filtered = array();
 
-		foreach ($folder as $file) {
+		foreach ($files as $file) {
 			if (sly_Util_String::endsWith($file, '.sql') || sly_Util_String::endsWith($file, '.zip')) {
 				$filtered[] = $file;
 			}
@@ -61,10 +55,18 @@ class Service {
 		return $filtered;
 	}
 
-	public function getStorageDir() {
-		return $this->storageDir;
+	/**
+	 *
+	 * @return \sly_Filesystem_Interface
+	 */
+	public function getStorage() {
+		return $this->storage;
 	}
 
+	/**
+	 *
+	 * @return string
+	 */
 	public function getTempDir() {
 		return $this->tempDir;
 	}
@@ -74,19 +76,22 @@ class Service {
 		$dirObj->deleteFiles();
 	}
 
+	/**
+	 * get archive and archive file info
+	 *
+	 * @param  string  $filename
+	 * @return array   file infos
+	 */
 	public function getArchiveInfo($filename) {
 		$filename = basename($filename);
-		$fullPath = $this->storageDir.'/'.$filename;
 		$result   = array(
 			'filename'   => $filename,
 			'name'       => substr($filename, 0, strpos($filename, '.')),
-			'size'       => filesize($fullPath),
-			'date'       => filemtime($fullPath),
+			'size'       => $this->storage->size($filename),
+			'date'       => $this->storage->mtime($filename),
 			'addons'     => array(),
-			'missing'    => array(),
 			'comment'    => '',
 			'version'    => '',
-			'compatible' => true,
 			'type'       => Util::guessFileType($filename)
 		);
 
@@ -100,26 +105,12 @@ class Service {
 			$result['description'] = str_replace('_', ' ', $matches[2]);
 		}
 
-		// check zip file comment
+		// check for archive metadata
+		$metadata = $this->getArchiveMetadata($filename);
+		$result   = array_merge($result, $metadata);
 
-		$archive = Util::getArchive($fullPath);
-
-		$archive->readInfo();
-
-		$date = $archive->getExportDate();
-
-		$result['comment']    = (string) $archive->getComment();
-		$result['addons']     = sly_makeArray($archive->getAddOns());
 		$result['missing']    = $this->getMissingAddOns($result['addons']);
-		$result['version']    = (string) $archive->getVersion();
-		$result['date']       = $date ? $date : $result['date'];
 		$result['compatible'] = Util::isCompatible($result['version']);
-
-		if (empty($result['comment'])) {
-			$result['comment'] = $filename;
-		}
-
-		$archive->close();
 
 		return $result;
 	}
@@ -129,18 +120,105 @@ class Service {
 			return array();
 		}
 
-		$missing = array();
+		$current = $this->collectAddOns();
 
-		foreach ($addons as $addon) {
-			if (is_string($addon)) {
-				if (!$this->addonService->isAvailable($addon)) $missing[] = $addon;
-			}
-			// oldschool pre-0.7 plugin names
-			else {
-				$missing[] = implode(',', $addon);
+		return array_diff($addons, $current);
+	}
+
+	public function collectAddOns() {
+		$addons = array();
+
+		foreach ($this->addonService->getAvailableAddons() as $addon) {
+			$ignore = $this->addonService->getComposerKey($addon, 'imex-ignore', false);
+
+			if ($ignore !== true && $ignore !== 'true') {
+				$addons[] = $addon;
 			}
 		}
 
-		return $missing;
+		return $addons;
+	}
+
+	public function deleteArchive($filename) {
+		$metadataFileName = $this->getArchiveMetadataFileName($filename);
+
+		if ($this->storage->has($filename)) {
+			$this->storage->delete($filename);
+		}
+
+		if ($this->storage->has($metadataFileName)) {
+			$this->storage->delete($metadataFileName);
+		}
+	}
+
+	public function getArchiveURI($filename) {
+		$fss = new sly_Filesystem_Service($this->storage);
+
+		return $fss->getURI($filename);
+	}
+
+	public function getArchive($filename, $type = null) {
+		$fileURI = $this->getArchiveURI($filename);
+
+		return Util::getArchive($fileURI, $type);
+	}
+
+	/**
+	 * Returns metadata array of an archive
+	 *
+	 * @param  string $filename  of the archive
+	 * @return array             medatada of the archive
+	 */
+	public function getArchiveMetadata($filename) {
+		$metadataFilename = $this->getArchiveMetadataFilename($filename);
+		$metadata         =  array();
+
+		if ($this->storage->has($metadataFilename)) {
+			$metadata = $this->storage->read($metadataFilename);
+			$metadata = json_decode($metadata, true);
+		} else {
+			$archive  = $this->getArchive($filename);
+			$metadata = $archive->getMetadata();
+		}
+
+		if (isset($metadata['date'])) {
+			$metadata['date'] = strtotime($metadata['date']);
+		}
+
+		return $metadata;
+	}
+
+	public function setArchiveMetadata($filename, $metadata) {
+		$metadataFilename = $this->getArchiveMetadataFilename($filename);
+		$archive          = $this->getArchive($filename);
+		$metadata         = json_encode($metadata);
+
+		$archive->setComment($metadata);
+		$this->storage->write($metadataFilename, $metadata);
+	}
+
+	/**
+	 * Generate metadata for a new archive.
+	 *
+	 * @param  string  $comment
+	 * @param  boolean $includeState
+	 * @return array   metadata
+	 */
+	public function generateMetadata($comment, $includeState) {
+		$data = array(
+			'version' => sly_Core::getVersion('X.Y.*'),
+			'date'    => date('r'),
+			'comment' => $comment
+		);
+
+		if ($includeState) {
+			$data['addons'] = $this->collectAddOns();
+		}
+
+		return $data;
+	}
+
+	protected function getArchiveMetadataFilename($filename) {
+		return $filename.'.meta';
 	}
 }

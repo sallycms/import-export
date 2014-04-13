@@ -66,13 +66,14 @@ class sly_Controller_Importexport_Import extends sly_Controller_Importexport {
 
 	public function deleteAction() {
 		$flash    = $this->container['sly-flash-message'];
-		$filename = $this->getSelectedFile(true);
+		$service  = $this->container['sly-importexport-service'];
+		$filename = $this->getSelectedFile();
 		$basename = basename($filename);
 
-		if (@unlink($filename)) {
+		try {
+			$service->deleteArchive($filename);
 			$flash->addInfo(t('im_export_file_deleted', $basename));
-		}
-		else {
+		} catch (Exception $ex) {
 			$flash->addWarning(t('im_export_file_could_not_be_deleted', $basename));
 		}
 
@@ -80,7 +81,7 @@ class sly_Controller_Importexport_Import extends sly_Controller_Importexport {
 	}
 
 	public function downloadAction() {
-		$filename = $this->getSelectedFile(true);
+		$filename = $this->getSelectedFile();
 
 		if ($filename && file_exists($filename)) {
 			$response = new sly_Response_Stream($filename);
@@ -125,14 +126,12 @@ class sly_Controller_Importexport_Import extends sly_Controller_Importexport {
 		}
 	}
 
-	protected function getSelectedFile($absolute) {
-		$request    = $this->getRequest();
-		$service    = $this->container['sly-importexport-service'];
-		$storageDir = $service->getStorageDir();
-		$filename   = $request->request('file', 'string');
-		$filename   = preg_replace('#[^a-z0-9,._-]#', '', $filename);
-		$filename   = basename($filename);
+	protected function getSelectedFile() {
+		$request  = $this->getRequest();
+		$filename = $request->request('file', 'string');
+		$filename = preg_replace('#[^a-z0-9,._-]#', '', $filename);
+		$filename = basename($filename);
 
-		return $absolute ? ($storageDir.'/'.$filename) : $filename;
+		return $filename;
 	}
 }
