@@ -163,6 +163,10 @@ class Service {
 		return Util::getArchive($fileURI, $type);
 	}
 
+	public function archiveExists($filename) {
+		return $this->storage->has($key);
+	}
+
 	/**
 	 * Returns metadata array of an archive
 	 *
