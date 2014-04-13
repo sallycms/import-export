@@ -11,29 +11,26 @@
 namespace sly\ImportExport;
 
 use sly_DB_Importer;
-use sly_Service_AddOn;
 use sly_Util_Directory;
 use sly_Event_IDispatcher;
 
 class Importer {
 	protected $service;
-	protected $addonService;
 	protected $importer;
 	protected $dispatcher;
 
-	public function __construct(Service $service, sly_Service_AddOn $addonService, sly_DB_Importer $importer, sly_Event_IDispatcher $dispatcher) {
+	public function __construct(Service $service, sly_DB_Importer $importer, sly_Event_IDispatcher $dispatcher) {
 		$this->service      = $service;
-		$this->addonService = $addonService;
 		$this->importer     = $importer;
 		$this->dispatcher   = $dispatcher;
 	}
 
 	public function import($filename, $targetDir) {
-		$filename = basename($filename);
-		$fullPath = $this->service->getStorageDir().DIRECTORY_SEPARATOR.$filename;
-		$fullPath = $this->dispatcher->filter('SLY_IMPORTEXPORT_BEFORE_IMPORT', $fullPath);
+		$filename   = basename($filename);
+		$archiveURI = $this->service->getArchiveURI($filename);
+		$archiveURI = $this->dispatcher->filter('SLY_IMPORTEXPORT_BEFORE_IMPORT', $archiveURI);
 
-		if (!is_file($fullPath)) {
+		if (!$this->service->getStorage()->has($filename)) {
 			throw new Exception(t('im_export_selected_file_not_exists'));
 		}
 
@@ -47,28 +44,26 @@ class Importer {
 		$this->service->cleanup();
 
 		// extract the archive
-		$this->extract($fullPath, $targetDir);
+		$this->extract($filename, $targetDir);
 
 		// import all dumps we can find
 		$dumpsFound = $this->importDumps();
 
-		$this->dispatcher->notify('SLY_IMPORTEXPORT_AFTER_IMPORT', $fullPath, array('dumps_imported' => $dumpsFound));
+		$this->dispatcher->notify('SLY_IMPORTEXPORT_AFTER_IMPORT', $archiveURI, array('dumps_imported' => $dumpsFound));
 	}
 
 	protected function extract($filename, $targetDir) {
-		$archive = Util::getArchive($filename);
-		$archive->readInfo();
+		$info    = $this->service->getArchiveInfo($filename);
+		$archive = $this->service->getArchive($filename);
 
 		// check file
 
-		$missing = $this->service->getMissingAddOns($archive->getAddOns());
-
-		if (!empty($missing)) {
+		if (!empty($info['missing'])) {
 			throw new Exception(t('im_export_missing_addons_for_db_import').': '.implode(', ', $missing));
 		}
 
 		// throw an exception if version does not match
-		Util::isCompatible($archive->getVersion(), true);
+		Util::isCompatible($info['version'], true);
 
 		// extract
 

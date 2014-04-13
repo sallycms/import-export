@@ -26,33 +26,17 @@ abstract class Base {
 		$this->filename = $filename;
 	}
 
-	public function readInfo() {
+	public function getMetadata() {
 		$comment = $this->readComment();
-		if (!is_string($comment)) return false;
 
-		$data = json_decode($comment, true);
-
-		// old school addon list: "addon1\naddon2\naddon3"
-		if (mb_strlen($comment) > 0 && $data === null) {
-			$this->addons = array_filter(explode("\n", $comment));
-		}
-		else {
-			$this->addons  = isset($data['addons'])  ? $data['addons']          : (isset($data['components']) ? $data['components'] : null);
-			$this->version = isset($data['version']) ? $data['version']         : null;
-			$this->comment = isset($data['comment']) ? $data['comment']         : null;
-			$this->date    = isset($data['date'])    ? strtotime($data['date']) : null;
+		if (!is_string($comment)) {
+			return false;
 		}
 
-		return true;
+		return json_decode($comment, true);
 	}
 
-	public function writeInfo() {
-		$data = array('date' => date('r'));
-
-		if ($this->addons !== false && $this->addons !== null) $data['addons'] = $this->addons;
-		if ($this->version !== false && $this->version !== null) $data['version'] = $this->version;
-		if ($this->comment !== false && $this->comment !== null) $data['comment'] = $this->comment;
-
+	public function setMetadata($data) {
 		return $this->writeComment(json_encode($data));
 	}
 

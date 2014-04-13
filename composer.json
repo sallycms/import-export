@@ -17,7 +17,8 @@
     "autoload": {
         "psr-0": {
             "sly_Controller_": "lib/",
-            "sly\\ImportExport\\": "lib/"
+            "sly\\ImportExport\\": "lib/",
+			"": "lib/vendor/"
         }
     },
     "extra": {

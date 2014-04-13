@@ -12,7 +12,6 @@ namespace sly\ImportExport;
 
 use sly_Core;
 use sly_Util_Versions;
-use sly\ImportExport\Archive\Base;
 
 abstract class Util {
 	public static function isCompatible($dumpVersion, $throw = false) {
@@ -27,14 +26,13 @@ abstract class Util {
 		return $compatible;
 	}
 
-	public static function getArchive($filename, $type = 'zip') {
-		if ($type === 'sql' || substr($filename, -4) === '.sql') {
+	public static function getArchive($filename, $type = null) {
+		$type = ($type !== null) ?  $type : self::guessFileType($filename);
+
+		if ($type === Archive\Base::TYPE_SQL) {
 			$archive = new Archive\Plain($filename);
 		}
-		elseif (class_exists('ZipArchive', false)) {
-			$archive = new Archive\ZipArchive($filename);
-		}
-		else {
+		elseif ($type === Archive\Base::TYPE_ZIP) {
 			$archive = new Archive\PclZip($filename);
 		}
 
@@ -42,8 +40,14 @@ abstract class Util {
 	}
 
 	public static function guessFileType($filename) {
-		if (substr($filename, -4) == '.zip') return Base::TYPE_ZIP;
-		if (substr($filename, -4) == '.sql') return Base::TYPE_SQL;
+		$ext = substr($filename, -4);
+
+		if ($ext === '.zip') {
+			return Archive\Base::TYPE_ZIP;
+		}
+		if ($ext === '.sql') {
+			return Archive\Base::TYPE_SQL;
+		}
 
 		throw new Exception(t('im_export_no_import_file_chosen'));
 	}

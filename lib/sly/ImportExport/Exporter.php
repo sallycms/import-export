@@ -10,14 +10,12 @@
 
 namespace sly\ImportExport;
 
-use sly_Core;
-use sly_Service_AddOn;
 use sly_Util_File;
+use sly_Filesystem_Service;
 
 class Exporter {
 	protected $service;
 	protected $dumper;
-	protected $addonService;
 	protected $includeDump;
 	protected $includeState;
 	protected $includeUsers;
@@ -27,10 +25,9 @@ class Exporter {
 	protected $comment;
 	protected $name;
 
-	public function __construct(Service $service, Dumper $dumper, sly_Service_AddOn $addonService) {
+	public function __construct(Service $service, Dumper $dumper) {
 		$this->service      = $service;
 		$this->dumper       = $dumper;
-		$this->addonService = $addonService;
 
 		$this->includeDump  = false;
 		$this->includeState = false;
@@ -87,8 +84,10 @@ class Exporter {
 	}
 
 	public function export($target = null) {
-		$files = $this->files;
-		$dirs  = $this->directories;
+		$files   = $this->files;
+		$dirs    = $this->directories;
+		$storage = $this->service->getStorage();
+		$target  = $this->getTargetFilename($target);
 
 		try {
 			// the plain SQL export cannot contain files (except for the dump itself)
@@ -101,7 +100,8 @@ class Exporter {
 			// dump database
 
 			if ($this->includeDump) {
-				$this->dumpDatabase();
+				$dumpFile = $this->dumpDatabase();
+				$this->addFile($dumpFile);
 			}
 
 			// nothing to do?
@@ -112,8 +112,7 @@ class Exporter {
 
 			// open archive
 
-			$tmpFile = $this->getTempFilename();
-			$archive = Util::getArchive($tmpFile);
+			$archive = $this->service->getArchive($target);
 
 			try {
 				$archive->open();
@@ -121,16 +120,6 @@ class Exporter {
 			catch (\Exception $e) {
 				throw new Exception(t('im_export_file_could_not_be_generated').' '.t('im_export_you_have_no_write_permission_in', dirname($target)));
 			}
-
-			// set metadata
-
-			if ($this->includeState) {
-				$archive->setAddOns($this->collectAddOns());
-			}
-
-			$archive->setComment($this->comment); // for later
-			$archive->setVersion(sly_Core::getVersion('X.Y.*'));
-			$archive->writeInfo();
 
 			// add the files and directories
 
@@ -150,19 +139,16 @@ class Exporter {
 			}
 
 			// cleanup
-
 			$archive->close();
 
 			if (isset($dumpFile)) {
 				unlink($dumpFile);
 			}
 
-			// move the final archive to the permanent location
+			// create metadata
+			$metadata = $this->service->generateMetadata($this->comment, $this->includeState);
 
-			$target = $this->getTargetFilename($target);
-
-			rename($tmpFile, $target);
-			chmod($target, sly_Core::getFilePerm());
+			$this->service->setArchiveMetadata($target, $metadata);
 		}
 		catch (\Exception $e) {
 			$this->files       = $files;
@@ -181,37 +167,16 @@ class Exporter {
 		$dumpFile = $this->service->getTempDir().DIRECTORY_SEPARATOR.'database.sql';
 
 		$this->dumper->export($dumpFile, $this->diffFriendly, $this->includeUsers);
-		$this->addFile($dumpFile);
-	}
 
-	protected function getTempFilename() {
-		$ext = $this->diffFriendly ? 'sql' : 'zip';
-
-		return sprintf('%s/export-%s.tmp.%s', $this->service->getTempDir(), uniqid(), $ext);
+		return $dumpFile;
 	}
 
 	protected function getTargetFilename($target) {
 		if ($target === null) {
 			$ext    = $this->diffFriendly ? 'sql' : 'zip';
-			$dir    = $this->service->getStorageDir();
-			$file   = sly_Util_File::iterateLocalFilename($dir.'/'.$this->name, '.'.$ext).'.'.$ext;
-			$target = $dir.DIRECTORY_SEPARATOR.$file;
+			$target = sly_Util_File::iterateFilename($this->name.'.'.$ext, $this->service->getStorage(), $ext);
 		}
 
 		return $target;
-	}
-
-	protected function collectAddOns() {
-		$addons = array();
-
-		foreach ($this->addonService->getAvailableAddons() as $addon) {
-			$ignore = $this->addonService->getComposerKey($addon, 'imex-ignore', false);
-
-			if ($ignore !== true && $ignore !== 'true') {
-				$addons[] = $addon;
-			}
-		}
-
-		return $addons;
 	}
 }
