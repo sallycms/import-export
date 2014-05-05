@@ -189,7 +189,7 @@ class Service {
 			$metadata['date'] = strtotime($metadata['date']);
 		}
 
-		return $metadata;
+		return $metadata ? $metadata : array();
 	}
 
 	public function setArchiveMetadata($filename, $metadata) {
@@ -197,7 +197,7 @@ class Service {
 		$archive          = $this->getArchive($filename);
 		$metadata         = json_encode($metadata);
 
-		$archive->setComment($metadata);
+		$archive->setMetadata($metadata);
 		$this->storage->write($metadataFilename, $metadata);
 	}
 
