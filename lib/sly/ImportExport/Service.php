@@ -195,10 +195,9 @@ class Service {
 	public function setArchiveMetadata($filename, $metadata) {
 		$metadataFilename = $this->getArchiveMetadataFilename($filename);
 		$archive          = $this->getArchive($filename);
-		$metadata         = json_encode($metadata);
 
 		$archive->setMetadata($metadata);
-		$this->storage->write($metadataFilename, $metadata);
+		$this->storage->write($metadataFilename, json_encode($metadata));
 	}
 
 	/**
