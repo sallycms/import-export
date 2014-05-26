@@ -24,7 +24,7 @@ class Plain extends Base {
 	public function open($writeMode = true) {
 		if ($this->isOpen) return;
 
-		$fp = @fopen($this->getFilename(), ($writeMode ? 'w' : 'r').'b');
+		$fp = @fopen($this->getFilename(), ($writeMode ? 'a' : 'r').'b');
 
 		if (!$fp) {
 			throw new Exception('Could not open archive file.');
