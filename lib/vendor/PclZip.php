@@ -2217,7 +2217,7 @@
     while ($v_size != 0)
     {
       $v_read_size = ($v_size < PCLZIP_READ_BLOCK_SIZE ? $v_size : PCLZIP_READ_BLOCK_SIZE);
-      $v_buffer = fread($this->zip_fd, $v_read_size);
+      $v_buffer = stream_get_contents($this->zip_fd, $v_read_size);
       @fwrite($v_zip_temp_fd, $v_buffer, $v_read_size);
       $v_size -= $v_read_size;
     }
@@ -2250,7 +2250,7 @@
     while ($v_size != 0)
     {
       $v_read_size = ($v_size < PCLZIP_READ_BLOCK_SIZE ? $v_size : PCLZIP_READ_BLOCK_SIZE);
-      $v_buffer = @fread($v_zip_temp_fd, $v_read_size);
+      $v_buffer = @stream_get_contents($v_zip_temp_fd, $v_read_size);
       @fwrite($this->zip_fd, $v_buffer, $v_read_size);
       $v_size -= $v_read_size;
     }
@@ -2670,7 +2670,7 @@
         }
 
         // ----- Read the file content
-        $v_content = @fread($v_file, $p_header['size']);
+        $v_content = @stream_get_contents($v_file, $p_header['size']);
 
         // ----- Close the file
         @fclose($v_file);
@@ -2821,7 +2821,7 @@
     $v_size = filesize($p_filename);
     while ($v_size != 0) {
       $v_read_size = ($v_size < PCLZIP_READ_BLOCK_SIZE ? $v_size : PCLZIP_READ_BLOCK_SIZE);
-      $v_buffer = @fread($v_file, $v_read_size);
+      $v_buffer = @stream_get_contents($v_file, $v_read_size);
       //$v_binary_data = pack('a'.$v_read_size, $v_buffer);
       @gzputs($v_file_compressed, $v_buffer, $v_read_size);
       $v_size -= $v_read_size;
@@ -2844,7 +2844,7 @@
     }
 
     // ----- Read the gzip file header
-    $v_binary_data = @fread($v_file_compressed, 10);
+    $v_binary_data = @stream_get_contents($v_file_compressed, 10);
     $v_data_header = unpack('a1id1/a1id2/a1cm/a1flag/Vmtime/a1xfl/a1os', $v_binary_data);
 
     // ----- Check some parameters
@@ -2852,7 +2852,7 @@
 
     // ----- Read the gzip file footer
     @fseek($v_file_compressed, filesize($v_gzip_temp_name)-8);
-    $v_binary_data = @fread($v_file_compressed, 8);
+    $v_binary_data = @stream_get_contents($v_file_compressed, 8);
     $v_data_footer = unpack('Vcrc/Vcompressed_size', $v_binary_data);
 
     // ----- Set the attributes
@@ -2882,7 +2882,7 @@
     while ($v_size != 0)
     {
       $v_read_size = ($v_size < PCLZIP_READ_BLOCK_SIZE ? $v_size : PCLZIP_READ_BLOCK_SIZE);
-      $v_buffer = @fread($v_file_compressed, $v_read_size);
+      $v_buffer = @stream_get_contents($v_file_compressed, $v_read_size);
       //$v_binary_data = pack('a'.$v_read_size, $v_buffer);
       @fwrite($this->zip_fd, $v_buffer, $v_read_size);
       $v_size -= $v_read_size;
@@ -3840,7 +3840,8 @@
           while ($v_size != 0)
           {
             $v_read_size = ($v_size < PCLZIP_READ_BLOCK_SIZE ? $v_size : PCLZIP_READ_BLOCK_SIZE);
-            $v_buffer = @fread($this->zip_fd, $v_read_size);
+            $v_buffer = @stream_get_contents($this->zip_fd, $v_read_size);
+
             /* Try to speed up the code
             $v_binary_data = pack('a'.$v_read_size, $v_buffer);
             @fwrite($v_dest_file, $v_binary_data, $v_read_size);
@@ -3882,7 +3883,7 @@
 
 
             // ----- Read the compressed file in a buffer (one shot)
-            $v_buffer = @fread($this->zip_fd, $p_entry['compressed_size']);
+            $v_buffer = @stream_get_contents($this->zip_fd, $p_entry['compressed_size']);
 
             // ----- Decompress the file
             $v_file_content = @gzinflate($v_buffer);
@@ -3985,7 +3986,7 @@
     while ($v_size != 0)
     {
       $v_read_size = ($v_size < PCLZIP_READ_BLOCK_SIZE ? $v_size : PCLZIP_READ_BLOCK_SIZE);
-      $v_buffer = @fread($this->zip_fd, $v_read_size);
+      $v_buffer = @stream_get_contents($this->zip_fd, $v_read_size);
       //$v_binary_data = pack('a'.$v_read_size, $v_buffer);
       @fwrite($v_dest_file, $v_buffer, $v_read_size);
       $v_size -= $v_read_size;
@@ -4095,7 +4096,7 @@
         if ($p_entry['compressed_size'] == $p_entry['size']) {
 
           // ----- Read the file in a buffer (one shot)
-          $v_buffer = @fread($this->zip_fd, $p_entry['compressed_size']);
+          $v_buffer = @stream_get_contents($this->zip_fd, $p_entry['compressed_size']);
 
           // ----- Send the file to the output
           echo $v_buffer;
@@ -4104,7 +4105,7 @@
         else {
 
           // ----- Read the compressed file in a buffer (one shot)
-          $v_buffer = @fread($this->zip_fd, $p_entry['compressed_size']);
+          $v_buffer = @stream_get_contents($this->zip_fd, $p_entry['compressed_size']);
 
           // ----- Decompress the file
           $v_file_content = gzinflate($v_buffer);
@@ -4210,12 +4211,12 @@
         if ($p_entry['compression'] == 0) {
 
           // ----- Reading the file
-          $p_string = @fread($this->zip_fd, $p_entry['compressed_size']);
+          $p_string = @stream_get_contents($this->zip_fd, $p_entry['compressed_size']);
         }
         else {
 
           // ----- Reading the file
-          $v_data = @fread($this->zip_fd, $p_entry['compressed_size']);
+          $v_data = @stream_get_contents($this->zip_fd, $p_entry['compressed_size']);
 
           // ----- Decompress the file
           if (($p_string = @gzinflate($v_data)) === FALSE) {
@@ -4279,7 +4280,7 @@
     $v_result=1;
 
     // ----- Read the 4 bytes signature
-    $v_binary_data = @fread($this->zip_fd, 4);
+    $v_binary_data = @stream_get_contents($this->zip_fd, 4);
     $v_data = unpack('Vid', $v_binary_data);
 
     // ----- Check signature
@@ -4294,7 +4295,7 @@
     }
 
     // ----- Read the first 42 bytes of the header
-    $v_binary_data = fread($this->zip_fd, 26);
+    $v_binary_data = stream_get_contents($this->zip_fd, 26);
 
     // ----- Look for invalid block size
     if (strlen($v_binary_data) != 26)
@@ -4313,11 +4314,11 @@
     $v_data = unpack('vversion/vflag/vcompression/vmtime/vmdate/Vcrc/Vcompressed_size/Vsize/vfilename_len/vextra_len', $v_binary_data);
 
     // ----- Get filename
-    $p_header['filename'] = fread($this->zip_fd, $v_data['filename_len']);
+    $p_header['filename'] = stream_get_contents($this->zip_fd, $v_data['filename_len']);
 
     // ----- Get extra_fields
     if ($v_data['extra_len'] != 0) {
-      $p_header['extra'] = fread($this->zip_fd, $v_data['extra_len']);
+      $p_header['extra'] = stream_get_contents($this->zip_fd, $v_data['extra_len']);
     }
     else {
       $p_header['extra'] = '';
@@ -4382,7 +4383,7 @@
     $v_result=1;
 
     // ----- Read the 4 bytes signature
-    $v_binary_data = @fread($this->zip_fd, 4);
+    $v_binary_data = @stream_get_contents($this->zip_fd, 4);
     $v_data = unpack('Vid', $v_binary_data);
 
     // ----- Check signature
@@ -4397,7 +4398,7 @@
     }
 
     // ----- Read the first 42 bytes of the header
-    $v_binary_data = fread($this->zip_fd, 42);
+    $v_binary_data = stream_get_contents($this->zip_fd, 42);
 
     // ----- Look for invalid block size
     if (strlen($v_binary_data) != 42)
@@ -4417,19 +4418,19 @@
 
     // ----- Get filename
     if ($p_header['filename_len'] != 0)
-      $p_header['filename'] = fread($this->zip_fd, $p_header['filename_len']);
+      $p_header['filename'] = stream_get_contents($this->zip_fd, $p_header['filename_len']);
     else
       $p_header['filename'] = '';
 
     // ----- Get extra
     if ($p_header['extra_len'] != 0)
-      $p_header['extra'] = fread($this->zip_fd, $p_header['extra_len']);
+      $p_header['extra'] = stream_get_contents($this->zip_fd, $p_header['extra_len']);
     else
       $p_header['extra'] = '';
 
     // ----- Get comment
     if ($p_header['comment_len'] != 0)
-      $p_header['comment'] = fread($this->zip_fd, $p_header['comment_len']);
+      $p_header['comment'] = stream_get_contents($this->zip_fd, $p_header['comment_len']);
     else
       $p_header['comment'] = '';
 
@@ -4553,7 +4554,7 @@
       }
 
       // ----- Read for bytes
-      $v_binary_data = @fread($this->zip_fd, 4);
+      $v_binary_data = @stream_get_contents($this->zip_fd, 4);
       $v_data = @unpack('Vid', $v_binary_data);
 
       // ----- Check signature
@@ -4585,7 +4586,7 @@
       while ($v_pos < $v_size)
       {
         // ----- Read a byte
-        $v_byte = @fread($this->zip_fd, 1);
+        $v_byte = @stream_get_contents($this->zip_fd, 1);
 
         // -----  Add the byte
         //$v_bytes = ($v_bytes << 8) | Ord($v_byte);
@@ -4616,7 +4617,7 @@
     }
 
     // ----- Read the first 18 bytes of the header
-    $v_binary_data = fread($this->zip_fd, 18);
+    $v_binary_data = stream_get_contents($this->zip_fd, 18);
 
     // ----- Look for invalid block size
     if (strlen($v_binary_data) != 18)
@@ -4652,7 +4653,7 @@
 
     // ----- Get comment
     if ($v_data['comment_size'] != 0) {
-      $p_central_dir['comment'] = fread($this->zip_fd, $v_data['comment_size']);
+      $p_central_dir['comment'] = stream_get_contents($this->zip_fd, $v_data['comment_size']);
     }
     else
       $p_central_dir['comment'] = '';
@@ -5131,7 +5132,7 @@
     while ($v_size != 0)
     {
       $v_read_size = ($v_size < PCLZIP_READ_BLOCK_SIZE ? $v_size : PCLZIP_READ_BLOCK_SIZE);
-      $v_buffer = fread($this->zip_fd, $v_read_size);
+      $v_buffer = stream_get_contents($this->zip_fd, $v_read_size);
       @fwrite($v_zip_temp_fd, $v_buffer, $v_read_size);
       $v_size -= $v_read_size;
     }
@@ -5141,7 +5142,7 @@
     while ($v_size != 0)
     {
       $v_read_size = ($v_size < PCLZIP_READ_BLOCK_SIZE ? $v_size : PCLZIP_READ_BLOCK_SIZE);
-      $v_buffer = fread($p_archive_to_add->zip_fd, $v_read_size);
+      $v_buffer = stream_get_contents($p_archive_to_add->zip_fd, $v_read_size);
       @fwrite($v_zip_temp_fd, $v_buffer, $v_read_size);
       $v_size -= $v_read_size;
     }
@@ -5154,7 +5155,7 @@
     while ($v_size != 0)
     {
       $v_read_size = ($v_size < PCLZIP_READ_BLOCK_SIZE ? $v_size : PCLZIP_READ_BLOCK_SIZE);
-      $v_buffer = @fread($this->zip_fd, $v_read_size);
+      $v_buffer = @stream_get_contents($this->zip_fd, $v_read_size);
       @fwrite($v_zip_temp_fd, $v_buffer, $v_read_size);
       $v_size -= $v_read_size;
     }
@@ -5164,7 +5165,7 @@
     while ($v_size != 0)
     {
       $v_read_size = ($v_size < PCLZIP_READ_BLOCK_SIZE ? $v_size : PCLZIP_READ_BLOCK_SIZE);
-      $v_buffer = @fread($p_archive_to_add->zip_fd, $v_read_size);
+      $v_buffer = @stream_get_contents($p_archive_to_add->zip_fd, $v_read_size);
       @fwrite($v_zip_temp_fd, $v_buffer, $v_read_size);
       $v_size -= $v_read_size;
     }
@@ -5268,7 +5269,7 @@
     while ($v_size != 0)
     {
       $v_read_size = ($v_size < PCLZIP_READ_BLOCK_SIZE ? $v_size : PCLZIP_READ_BLOCK_SIZE);
-      $v_buffer = fread($v_zip_temp_fd, $v_read_size);
+      $v_buffer = stream_get_contents($v_zip_temp_fd, $v_read_size);
       @fwrite($this->zip_fd, $v_buffer, $v_read_size);
       $v_size -= $v_read_size;
     }
@@ -5560,7 +5561,7 @@
       while ($p_size != 0)
       {
         $v_read_size = ($p_size < PCLZIP_READ_BLOCK_SIZE ? $p_size : PCLZIP_READ_BLOCK_SIZE);
-        $v_buffer = @fread($p_src, $v_read_size);
+        $v_buffer = @stream_get_contents($p_src, $v_read_size);
         @fwrite($p_dest, $v_buffer, $v_read_size);
         $p_size -= $v_read_size;
       }
@@ -5580,7 +5581,7 @@
       while ($p_size != 0)
       {
         $v_read_size = ($p_size < PCLZIP_READ_BLOCK_SIZE ? $p_size : PCLZIP_READ_BLOCK_SIZE);
-        $v_buffer = @fread($p_src, $v_read_size);
+        $v_buffer = @stream_get_contents($p_src, $v_read_size);
         @gzwrite($p_dest, $v_buffer, $v_read_size);
         $p_size -= $v_read_size;
       }
