@@ -17,7 +17,6 @@ abstract class Base {
 	const TYPE_SQL = 2;
 
 	protected $filename;
-	protected $addons  = null; // list of required addOns
 	protected $version = null; // Sally version/branch
 	protected $comment = null; // additional comment (not the archive's internal comment!)
 	protected $date    = null; // export date
@@ -44,10 +43,6 @@ abstract class Base {
 		return $this->filename;
 	}
 
-	public function getAddOns() {
-		return $this->addons;
-	}
-
 	public function getVersion() {
 		return $this->version;
 	}
@@ -58,10 +53,6 @@ abstract class Base {
 
 	public function getExportDate() {
 		return $this->date;
-	}
-
-	public function setAddOns($addons) {
-		return $this->addons = $addons;
 	}
 
 	public function setVersion($version) {

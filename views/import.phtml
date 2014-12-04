@@ -9,7 +9,6 @@
  */
 
 use sly\Assets\Util as AssetUtil;
-use sly\ImportExport\Util as ExportUtil;
 
 $me = 'sallycms/import-export';
 
@@ -61,10 +60,8 @@ foreach ($files as $info) {
 
 		<?php if ($canIm || $canEx): ?>
 		<td class="sly-col-funcs">
-			<?php if ($canIm && !empty($info['missing'])): ?>
-			<span class="sly-strike import" title="<?php print t('requires').' '.sly_Util_String::humanImplode($info['missing']) ?>"><?php print t('im_export_import_file') ?></span>
-			<?php elseif ($canIm && !empty($info['missing']) || !$info['compatible']): ?>
-			<span class="sly-strike import" title="<?php print t('addon_incompatible_with_this_version') ?>"><?php print t('im_export_import_file') ?></span>
+			<?php if ($canIm && !$info['compatible']): ?>
+			<span class="sly-strike import" title="<?php print t('im_export_incompatible_dump', $info['version'], sly_Core::getVersion()) ?>"><?php print t('im_export_import_file') ?></span>
 			<?php elseif ($canIm): ?>
 			<a href="<?php print $_router->getUrl(null, 'import', $urlParams) ?>" class="import sly-confirm-me sly-postlink"><?php print t('im_export_import_file') ?></a>
 			<?php endif ?>

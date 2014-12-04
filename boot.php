@@ -17,7 +17,7 @@ $container['sly-importexport-service'] = $container->share(function($container) 
 	$tempDir    = $service->getTempDirectory('sallycms/import-export');
 	$storage    = $service->getDynFilesystem('sallycms/import-export');
 
-	return new sly\ImportExport\Service($dispatcher, $tempDir, $storage, $service);
+	return new sly\ImportExport\Service($dispatcher, $tempDir, $storage);
 });
 
 $container['sly-importexport-exporter'] = $container->share(function($container) {

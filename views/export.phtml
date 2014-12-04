@@ -21,10 +21,9 @@ $form->setResetButton(null);
 
 $dump    = new sly_Form_Input_Checkbox('dump', t('im_export_dump'), 1, t('im_export_include_dump'), null, true);
 $comment = new sly_Form_Input_Text('comment', t('im_export_comment'), '');
-$addons  = new sly_Form_Input_Checkbox('addons', t('im_export_include_addons'), 1, t('im_export_include_addons_help'), null, true);
 $dirs    = new sly_Form_Select_Checkbox('directories', t('im_export_additional_folders'), null, $dirs);
 
-$form->addElements(array($dump, $comment, $addons, $dirs));
+$form->addElements(array($dump, $comment, $dirs));
 
 ////////////////////////////////////////////////////////////////////////////////
 // dump options

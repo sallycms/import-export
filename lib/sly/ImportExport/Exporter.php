@@ -17,7 +17,6 @@ class Exporter {
 	protected $service;
 	protected $dumper;
 	protected $includeDump;
-	protected $includeState;
 	protected $includeUsers;
 	protected $diffFriendly;
 	protected $files;
@@ -30,7 +29,6 @@ class Exporter {
 		$this->dumper       = $dumper;
 
 		$this->includeDump  = false;
-		$this->includeState = false;
 		$this->includeUsers = false;
 		$this->diffFriendly = false;
 		$this->files        = array();
@@ -41,11 +39,6 @@ class Exporter {
 
 	public function includeDump($includeDump) {
 		$this->includeDump = !!$includeDump;
-		return $this;
-	}
-
-	public function includeAddOnState($includeState) {
-		$this->includeState = !!$includeState;
 		return $this;
 	}
 
@@ -146,7 +139,7 @@ class Exporter {
 			}
 
 			// create metadata
-			$metadata = $this->service->generateMetadata($this->comment, $this->includeState);
+			$metadata = $this->service->generateMetadata($this->comment);
 
 			$this->service->setArchiveMetadata($target, $metadata);
 		}
