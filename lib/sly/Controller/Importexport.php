@@ -83,13 +83,13 @@ class sly_Controller_Importexport extends sly_Controller_Backend implements sly_
 	protected function getStreamResponse(Service $service, Exporter $exporter, $diffFriendly) {
 		// force to dump in a temp file only
 
-		$tmpFile = $service->getTempDir().DIRECTORY_SEPARATOR.'download-'.uniqid().'.bin';
-		$exporter->export($tmpFile);
+		$exporter->setIsTemporary(true);
+		$tmpFile = $exporter->export();
 
 		// prepare response
 
 		$response  = new sly_Response_Stream($tmpFile);
-		$extension = $diffFriendly ? '.sql' : '.zip';
+
 
 		if ($diffFriendly) {
 			$response->setContentType('text/sql', 'UTF-8');
@@ -98,7 +98,7 @@ class sly_Controller_Importexport extends sly_Controller_Backend implements sly_
 			$response->setContentType('application/zip', null);
 		}
 
-		$response->setHeader('Content-Disposition', 'attachment; filename="'.$exporter->getName().$extension.'"');
+		$response->setHeader('Content-Disposition', 'attachment; filename="'.basename($tmpFile).'"');
 
 		// done
 
