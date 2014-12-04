@@ -26,19 +26,6 @@ abstract class Util {
 		return $compatible;
 	}
 
-	public static function getArchive($filename, $type = null) {
-		$type = ($type !== null) ?  $type : self::guessFileType($filename);
-
-		if ($type === Archive\Base::TYPE_SQL) {
-			$archive = new Archive\Plain($filename);
-		}
-		elseif ($type === Archive\Base::TYPE_ZIP) {
-			$archive = new Archive\PclZip($filename);
-		}
-
-		return $archive;
-	}
-
 	public static function guessFileType($filename) {
 		$ext = substr($filename, -4);
 

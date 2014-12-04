@@ -13,6 +13,13 @@ namespace sly\ImportExport\Archive;
 class PclZip extends Base {
 	protected $isOpen  = false;
 	protected $archive = null;
+	public function __construct($filename = null, $tempDir = SLY_BASE) {
+		parent::__construct($filename);
+
+		if (!defined('PCLZIP_TEMPORARY_DIR')) {
+			define( 'PCLZIP_TEMPORARY_DIR', $tempDir);
+		}
+	}
 
 	public function open() {
 		if ($this->isOpen) return;

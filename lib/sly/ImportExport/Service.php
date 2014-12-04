@@ -133,7 +133,16 @@ class Service {
 	public function getArchive($filename, $type = null) {
 		$fileURI = $this->getArchiveURI($filename);
 
-		return Util::getArchive($fileURI, $type);
+		$type = ($type !== null) ? $type : Util::guessFileType($filename);
+
+		if ($type === Archive\Base::TYPE_SQL) {
+			$archive = new Archive\Plain($fileURI);
+		}
+		elseif ($type === Archive\Base::TYPE_ZIP) {
+			$archive = new Archive\PclZip($fileURI, $this->getTempDir());
+		}
+
+		return $archive;
 	}
 
 	public function archiveExists($filename) {
