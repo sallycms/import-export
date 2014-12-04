@@ -51,3 +51,5 @@ im_export_include_users_helptext: 'Achtung: Je nach Serverkonfiguration kann es 
 im_export_import_backups: Backups einspielen (Wiederherstellung)
 im_export_create_backups: Backups erstellen
 im_export_download_backups: Backups runterladen
+im_export_include_dump: Datenbank exportieren
+im_export_dump: Datenbankexport

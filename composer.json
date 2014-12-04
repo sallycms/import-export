@@ -12,19 +12,21 @@
     "require": {
         "php": ">=5.2.0",
         "sallycms/composer-installer": "~1.1",
-        "sallycms/sallycms": ">=0.7,<0.9"
+        "sallycms/sallycms": ">=0.9,<0.10"
     },
     "autoload": {
         "psr-0": {
-            "": "lib/"
+            "sly_Controller_": "lib/",
+            "sly\\ImportExport\\": "lib/",
+			"": "lib/vendor/"
         }
     },
     "extra": {
         "sallycms": {
-            "version": "3.3.x-dev"
+            "version": "4.x-dev"
         },
         "branch-alias": {
-            "dev-default": "3.x-dev"
+            "dev-default": "4.x-dev"
         }
     }
 }

@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (c) 2012, webvariants GbR, http://www.webvariants.de
+ * Copyright (c) 2013, webvariants GbR, http://www.webvariants.de
  *
  * This file is released under the terms of the MIT license. You can find the
  * complete text in the attached LICENSE file or online at:
@@ -8,14 +8,16 @@
  * http://www.opensource.org/licenses/mit-license.php
  */
 
-class sly_A1_Archive_PclZip extends sly_A1_Archive_Base {
+namespace sly\ImportExport\Archive;
+
+class PclZip extends Base {
 	protected $isOpen  = false;
 	protected $archive = null;
 
 	public function open() {
 		if ($this->isOpen) return;
 
-		$this->archive = new PclZip($this->getFilename());
+		$this->archive = new \PclZip($this->getFilename());
 		$this->isOpen  = true;
 	}
 

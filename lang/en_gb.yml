@@ -54,3 +54,5 @@ im_export_include_users_helptext: 'Note: Depending on your server configuration 
 im_export_import_backups: import backups (recovery)
 im_export_create_backups: create backups
 im_export_download_backups: download backups
+im_export_include_dump: Export database
+im_export_dump: Database export
