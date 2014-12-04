@@ -22,6 +22,7 @@ class Exporter {
 	protected $directories;
 	protected $comment;
 	protected $name;
+	protected $isTemporary;
 
 	public function __construct(Service $service, Dumper $dumper) {
 		$this->service      = $service;
@@ -34,6 +35,7 @@ class Exporter {
 		$this->directories  = array();
 		$this->comment      = '';
 		$this->name         = '';
+		$this->isTemporary  = false;
 	}
 
 	public function includeDump($includeDump) {
@@ -61,6 +63,10 @@ class Exporter {
 		return $this;
 	}
 
+	public function setIsTemporary($isTemporary) {
+		$this->isTemporary = (bool) $isTemporary;
+	}
+
 	public function getName() {
 		return $this->name;
 	}
@@ -75,11 +81,10 @@ class Exporter {
 		return $this;
 	}
 
-	public function export($target = null) {
+	public function export() {
 		$files   = $this->files;
 		$dirs    = $this->directories;
-		$storage = $this->service->getStorage();
-		$target  = $this->getTargetFilename($target);
+		$target  = $this->getTargetFilename();
 
 		try {
 			// the plain SQL export cannot contain files (except for the dump itself)
@@ -104,7 +109,7 @@ class Exporter {
 
 			// open archive
 
-			$archive = $this->service->getArchive($target);
+			$archive = $this->service->getArchive($target, $this->isTemporary);
 
 			try {
 				$archive->open();
@@ -137,10 +142,12 @@ class Exporter {
 				unlink($dumpFile);
 			}
 
-			// create metadata
-			$metadata = $this->service->generateMetadata($this->comment);
+			if (!$this->isTemporary) {
+				// create metadata
+				$metadata = $this->service->generateMetadata($this->comment);
 
-			$this->service->setArchiveMetadata($target, $metadata);
+				$this->service->setArchiveMetadata($target, $metadata);
+			}
 		}
 		catch (\Exception $e) {
 			$this->files       = $files;
@@ -152,7 +159,7 @@ class Exporter {
 		$this->files       = $files;
 		$this->directories = $dirs;
 
-		return $target;
+		return $archive->getFilename();
 	}
 
 	protected function dumpDatabase() {
@@ -163,11 +170,9 @@ class Exporter {
 		return $dumpFile;
 	}
 
-	protected function getTargetFilename($target) {
-		if ($target === null) {
-			$ext    = $this->diffFriendly ? 'sql' : 'zip';
-			$target = sly_Util_File::iterateFilename($this->name.'.'.$ext, $this->service->getStorage(), $ext);
-		}
+	protected function getTargetFilename() {
+		$ext    = $this->diffFriendly ? 'sql' : 'zip';
+		$target = sly_Util_File::iterateFilename($this->name.'.'.$ext, $this->service->getStorage(), $ext);
 
 		return $target;
 	}

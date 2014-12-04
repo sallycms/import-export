@@ -124,16 +124,20 @@ class Service {
 		}
 	}
 
-	public function getArchiveURI($filename) {
+	public function getArchiveURI($filename, $temporary = false) {
+		if ($temporary) {
+			return $this->getTempDir().DIRECTORY_SEPARATOR.$filename;
+		}
+
 		$fss = new sly_Filesystem_Service($this->storage);
 
 		return $fss->getURI($filename);
 	}
 
-	public function getArchive($filename, $type = null) {
-		$fileURI = $this->getArchiveURI($filename);
+	public function getArchive($filename, $temporary = false) {
+		$fileURI = $this->getArchiveURI($filename, $temporary);
 
-		$type = ($type !== null) ? $type : Util::guessFileType($filename);
+		$type = Util::guessFileType($filename);
 
 		if ($type === Archive\Base::TYPE_SQL) {
 			$archive = new Archive\Plain($fileURI);
