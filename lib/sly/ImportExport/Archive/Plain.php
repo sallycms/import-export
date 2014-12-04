@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (c) 2012, webvariants GbR, http://www.webvariants.de
+ * Copyright (c) 2013, webvariants GbR, http://www.webvariants.de
  *
  * This file is released under the terms of the MIT license. You can find the
  * complete text in the attached LICENSE file or online at:
@@ -8,7 +8,12 @@
  * http://www.opensource.org/licenses/mit-license.php
  */
 
-class sly_A1_Archive_Plain extends sly_A1_Archive_Base {
+namespace sly\ImportExport\Archive;
+
+use sly_Core;
+use sly\ImportExport\Exception;
+
+class Plain extends Base {
 	protected $isOpen = false;
 	protected $fp     = null;
 
@@ -19,10 +24,10 @@ class sly_A1_Archive_Plain extends sly_A1_Archive_Base {
 	public function open($writeMode = true) {
 		if ($this->isOpen) return;
 
-		$fp = @fopen($this->getFilename(), ($writeMode ? 'w' : 'r').'b');
+		$fp = @fopen($this->getFilename(), ($writeMode ? 'a' : 'r').'b');
 
 		if (!$fp) {
-			throw new sly_Exception('Could not open archive file.');
+			throw new Exception('Could not open archive file.');
 		}
 
 		$this->fp     = $fp;
@@ -44,7 +49,7 @@ class sly_A1_Archive_Plain extends sly_A1_Archive_Base {
 	}
 
 	public function extract() {
-		$dir = sly_A1_Util::getTempDir();
+		$dir = sly_Core::getContainer()->get('sly-importexport-service')->getTempDir();
 		$sql = $this->getFilename();
 
 		return copy($sql, $dir.'/'.basename($sql));

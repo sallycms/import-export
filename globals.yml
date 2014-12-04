@@ -8,3 +8,5 @@ authorisation:
   pages:
     token:
       a1imex: Import Export
+sly_import_export:
+  ignored_table_prefixes: ['tmp_', 'local_']

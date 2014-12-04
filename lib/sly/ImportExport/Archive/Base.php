@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (c) 2012, webvariants GbR, http://www.webvariants.de
+ * Copyright (c) 2013, webvariants GbR, http://www.webvariants.de
  *
  * This file is released under the terms of the MIT license. You can find the
  * complete text in the attached LICENSE file or online at:
@@ -8,9 +8,15 @@
  * http://www.opensource.org/licenses/mit-license.php
  */
 
-abstract class sly_A1_Archive_Base {
+namespace sly\ImportExport\Archive;
+
+use sly_Util_Directory;
+
+abstract class Base {
+	const TYPE_ZIP = 1;
+	const TYPE_SQL = 2;
+
 	protected $filename;
-	protected $addons  = null; // list of required addOns
 	protected $version = null; // Sally version/branch
 	protected $comment = null; // additional comment (not the archive's internal comment!)
 	protected $date    = null; // export date
@@ -19,42 +25,22 @@ abstract class sly_A1_Archive_Base {
 		$this->filename = $filename;
 	}
 
-	public function readInfo() {
+	public function getMetadata() {
 		$comment = $this->readComment();
-		if (!is_string($comment)) return false;
 
-		$data = json_decode($comment, true);
-
-		// old school addon list: "addon1\naddon2\naddon3"
-		if (mb_strlen($comment) > 0 && $data === null) {
-			$this->addons = array_filter(explode("\n", $comment));
-		}
-		else {
-			$this->addons  = isset($data['addons'])  ? $data['addons']          : (isset($data['components']) ? $data['components'] : null);
-			$this->version = isset($data['version']) ? $data['version']         : null;
-			$this->comment = isset($data['comment']) ? $data['comment']         : null;
-			$this->date    = isset($data['date'])    ? strtotime($data['date']) : null;
+		if (!is_string($comment)) {
+			return false;
 		}
 
-		return true;
+		return json_decode($comment, true);
 	}
 
-	public function writeInfo() {
-		$data = array('date' => date('r'));
-
-		if ($this->addons !== false && $this->addons !== null) $data['addons'] = $this->addons;
-		if ($this->version !== false && $this->version !== null) $data['version'] = $this->version;
-		if ($this->comment !== false && $this->comment !== null) $data['comment'] = $this->comment;
-
+	public function setMetadata($data) {
 		return $this->writeComment(json_encode($data));
 	}
 
 	public function getFilename() {
 		return $this->filename;
-	}
-
-	public function getAddOns() {
-		return $this->addons;
 	}
 
 	public function getVersion() {
@@ -67,10 +53,6 @@ abstract class sly_A1_Archive_Base {
 
 	public function getExportDate() {
 		return $this->date;
-	}
-
-	public function setAddOns($addons) {
-		return $this->addons = $addons;
 	}
 
 	public function setVersion($version) {
