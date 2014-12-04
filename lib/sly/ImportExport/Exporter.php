@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (c) 2013, webvariants GbR, http://www.webvariants.de
+ * Copyright (c) 2014, webvariants GbR, http://www.webvariants.de
  *
  * This file is released under the terms of the MIT license. You can find the
  * complete text in the attached LICENSE file or online at:
@@ -11,7 +11,6 @@
 namespace sly\ImportExport;
 
 use sly_Util_File;
-use sly_Filesystem_Service;
 
 class Exporter {
 	protected $service;
