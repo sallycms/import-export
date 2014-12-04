@@ -31,7 +31,6 @@ class sly_Controller_Importexport extends sly_Controller_Backend implements sly_
 		$download      = $canDownload    ? $request->post('download', 'boolean', false) : false;
 		$addUsers      = $canAccessUsers ? $request->post('users',    'boolean', false) : false;
 		$includeDump   = $request->post('dump', 'boolean', false);
-		$addAddOns     = $request->post('addons', 'boolean', false);
 		$diffFriendly  = $request->post('diff_friendly', 'boolean', false);
 		$comment       = $request->post('comment', 'string');
 		$filename      = $request->post('filename', 'string', 'sly_'.date('Ymd'));
@@ -46,7 +45,6 @@ class sly_Controller_Importexport extends sly_Controller_Backend implements sly_
 
 			$exporter
 				->includeDump($includeDump)
-				->includeAddOnState($addAddOns)
 				->includeUsers($addUsers)
 				->setDiffFriendly($diffFriendly)
 				->setComment($comment)

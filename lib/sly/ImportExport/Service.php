@@ -23,7 +23,6 @@ class Service {
 	protected $dispatcher;
 	protected $tempDir;
 	protected $storage;
-	protected $addonService;
 
 	/**
 	 * Constructor
@@ -34,11 +33,10 @@ class Service {
 	 * @param sly_Filesystem_Interface $storage
 	 * @param sly_Service_AddOn        $service
 	 */
-	public function __construct(sly_Event_IDispatcher $dispatcher, $tempDir, sly_Filesystem_Interface $storage, sly_Service_AddOn $service) {
+	public function __construct(sly_Event_IDispatcher $dispatcher, $tempDir, sly_Filesystem_Interface $storage) {
 		$this->dispatcher   = $dispatcher;
 		$this->tempDir      = $tempDir;
 		$this->storage      = $storage;
-		$this->addonService = $service;
 	}
 
 	public function getArchives() {
@@ -109,34 +107,9 @@ class Service {
 		$metadata = $this->getArchiveMetadata($filename);
 		$result   = array_merge($result, $metadata);
 
-		$result['missing']    = $this->getMissingAddOns($result['addons']);
 		$result['compatible'] = Util::isCompatible($result['version']);
 
 		return $result;
-	}
-
-	public function getMissingAddOns($addons) {
-		if (!is_array($addons) || empty($addons)) {
-			return array();
-		}
-
-		$current = $this->collectAddOns();
-
-		return array_diff($addons, $current);
-	}
-
-	public function collectAddOns() {
-		$addons = array();
-
-		foreach ($this->addonService->getAvailableAddons() as $addon) {
-			$ignore = $this->addonService->getComposerKey($addon, 'imex-ignore', false);
-
-			if ($ignore !== true && $ignore !== 'true') {
-				$addons[] = $addon;
-			}
-		}
-
-		return $addons;
 	}
 
 	public function deleteArchive($filename) {
@@ -207,16 +180,12 @@ class Service {
 	 * @param  boolean $includeState
 	 * @return array   metadata
 	 */
-	public function generateMetadata($comment, $includeState) {
+	public function generateMetadata($comment) {
 		$data = array(
 			'version' => sly_Core::getVersion('X.Y.*'),
 			'date'    => date('r'),
 			'comment' => $comment
 		);
-
-		if ($includeState) {
-			$data['addons'] = $this->collectAddOns();
-		}
 
 		return $data;
 	}
