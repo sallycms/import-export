@@ -18,12 +18,12 @@
         "psr-0": {
             "sly_Controller_": "lib/",
             "sly\\ImportExport\\": "lib/",
-			"": "lib/vendor/"
+            "": "lib/vendor/"
         }
     },
     "extra": {
         "sallycms": {
-            "version": "4.x-dev"
+            "version": "4.0.0"
         },
         "branch-alias": {
             "dev-default": "4.x-dev"
