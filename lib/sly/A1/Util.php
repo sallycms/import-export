@@ -57,10 +57,12 @@ class sly_A1_Util {
 	}
 
 	public static function getTempDir() {
-		$service = sly_Service_Factory::getAddOnService();
-		$dir     = $service->internalDirectory('sallycms/import-export');
+		$dir = self::getDataDir().DIRECTORY_SEPARATOR.'tmp';
+		$ok  = sly_Util_Directory::createHttpProtected($dir);
 
-		return $dir.DIRECTORY_SEPARATOR.'tmp';
+		if (!$ok) throw new Exception('Konnte temporäres Verzeichnis '.$dir.' nicht anlegen.');
+
+		return $dir;
 	}
 
 	public static function cleanup() {

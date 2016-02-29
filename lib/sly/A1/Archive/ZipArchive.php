@@ -20,7 +20,7 @@ class sly_A1_Archive_ZipArchive extends sly_A1_Archive_Base {
 		if ($this->isOpen) return;
 
 		$archive = new ZipArchive();
-		$state   = $archive->open($this->getFilename(), $writeMode ? ZipArchive::OVERWRITE : null);
+		$state   = $archive->open($this->getFilename(), $writeMode ? ZipArchive::CREATE : null);
 
 		if ($state !== true) {
 			throw new sly_Exception('Could not open archive file, code '.$state);
