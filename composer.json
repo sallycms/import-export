@@ -1,0 +1,30 @@
+{
+    "name": "sallycms/import-export",
+    "description": "AddOn for SallyCMS, providing file and database backup and restore capabilities",
+    "authors": [
+        {
+            "name": "webvariants GbR"
+        }
+    ],
+    "homepage": "http://www.sallycms.de/",
+    "license": "MIT",
+    "type": "sallycms-addon",
+    "require": {
+        "php": ">=5.2.0",
+        "sallycms/composer-installer": "~1.1",
+        "sallycms/sallycms": ">=0.7,<0.9"
+    },
+    "autoload": {
+        "psr-0": {
+            "": "lib/"
+        }
+    },
+    "extra": {
+        "sallycms": {
+            "version": "3.3.x-dev"
+        },
+        "branch-alias": {
+            "dev-default": "3.x-dev"
+        }
+    }
+}
