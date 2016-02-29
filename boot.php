@@ -15,4 +15,8 @@ if (sly_Core::isBackend()) {
 	sly_Loader::addLoadPath($base.'/lib/vendor');
 	sly_Loader::addLoadPath($base.'/lib');
 	sly_Core::dispatcher()->register('SLY_ADDONS_LOADED', array('sly_A1_Util', 'backendNavigation'));
+
+	if (!defined('PCLZIP_TEMPORARY_DIR')) {
+		define('PCLZIP_TEMPORARY_DIR', SLY_BASE.'/data/dyn/internal/');
+	}
 }
